@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGG Etap 1 Trading Hub & 5-Year Visual Backtester</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Visual Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <h1>SIGG <span>HUB</span></h1>
+            <span class="badge-stage">STAGE 1 QUALIFIER</span>
+        </div>
+        <nav>
+            <a href="#" class="active" data-target="dashboard">
+                <i data-lucide="radar" class="icon"></i> Daily Scanner
+            </a>
+            <a href="#" data-target="backtest">
+                <i data-lucide="line-chart" class="icon"></i> 5-Year Backtest Graphs
+            </a>
+            <a href="#" data-target="optimizer">
+                <i data-lucide="sliders" class="icon"></i> 5-Year Optimizer
+            </a>
+        </nav>
+        
+        <div class="strategy-selector">
+            <label for="strategySelect">Active Strategy:</label>
+            <select id="strategySelect">
+                <option value="breakout">High-Velocity Breakout</option>
+                <option value="macd_rsi">RSI-Filtered MACD Momentum</option>
+            </select>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="stat-pill">
+                <span class="label">CAPITAL</span>
+                <span class="val">20,000 PLN</span>
+            </div>
+            <div class="stat-pill target">
+                <span class="label">TARGET</span>
+                <span class="val">30,000+ PLN</span>
+            </div>
+        </div>
+    </div>
+
+    <main class="content">
+        <!-- 1. DAILY SCANNER PANEL -->
+        <section id="dashboard" class="panel active">
+            <header class="panel-header">
+                <div>
+                    <h2>Daily Momentum Scanner</h2>
+                    <p>Scans the top 140 GPW stocks for high-velocity momentum ignition setups.</p>
+                </div>
+                <div class="actions">
+                    <button id="runScanBtn" class="btn primary">
+                        <i data-lucide="play" class="btn-icon"></i> Run Scanner Now
+                    </button>
+                </div>
+            </header>
+
+            <div id="scanLoading" class="loader hidden"></div>
+
+            <div class="glass-card">
+                <div class="card-header-flex">
+                    <h3>Top Qualified Buy Signals</h3>
+                    <span id="scanCountBadge" class="count-badge">0 signals</span>
+                </div>
+                <div class="table-container">
+                    <table id="scanTable">
+                        <thead id="scanTableHeader">
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Close (PLN)</th>
+                                <th>Breakout Tgt</th>
+                                <th>ATR %</th>
+                                <th>Vol Surge</th>
+                                <th>Action</th>
+                                <th>Chart</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <p id="scanEmpty" class="empty-state">No scan data. Click "Run Scanner Now" to fetch live market signals.</p>
+            </div>
+        </section>
+
+        <!-- 2. 5-YEAR BACKTEST & VISUAL GRAPHS PANEL -->
+        <section id="backtest" class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>5-Year Historical Backtest & Visual Graphs</h2>
+                    <p>Simulating 20,000 PLN compounding across the last 5 Stage 1 competition seasons (Nov 15 – Jan 15).</p>
+                </div>
+                <div class="actions">
+                    <button id="runBacktestBtn" class="btn primary">
+                        <i data-lucide="refresh-cw" class="btn-icon"></i> Run 5-Year Backtest
+                    </button>
+                </div>
+            </header>
+
+            <div id="backtestLoading" class="loader hidden"></div>
+
+            <!-- KPI Summary Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Initial Capital</div>
+                    <div class="kpi-value">20,000 PLN</div>
+                    <div class="kpi-sub">Standard Stage 1 Allocation</div>
+                </div>
+                <div class="kpi-card target">
+                    <div class="kpi-title">Top 12 Qualifier Target</div>
+                    <div class="kpi-value text-gold">30,000+ PLN</div>
+                    <div class="kpi-sub">+50.0% Net Compounded Gain</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">5-Year Avg Return</div>
+                    <div id="kpiAvgReturn" class="kpi-value text-green">--%</div>
+                    <div id="kpiWinRate" class="kpi-sub">Win Rate: --%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Best Historical Season</div>
+                    <div id="kpiBestSeason" class="kpi-value text-green">--</div>
+                    <div id="kpiBestReturn" class="kpi-sub">Return: --</div>
+                </div>
+            </div>
+
+            <!-- Main Equity Curve Chart Card -->
+            <div class="glass-card chart-card">
+                <div class="card-header-flex">
+                    <div>
+                        <h3>5-Year Stage 1 Equity Curves (Interactive)</h3>
+                        <p class="chart-subtitle">Tracks portfolio growth from 20,000 PLN over the 40 trading days of each season</p>
+                    </div>
+                </div>
+                <div class="chart-container-lg">
+                    <canvas id="equityCurveChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Secondary Charts Grid: Season Returns & Win/Loss -->
+            <div class="grid-2col">
+                <div class="glass-card">
+                    <h3>Season-by-Season Returns (%)</h3>
+                    <div class="chart-container-sm">
+                        <canvas id="seasonBarChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Trade Win / Loss Distribution</h3>
+                    <div class="chart-container-sm">
+                        <canvas id="winLossChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Season Performance Breakdown Table -->
+            <div class="glass-card">
+                <h3>Historical Season Performance Breakdown</h3>
+                <div class="table-container">
+                    <table id="seasonSummaryTable">
+                        <thead>
+                            <tr>
+                                <th>Season</th>
+                                <th>Period Window</th>
+                                <th>Start Capital</th>
+                                <th>Final Equity</th>
+                                <th>Net Profit</th>
+                                <th>Return (%)</th>
+                                <th>Win Rate</th>
+                                <th>Profit Factor</th>
+                                <th>Max Drawdown</th>
+                                <th>Biggest Winner</th>
+                                <th>Biggest Loser</th>
+                                <th>Trades</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seasonSummaryBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Closed Trades Sample Table -->
+            <div class="glass-card">
+                <h3>Recent Completed Swing Trades Log</h3>
+                <div class="table-container">
+                    <table id="tradesLogTable">
+                        <thead>
+                            <tr>
+                                <th>Season</th>
+                                <th>Ticker</th>
+                                <th>Entry Date</th>
+                                <th>Exit Date</th>
+                                <th>Entry (PLN)</th>
+                                <th>Exit (PLN)</th>
+                                <th>PnL (PLN)</th>
+                                <th>PnL (%)</th>
+                                <th>Days Held</th>
+                                <th>Exit Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesLogBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. OPTIMIZER PANEL -->
+        <section id="optimizer" class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>5-Year Scenario Optimizer</h2>
+                    <p>Systematically test parameter combinations across all 5 historical November–January windows.</p>
+                </div>
+                <div class="actions">
+                    <button id="runOptBtn" class="btn primary">
+                        <i data-lucide="sliders" class="btn-icon"></i> Run 5-Year Optimization
+                    </button>
+                </div>
+            </header>
+
+            <div id="optLoading" class="loader hidden"></div>
+
+            <div class="glass-card">
+                <h3>Top 10 Parameter Combinations (Highest Final Capital)</h3>
+                <div class="table-container">
+                    <table id="optTable">
+                        <thead id="optTableHeader">
+                            <tr>
+                                <th>Rank</th>
+                                <th>Breakout Days</th>
+                                <th>ATR Min</th>
+                                <th>Vol Surge</th>
+                                <th>Stop Loss</th>
+                                <th>Avg Return</th>
+                                <th>Avg WinRate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <p id="optEmpty" class="empty-state">No optimization results yet. Click "Run 5-Year Optimization" to compute.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
+</body>
+</html>
