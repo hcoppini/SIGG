@@ -20,9 +20,6 @@ dist/
 .vscode/
 .idea/
 *.swp
-*.swo
-*~
-
 # OS
 .DS_Store
 Thumbs.db
@@ -30,4 +27,4 @@ Thumbs.db
 # Output files
 Output/
 Staging/*.log
-
+cache/
