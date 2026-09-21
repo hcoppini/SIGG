@@ -4,3 +4,5 @@ numpy>=1.23.0
 polygon-api-client>=1.0.0
 flask>=2.0.0
 
+
+gunicorn==21.2.0
