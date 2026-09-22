@@ -229,7 +229,7 @@ class TruthfulBacktester:
         self.closed_positions.append({
             'Ticker': ticker, 'Entry_Date': pos.entry_date.date(), 'Exit_Date': date.date(),
             'Entry_Price': round(pos.entry_price, 2), 'Exit_Price': round(exec_price, 2),
-            'Shares': pos.shares, 'PnL_PLN': round(net_pnl, 2), 'PnL_Pct': round(pnl_pct, 2),
+            'Shares': pos.shares, 'PnL': round(net_pnl, 2), 'PnL_Pct': round(pnl_pct, 2),
             'Days_Held': (date - pos.entry_date).days, 'Exit_Reason': reason
         })
         del self.open_positions[ticker]
@@ -401,11 +401,11 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
             
             df_trades = pd.DataFrame(bt.closed_positions)
             if len(df_trades) > 0:
-                wins = df_trades[df_trades['PnL_PLN'] > 0]
-                losses = df_trades[df_trades['PnL_PLN'] <= 0]
+                wins = df_trades[df_trades['PnL'] > 0]
+                losses = df_trades[df_trades['PnL'] <= 0]
                 win_rate = (len(wins) / len(df_trades)) * 100.0
-                gross_profit = wins['PnL_PLN'].sum() if len(wins) > 0 else 0.0
-                gross_loss = abs(losses['PnL_PLN'].sum()) if len(losses) > 0 else 0.0
+                gross_profit = wins['PnL'].sum() if len(wins) > 0 else 0.0
+                gross_loss = abs(losses['PnL'].sum()) if len(losses) > 0 else 0.0
                 profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (99.9 if gross_profit > 0 else 0.0)
                 avg_win = wins['PnL_Pct'].mean() if len(wins) > 0 else 0.0
                 avg_loss = losses['PnL_Pct'].mean() if len(losses) > 0 else 0.0
@@ -436,14 +436,14 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
                 biggest_winner = {
                     "ticker": str(best_t['Ticker']),
                     "pnl_pct": round(float(best_t['PnL_Pct']), 2),
-                    "pnl_pln": round(float(best_t['PnL_PLN']), 2),
+                    "pnl_pln": round(float(best_t['PnL']), 2),
                     "days_held": int(best_t['Days_Held']),
                     "exit_reason": str(best_t['Exit_Reason'])
                 }
                 biggest_loser = {
                     "ticker": str(worst_t['Ticker']),
                     "pnl_pct": round(float(worst_t['PnL_Pct']), 2),
-                    "pnl_pln": round(float(worst_t['PnL_PLN']), 2),
+                    "pnl_pln": round(float(worst_t['PnL']), 2),
                     "days_held": int(worst_t['Days_Held']),
                     "exit_reason": str(worst_t['Exit_Reason'])
                 }
@@ -496,7 +496,7 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
     valid_seasons = [s for s in season_results if s['trades_count'] > 0]
     avg_return = np.mean([s['return_pct'] for s in season_results]) if season_results else 0.0
     total_trades_all = len(all_trades)
-    winning_trades_all = len([t for t in all_trades if t.get('PnL_PLN', 0) > 0])
+    winning_trades_all = len([t for t in all_trades if t.get('PnL', 0) > 0])
     overall_win_rate = (winning_trades_all / total_trades_all * 100.0) if total_trades_all > 0 else 0.0
     
     summary = {

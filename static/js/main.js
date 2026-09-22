@@ -277,6 +277,21 @@ document.addEventListener('DOMContentLoaded', () => {
             kpiBestReturn.textContent = `Return: +${summary.best_season.return_pct}% (${summary.best_season.final_capital.toLocaleString('pl-PL')} PLN)`;
         }
 
+        // Display notes/warnings if present
+        let warningEl = document.getElementById('backtestWarning');
+        if (summary.notes) {
+            if (!warningEl) {
+                warningEl = document.createElement('div');
+                warningEl.id = 'backtestWarning';
+                warningEl.className = 'bg-red/10 border border-red/20 text-red px-4 py-3 rounded mb-6 text-sm flex items-start gap-3';
+                const chartsContainer = document.querySelector('.grid.grid-cols-3.gap-6.mb-8').nextElementSibling;
+                chartsContainer.parentNode.insertBefore(warningEl, chartsContainer);
+            }
+            warningEl.innerHTML = `<strong>TruthfulBacktester Warning:</strong> ${summary.notes}`;
+        } else if (warningEl) {
+            warningEl.remove();
+        }
+
         // 2. Render Equity Curve Chart
         renderEquityCurveChart(data.equity_curves || {});
 
