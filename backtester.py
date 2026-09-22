@@ -108,9 +108,11 @@ class VectorizedBacktester:
             close_prices = df_data['Close']
             high_prices = df_data['High']
             low_prices = df_data['Low']
+            open_prices = df_data['Open']
             volumes = df_data['Volume']
             
             df = pd.DataFrame(index=close_prices.index)
+            df['open'] = open_prices
             df['close'] = close_prices
             df['high'] = high_prices
             df['low'] = low_prices
@@ -211,7 +213,19 @@ class VectorizedBacktester:
         
         self.capital = self.initial_capital
         
+        pending_orders = []
+        
         for i, date in enumerate(dates):
+            # 0) Execute pending orders at today's OPEN with slippage/commission
+            for ticker, atr in pending_orders:
+                if self._can_open_more(date):
+                    df = self.indicators.get(ticker)
+                    if df is not None and date in df.index:
+                        open_price = float(df.loc[date, 'open'])
+                        exec_price = open_price * (1 + 0.002) # 0.2% slippage + commission
+                        self._open_position_fractional(ticker, date, exec_price, atr)
+            pending_orders = []
+            
             self.equity_curve.append((date, self._current_portfolio_value(date)))
             
             # 1) Exits
@@ -220,32 +234,43 @@ class VectorizedBacktester:
                 if df is None or date not in df.index: continue
                 
                 row = df.loc[date]
-                current_price = float(row['close'])
+                current_close = float(row['close'])
+                current_low = float(row['low'])
+                current_high = float(row['high'])
                 current_atr = float(row['atr'])
                 should_exit, reason = False, None
                 
-                # Trailing Stop based on ATR
+                # Trailing Stop based on ATR against Intraday Low
                 stop_price = pos.highest_price - (self.trailing_stop_atr_mult * current_atr)
-                if current_price <= stop_price:
-                    should_exit, reason = True, "ATR_Trailing_Stop"
+                exit_price = current_close
                 
-                # Time Stop (Stagnation)
-                days_since_high = (date - pos.highest_price_date).days
-                if days_since_high >= self.max_hold_days:
+                if current_low <= stop_price:
+                    should_exit, reason = True, "ATR_Trailing_Stop"
+                    # Exit at stop price (or open if it gapped down below stop)
+                    open_price = float(row['open'])
+                    exit_price = min(open_price, stop_price)
+                    exit_price = exit_price * (1 - 0.002) # apply slippage
+                
+                # Time Stop (Stagnation) based on Close
+                elif (date - pos.highest_price_date).days >= self.max_hold_days:
                     should_exit, reason = True, "Time_Stop_Stagnation"
+                    exit_price = current_close * (1 - 0.002) # sell at close with slippage
                 
                 if should_exit:
-                    self._close_position(ticker, date, current_price, reason)
+                    self._close_position(ticker, date, exit_price, reason)
                 else:
-                    if current_price > pos.highest_price:
-                        pos.highest_price = current_price
+                    if current_high > pos.highest_price:
+                        pos.highest_price = current_high
                         pos.highest_price_date = date
             
-            # 2) Entries
+            # 2) Entries (Generated at Close, executed next day)
             if self._can_open_more(date):
                 candidates = []
                 for ticker in self.valid_stocks:
                     if ticker in self.open_positions: continue
+                    # Check if already in pending orders
+                    if any(p[0] == ticker for p in pending_orders): continue
+                    
                     df = self.indicators[ticker]
                     if date not in df.index: continue
                     
@@ -268,7 +293,7 @@ class VectorizedBacktester:
                         has_vol = vol_surge > self.vol_surge_mult
                         
                         if is_breakout and has_atr and has_vol:
-                            candidates.append((ticker, vol_surge, c, atr)) # Rank by volume surge
+                            candidates.append((ticker, vol_surge, atr)) # Rank by volume surge
                     elif self.strategy == 'macd_rsi':
                         hist_val = float(row['macd_hist'])
                         rsi_val = float(row['rsi'])
@@ -278,15 +303,13 @@ class VectorizedBacktester:
                         
                         if has_momentum and not_overbought:
                             momentum_score = hist_val * (100 - rsi_val)
-                            candidates.append((ticker, momentum_score, c, atr)) # Rank by momentum score
+                            candidates.append((ticker, momentum_score, atr)) # Rank by momentum score
 
-                
                 candidates.sort(key=lambda x: x[1], reverse=True)
                 slots = self.max_positions - len(self.open_positions)
                 
-                for (ticker, score, price, atr) in candidates[:slots]:
-                    if not self._can_open_more(date): break
-                    self._open_position_fractional(ticker, date, price, atr)
+                for (ticker, score, atr) in candidates[:slots]:
+                    pending_orders.append((ticker, atr))
         
         final_date = dates[-1]
         self.equity_curve.append((final_date, self._current_portfolio_value(final_date)))
