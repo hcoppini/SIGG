@@ -18,14 +18,29 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', message='.*auto_adjust.*')
 
 DEFAULT_STOCKS = [
+    # WIG20
     "PKN.WA", "PKO.WA", "PZU.WA", "PEO.WA", "DNP.WA", "ALE.WA", "LPP.WA", "KGH.WA",
     "SPL.WA", "CDR.WA", "KRU.WA", "MBK.WA", "ALR.WA", "BHW.WA", "PGE.WA", "OPL.WA",
     "CPS.WA", "KTY.WA", "JSW.WA", "PEP.WA",
+    # mWIG40 & sWIG80 (120+ top liquid components)
     "TPE.WA", "CCC.WA", "MIL.WA", "EAT.WA", "XTB.WA", "BOS.WA", "ASB.WA", "11B.WA",
     "GPW.WA", "TEN.WA", "DOM.WA", "CIE.WA", "BFT.WA", "LWB.WA", "FMF.WA", "MAB.WA",
-    "NEU.WA", "R22.WA", "RVU.WA", "SLV.WA", "TOA.WA", "WPL.WA",
-    "AST.WA", "CRJ.WA", "PXM.WA", "MRB.WA", "VGO.WA", "MNC.WA", "SNT.WA", "DAT.WA",
-    "BKM.WA", "SNK.WA", "VOX.WA", "WLT.WA", "APR.WA", "CLE.WA", "OAT.WA", "OEX.WA",
+    "NEU.WA", "R22.WA", "RVU.WA", "SLV.WA", "TOA.WA", "WPL.WA", "AST.WA", "CRJ.WA",
+    "PXM.WA", "MRB.WA", "VGO.WA", "MNC.WA", "SNT.WA", "DAT.WA", "BKM.WA", "SNK.WA",
+    "VOX.WA", "WLT.WA", "APR.WA", "CLE.WA", "OAT.WA", "OEX.WA", "1AT.WA", "ABE.WA",
+    "ACG.WA", "ACT.WA", "AGO.WA", "AGP.WA", "AMC.WA", "AML.WA", "AMB.WA", "APA.WA",
+    "APH.WA", "ATC.WA", "ATD.WA", "ATG.WA", "BBA.WA", "BCA.WA", "BDX.WA", "BIP.WA",
+    "BMX.WA", "BOW.WA", "BRS.WA", "BSC.WA", "CAR.WA", "CAV.WA", "CBF.WA", "CFI.WA",
+    "CIG.WA", "CLC.WA", "CLN.WA", "CMR.WA", "COG.WA", "CMP.WA", "CPG.WA", "CRI.WA",
+    "CRM.WA", "CTP.WA", "CTX.WA", "DAD.WA", "DBC.WA", "DCR.WA", "DEL.WA", "DGA.WA",
+    "DIG.WA", "DLA.WA", "DVL.WA", "EBP.WA", "ECH.WA", "EDI.WA", "EEX.WA", "ELT.WA",
+    "EMA.WA", "EMC.WA", "ENP.WA", "ENT.WA", "ERB.WA", "EUR.WA", "FEE.WA", "FER.WA",
+    "FOR.WA", "FRO.WA", "FSG.WA", "GTC.WA", "GTN.WA", "HRE.WA", "HRS.WA", "HUU.WA",
+    "I2D.WA", "IAG.WA", "IDA.WA", "IFC.WA", "IFI.WA", "IGB.WA", "IKS.WA", "IMP.WA",
+    "INC.WA", "INP.WA", "INT.WA", "INV.WA", "IPX.WA", "ISG.WA", "K2I.WA", "KGN.WA",
+    "KRS.WA", "LBD.WA", "LBW.WA", "LEN.WA", "LKD.WA", "LSI.WA", "LTS.WA", "LVC.WA",
+    "MAK.WA", "MBR.WA", "MCI.WA", "MDG.WA", "MDV.WA", "MEG.WA", "MFO.WA", "MGT.WA",
+    "MOJ.WA", "MOL.WA", "MRO.WA", "MSP.WA", "MSW.WA", "MZA.WA", "NTC.WA", "NTT.WA"
 ]
 
 def load_config(config_file: str = "Input/config.csv") -> Dict:
