@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """
-Full Multi-Stock Vectorized Backtester
+Truthful Multi-Stock Backtester
 High-Velocity Breakout Strategy & RSI-Filtered MACD Momentum
+
+This backtester has been specifically engineered to eliminate common biases:
+1. Lookahead Bias: Signals are calculated on the Close, but executed on the next day's Open.
+2. Execution Bias: Intraday stop losses are evaluated against the daily Low. Gaps down below stops execute at the Open.
+3. Slippage & Commissions: Accurately subtracts trading costs from every transaction.
+4. Position Sizing: Integer shares calculation based on available cash.
 """
 
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from datetime import datetime, timedelta
-import csv
+from datetime import datetime
 import os
 import sys
 import argparse
 import warnings
+import json
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 
@@ -40,6 +46,10 @@ DEFAULTS = {
     'data_period_days': 365, 
     'initial_capital': 20000.0, 
     
+    # Trading Costs
+    'commission_pct': 0.0039,  # 0.39% standard broker commission (mBank/Bossa)
+    'slippage_pct': 0.001,     # 0.1% expected slippage
+    
     # AGGRESSIVE SIGG ETAP 1 SETTINGS 
     'max_positions': 3,                 
     'target_position_pct': 0.33,         
@@ -55,12 +65,12 @@ class Position:
     ticker: str
     entry_date: pd.Timestamp
     entry_price: float
-    shares: float
+    shares: int
     highest_price: float
     highest_price_date: pd.Timestamp
     entry_atr: float
 
-class VectorizedBacktester:
+class TruthfulBacktester:
     def __init__(self, cfg: Dict):
         self.cfg = cfg
         
@@ -76,6 +86,10 @@ class VectorizedBacktester:
         
         self.initial_capital = cfg.get('initial_capital', DEFAULTS['initial_capital'])
         self.capital = self.initial_capital
+        
+        self.commission_pct = cfg.get('commission_pct', DEFAULTS['commission_pct'])
+        self.slippage_pct = cfg.get('slippage_pct', DEFAULTS['slippage_pct'])
+        
         self.max_positions = cfg.get('max_positions', DEFAULTS['max_positions'])
         self.max_total_exposure = cfg.get('max_total_exposure', DEFAULTS['max_total_exposure'])
         self.target_position_pct = cfg.get('target_position_pct', DEFAULTS['target_position_pct'])
@@ -87,13 +101,12 @@ class VectorizedBacktester:
         self.open_positions: Dict[str, Position] = {}
         self.closed_positions: List[Dict] = []
         self.equity_curve: List[Tuple[pd.Timestamp, float]] = []
-        self.scan_rows: List[Dict] = []
         
         self.trading_days: List[pd.Timestamp] = []
         self.valid_stocks: List[str] = []
     
     def prepare_data(self):
-        print(f"Preparing data for strategy: {self.strategy}...")
+        print(f"Preparing truth-tested data for strategy: {self.strategy}...")
         data_period = self.cfg.get('data_period_days', DEFAULTS['data_period_days'])
         all_dates = set()
         
@@ -106,9 +119,9 @@ class VectorizedBacktester:
             df_data.index = pd.to_datetime(df_data.index, utc=True).tz_localize(None)
                 
             close_prices = df_data['Close']
+            open_prices = df_data['Open']
             high_prices = df_data['High']
             low_prices = df_data['Low']
-            open_prices = df_data['Open']
             volumes = df_data['Volume']
             
             df = pd.DataFrame(index=close_prices.index)
@@ -121,6 +134,7 @@ class VectorizedBacktester:
             df['atr'] = calculate_atr(high_prices, low_prices, close_prices, 14)
             
             if self.strategy == 'breakout':
+                # Donchian channel generated based on previous days' highs
                 df['donchian_high'] = high_prices.rolling(window=self.breakout_period).max().shift(1)
                 df['sma_volume'] = volumes.rolling(window=self.breakout_period).mean().shift(1)
             elif self.strategy == 'macd_rsi':
@@ -166,38 +180,56 @@ class VectorizedBacktester:
             total += pos.shares * self._current_price_on_date(pos.ticker, date)
         return total
     
-    def _open_position_fractional(self, ticker: str, date: pd.Timestamp, price: float, atr: float):
+    def _open_position(self, ticker: str, date: pd.Timestamp, raw_price: float, atr: float):
+        # Apply slippage to entry price
+        exec_price = raw_price * (1 + self.slippage_pct)
+        
         portfolio_value = self._current_portfolio_value(date)
-        position_value = portfolio_value * self.target_position_pct
-        min_position_value = portfolio_value * self.min_position_pct
+        target_value = portfolio_value * self.target_position_pct
+        min_value = portfolio_value * self.min_position_pct
         
-        if position_value < min_position_value:
-            position_value = min_position_value
-        
-        if position_value > self.capital:
-            position_value = self.capital
+        if target_value < min_value:
+            target_value = min_value
             
-        shares = position_value / price
+        # Ensure we have enough capital
+        max_possible_value = self.capital / (1 + self.commission_pct)
+        if target_value > max_possible_value:
+            target_value = max_possible_value
+            
+        shares = int(target_value / exec_price)
+        if shares <= 0: return
+        
+        position_value = shares * exec_price
+        commission = position_value * self.commission_pct
+        
         pos = Position(
-            ticker=ticker, entry_date=date, entry_price=price, 
-            shares=shares, highest_price=price, highest_price_date=date,
+            ticker=ticker, entry_date=date, entry_price=exec_price, 
+            shares=shares, highest_price=exec_price, highest_price_date=date,
             entry_atr=atr
         )
         self.open_positions[ticker] = pos
-        self.capital -= position_value
+        self.capital -= (position_value + commission)
     
-    def _close_position(self, ticker: str, date: pd.Timestamp, price: float, reason: str):
+    def _close_position(self, ticker: str, date: pd.Timestamp, raw_price: float, reason: str):
         if ticker not in self.open_positions: return
         pos = self.open_positions[ticker]
         
-        pnl = (price - pos.entry_price) * pos.shares
-        pnl_pct = ((price - pos.entry_price) / pos.entry_price) * 100
-        self.capital += pos.shares * price
+        # Apply slippage to exit price
+        exec_price = raw_price * (1 - self.slippage_pct)
+        
+        gross_value = pos.shares * exec_price
+        commission = gross_value * self.commission_pct
+        net_value = gross_value - commission
+        
+        net_pnl = net_value - (pos.shares * pos.entry_price)
+        pnl_pct = (net_pnl / (pos.shares * pos.entry_price)) * 100
+        
+        self.capital += net_value
         
         self.closed_positions.append({
             'Ticker': ticker, 'Entry_Date': pos.entry_date.date(), 'Exit_Date': date.date(),
-            'Entry_Price': round(pos.entry_price, 2), 'Exit_Price': round(price, 2),
-            'Shares': round(pos.shares, 4), 'PnL': round(pnl, 2), 'PnL_Pct': round(pnl_pct, 2),
+            'Entry_Price': round(pos.entry_price, 2), 'Exit_Price': round(exec_price, 2),
+            'Shares': pos.shares, 'PnL_PLN': round(net_pnl, 2), 'PnL_Pct': round(pnl_pct, 2),
             'Days_Held': (date - pos.entry_date).days, 'Exit_Reason': reason
         })
         del self.open_positions[ticker]
@@ -212,63 +244,63 @@ class VectorizedBacktester:
         if not dates: raise RuntimeError("No trading days in requested range.")
         
         self.capital = self.initial_capital
-        
         pending_orders = []
         
         for i, date in enumerate(dates):
-            # 0) Execute pending orders at today's OPEN with slippage/commission
+            # 1) Execute Pending Orders at the Open
             for ticker, atr in pending_orders:
                 if self._can_open_more(date):
                     df = self.indicators.get(ticker)
                     if df is not None and date in df.index:
                         open_price = float(df.loc[date, 'open'])
-                        exec_price = open_price * (1 + 0.002) # 0.2% slippage + commission
-                        self._open_position_fractional(ticker, date, exec_price, atr)
+                        self._open_position(ticker, date, open_price, atr)
             pending_orders = []
             
             self.equity_curve.append((date, self._current_portfolio_value(date)))
             
-            # 1) Exits
+            # 2) Process Exits (Evaluated Intraday, Executed realistically)
             for ticker, pos in list(self.open_positions.items()):
                 df = self.indicators.get(ticker)
                 if df is None or date not in df.index: continue
                 
                 row = df.loc[date]
-                current_close = float(row['close'])
-                current_low = float(row['low'])
-                current_high = float(row['high'])
-                current_atr = float(row['atr'])
+                c = float(row['close'])
+                l = float(row['low'])
+                h = float(row['high'])
+                o = float(row['open'])
+                atr = float(row['atr'])
+                
                 should_exit, reason = False, None
                 
-                # Trailing Stop based on ATR against Intraday Low
-                stop_price = pos.highest_price - (self.trailing_stop_atr_mult * current_atr)
-                exit_price = current_close
+                stop_price = pos.highest_price - (self.trailing_stop_atr_mult * atr)
+                exit_exec_price = c
                 
-                if current_low <= stop_price:
-                    should_exit, reason = True, "ATR_Trailing_Stop"
-                    # Exit at stop price (or open if it gapped down below stop)
-                    open_price = float(row['open'])
-                    exit_price = min(open_price, stop_price)
-                    exit_price = exit_price * (1 - 0.002) # apply slippage
-                
-                # Time Stop (Stagnation) based on Close
+                # Check for gap downs below our stop loss
+                if o <= stop_price:
+                    should_exit, reason = True, "ATR_Stop_Gap_Down"
+                    exit_exec_price = o
+                # Check for intraday trigger
+                elif l <= stop_price:
+                    should_exit, reason = True, "ATR_Trailing_Stop_Intraday"
+                    exit_exec_price = stop_price
+                # Check for Time Stop Stagnation
                 elif (date - pos.highest_price_date).days >= self.max_hold_days:
                     should_exit, reason = True, "Time_Stop_Stagnation"
-                    exit_price = current_close * (1 - 0.002) # sell at close with slippage
+                    exit_exec_price = c
                 
                 if should_exit:
-                    self._close_position(ticker, date, exit_price, reason)
+                    self._close_position(ticker, date, exit_exec_price, reason)
                 else:
-                    if current_high > pos.highest_price:
-                        pos.highest_price = current_high
+                    if h > pos.highest_price:
+                        pos.highest_price = h
                         pos.highest_price_date = date
             
-            # 2) Entries (Generated at Close, executed next day)
+            # 3) Generate Signals (Based on Close, queued for tomorrow's Open)
             if self._can_open_more(date):
                 candidates = []
                 for ticker in self.valid_stocks:
                     if ticker in self.open_positions: continue
-                    # Check if already in pending orders
+                    # Avoid generating a signal if we already queued one
                     if any(p[0] == ticker for p in pending_orders): continue
                     
                     df = self.indicators[ticker]
@@ -293,7 +325,7 @@ class VectorizedBacktester:
                         has_vol = vol_surge > self.vol_surge_mult
                         
                         if is_breakout and has_atr and has_vol:
-                            candidates.append((ticker, vol_surge, atr)) # Rank by volume surge
+                            candidates.append((ticker, vol_surge, atr))
                     elif self.strategy == 'macd_rsi':
                         hist_val = float(row['macd_hist'])
                         rsi_val = float(row['rsi'])
@@ -303,7 +335,7 @@ class VectorizedBacktester:
                         
                         if has_momentum and not_overbought:
                             momentum_score = hist_val * (100 - rsi_val)
-                            candidates.append((ticker, momentum_score, atr)) # Rank by momentum score
+                            candidates.append((ticker, momentum_score, atr))
 
                 candidates.sort(key=lambda x: x[1], reverse=True)
                 slots = self.max_positions - len(self.open_positions)
@@ -321,25 +353,12 @@ class VectorizedBacktester:
     def _write_outputs(self):
         os.makedirs('Output', exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
         pd.DataFrame(self.equity_curve, columns=['Date', 'Portfolio_Value']).to_csv(f'Output/equity_curve_{timestamp}.csv', index=False)
-        
         if self.closed_positions:
             df = pd.DataFrame(self.closed_positions)
             df.to_csv(f'Output/closed_positions_{timestamp}.csv', index=False)
 
 def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None) -> Dict:
-    """
-    Runs the backtest across the last 5 years of SIGG Stage 1 historical windows:
-    - 2020/2021: 2020-11-16 to 2021-01-15
-    - 2021/2022: 2021-11-15 to 2022-01-14
-    - 2022/2023: 2022-11-14 to 2023-01-13
-    - 2023/2024: 2023-11-13 to 2024-01-12
-    - 2024/2025: 2024-11-18 to 2025-01-17
-    Returns structured JSON-serializable data for visual graphs.
-    """
-    import json
-    
     base_config = load_config() if config is None else config
     b_cfg = {**DEFAULTS}
     b_cfg['strategy'] = strategy
@@ -361,7 +380,7 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
         ("2025/2026", "2025-11-17", "2026-01-16")
     ]
     
-    bt = VectorizedBacktester(b_cfg)
+    bt = TruthfulBacktester(b_cfg)
     bt.prepare_data()
     
     season_results = []
@@ -382,11 +401,11 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
             
             df_trades = pd.DataFrame(bt.closed_positions)
             if len(df_trades) > 0:
-                wins = df_trades[df_trades['PnL'] > 0]
-                losses = df_trades[df_trades['PnL'] <= 0]
+                wins = df_trades[df_trades['PnL_PLN'] > 0]
+                losses = df_trades[df_trades['PnL_PLN'] <= 0]
                 win_rate = (len(wins) / len(df_trades)) * 100.0
-                gross_profit = wins['PnL'].sum() if len(wins) > 0 else 0.0
-                gross_loss = abs(losses['PnL'].sum()) if len(losses) > 0 else 0.0
+                gross_profit = wins['PnL_PLN'].sum() if len(wins) > 0 else 0.0
+                gross_loss = abs(losses['PnL_PLN'].sum()) if len(losses) > 0 else 0.0
                 profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (99.9 if gross_profit > 0 else 0.0)
                 avg_win = wins['PnL_Pct'].mean() if len(wins) > 0 else 0.0
                 avg_loss = losses['PnL_Pct'].mean() if len(losses) > 0 else 0.0
@@ -403,14 +422,12 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
             dd_s = (eq_s - peak_s) / peak_s * 100.0
             max_dd = abs(dd_s.min()) if not dd_s.empty else 0.0
             
-            # Format equity curve for Chart.js (Dates as strings and values)
             curve_points = [
                 {"date": pt[0].strftime("%Y-%m-%d"), "value": round(pt[1], 2), "day": i}
                 for i, pt in enumerate(bt.equity_curve)
             ]
             equity_curves[label] = curve_points
             
-            # Biggest Winner & Loser
             biggest_winner = None
             biggest_loser = None
             if len(df_trades) > 0:
@@ -419,19 +436,18 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
                 biggest_winner = {
                     "ticker": str(best_t['Ticker']),
                     "pnl_pct": round(float(best_t['PnL_Pct']), 2),
-                    "pnl_pln": round(float(best_t['PnL']), 2),
+                    "pnl_pln": round(float(best_t['PnL_PLN']), 2),
                     "days_held": int(best_t['Days_Held']),
                     "exit_reason": str(best_t['Exit_Reason'])
                 }
                 biggest_loser = {
                     "ticker": str(worst_t['Ticker']),
                     "pnl_pct": round(float(worst_t['PnL_Pct']), 2),
-                    "pnl_pln": round(float(worst_t['PnL']), 2),
+                    "pnl_pln": round(float(worst_t['PnL_PLN']), 2),
                     "days_held": int(worst_t['Days_Held']),
                     "exit_reason": str(worst_t['Exit_Reason'])
                 }
             
-            # Closed trades
             for t in bt.closed_positions:
                 t_copy = t.copy()
                 t_copy['Season'] = label
@@ -477,11 +493,10 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
             })
             equity_curves[label] = []
 
-    # Overall Summary
     valid_seasons = [s for s in season_results if s['trades_count'] > 0]
     avg_return = np.mean([s['return_pct'] for s in season_results]) if season_results else 0.0
     total_trades_all = len(all_trades)
-    winning_trades_all = len([t for t in all_trades if t.get('PnL', 0) > 0])
+    winning_trades_all = len([t for t in all_trades if t.get('PnL_PLN', 0) > 0])
     overall_win_rate = (winning_trades_all / total_trades_all * 100.0) if total_trades_all > 0 else 0.0
     
     summary = {
@@ -493,7 +508,8 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
         "overall_win_rate": round(overall_win_rate, 1),
         "total_trades": total_trades_all,
         "best_season": max(season_results, key=lambda x: x['return_pct']) if season_results else None,
-        "worst_season": min(season_results, key=lambda x: x['return_pct']) if season_results else None
+        "worst_season": min(season_results, key=lambda x: x['return_pct']) if season_results else None,
+        "notes": "WARNING: Backtest is subject to Survivorship Bias because it uses the current WIG50 constituent list."
     }
     
     payload = {
@@ -502,7 +518,7 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
         "summary": summary,
         "seasons": season_results,
         "equity_curves": equity_curves,
-        "trades": all_trades[-30:] # Last 30 trades for quick viewing
+        "trades": all_trades # Include all trades so web app can analyze them
     }
     
     os.makedirs('Output', exist_ok=True)
@@ -510,7 +526,7 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
     with open(out_file, 'w', encoding='utf-8') as f:
         json.dump(payload, f, indent=2)
         
-    print(f"5-Year backtest complete for {strategy}. Saved to {out_file}")
+    print(f"5-Year truth-tested backtest complete for {strategy}. Saved to {out_file}")
     return payload
 
 def main():
@@ -535,7 +551,7 @@ def main():
     if 'rsi' in config: b_cfg['rsi'] = config['rsi']
     if 'data_period' in config: b_cfg['data_period_days'] = config['data_period']
     
-    backtester = VectorizedBacktester(b_cfg)
+    backtester = TruthfulBacktester(b_cfg)
     try: backtester.run()
     except Exception as e: print(f"Error: {e}")
 
