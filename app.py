@@ -88,15 +88,10 @@ def run_backtest():
         data = request.json or {}
         strategy = data.get('strategy', 'breakout')
         
-        # Run 5-year backtester
-        subprocess.run([sys.executable, "backtester.py", "--strategy", strategy, "--5year"], check=True)
-        results_file = f"Output/backtest_5year_{strategy}.json"
+        # Run 5-year backtester in the background to prevent timeouts
+        subprocess.Popen([sys.executable, "backtester.py", "--strategy", strategy, "--5year"])
         
-        if os.path.exists(results_file):
-            with open(results_file, 'r', encoding='utf-8') as f:
-                res_data = json.load(f)
-            return jsonify(res_data)
-        return jsonify({"status": "error", "message": "Backtest output file not found."})
+        return jsonify({"status": "running", "message": "Backtest started in background."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 

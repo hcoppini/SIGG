@@ -105,12 +105,13 @@ class TruthfulBacktester:
         self.trading_days: List[pd.Timestamp] = []
         self.valid_stocks: List[str] = []
     
-    def prepare_data(self):
+    def prepare_data(self, update_callback=None):
         print(f"Preparing truth-tested data for strategy: {self.strategy}...")
         data_period = self.cfg.get('data_period_days', DEFAULTS['data_period_days'])
         all_dates = set()
         
-        for ticker in self.stocks:
+        for i, ticker in enumerate(self.stocks):
+            if update_callback: update_callback(f"Downloading historical data: {ticker}", i, len(self.stocks))
             df_data = get_cached_data(ticker, data_period)
             
             if df_data is None or len(df_data) < 50:
@@ -380,14 +381,32 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
         ("2025/2026", "2025-11-17", "2026-01-16")
     ]
     
-    bt = TruthfulBacktester(b_cfg)
-    bt.prepare_data()
-    
     season_results = []
     equity_curves = {}
     all_trades = []
     
+    def _write_partial(msg):
+        os.makedirs('Output', exist_ok=True)
+        payload = {
+            "status": "partial",
+            "strategy": strategy,
+            "summary": {"notes": msg},
+            "seasons": season_results,
+            "equity_curves": equity_curves,
+            "trades": all_trades
+        }
+        with open(f'Output/backtest_5year_{strategy}.json', 'w', encoding='utf-8') as f:
+            json.dump(payload, f)
+            
+    def _data_cb(msg, i, total):
+        if i % 3 == 0:
+            _write_partial(f"{msg} ({i}/{total})")
+
+    bt = TruthfulBacktester(b_cfg)
+    bt.prepare_data(update_callback=_data_cb)
+    
     for label, s_start, s_end in seasons:
+        _write_partial(f"Simulating trades for season {label}...")
         bt.capital = bt.initial_capital
         bt.open_positions = {}
         bt.closed_positions = []

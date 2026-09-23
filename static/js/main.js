@@ -228,18 +228,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ strategy: getActiveStrategy() })
                 });
                 const json = await res.json();
+                
                 if (json.status === 'success') {
                     renderBacktestData(json);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    runBacktestBtn.disabled = false;
+                } else if (json.status === 'running') {
+                    // Poll for progress updates
+                    let pollInterval = setInterval(async () => {
+                        try {
+                            const pollRes = await fetch('/api/results/backtest?strategy=' + getActiveStrategy());
+                            const pollJson = await pollRes.json();
+                            if (pollJson.status === 'success' || pollJson.status === 'partial') {
+                                renderBacktestData(pollJson);
+                            }
+                            if (pollJson.status === 'success' || pollJson.status === 'error') {
+                                clearInterval(pollInterval);
+                                if (backtestLoading) backtestLoading.classList.add('hidden');
+                                runBacktestBtn.disabled = false;
+                            }
+                        } catch(e) {}
+                    }, 2000);
                 } else {
                     alert('Error running backtest: ' + json.message);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    runBacktestBtn.disabled = false;
                 }
             } catch (e) {
                 alert('Backtest request failed: ' + e);
+                if (backtestLoading) backtestLoading.classList.add('hidden');
+                runBacktestBtn.disabled = false;
             }
-
-            if (backtestLoading) backtestLoading.classList.add('hidden');
-            runBacktestBtn.disabled = false;
-        });
     }
 
     function fetchBacktestResults() {
@@ -287,7 +306,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const chartsContainer = document.querySelector('.grid.grid-cols-3.gap-6.mb-8').nextElementSibling;
                 chartsContainer.parentNode.insertBefore(warningEl, chartsContainer);
             }
-            warningEl.innerHTML = `<strong>TruthfulBacktester Warning:</strong> ${summary.notes}`;
+            const isPartial = (data.status === 'partial');
+            warningEl.className = isPartial 
+                ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-3 rounded mb-6 text-sm flex items-start gap-3'
+                : 'bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded mb-6 text-sm flex items-start gap-3';
+            
+            warningEl.innerHTML = `<strong>${isPartial ? 'Running:' : 'Notice:'}</strong> ${summary.notes}`;
         } else if (warningEl) {
             warningEl.remove();
         }
