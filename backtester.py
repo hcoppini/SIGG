@@ -373,10 +373,13 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
     if 'rsi' in base_config: b_cfg['rsi'] = base_config['rsi']
     
     if strategy == 'home_run':
+        b_cfg['breakout_period'] = 25
+        b_cfg['atr_min_pct'] = 0.05
+        b_cfg['volume_surge_multiplier'] = 2.0
         b_cfg['max_positions'] = 1
         b_cfg['target_position_pct'] = 0.99
         b_cfg['min_position_pct'] = 0.50
-        b_cfg['trailing_stop_atr_mult'] = 3.5
+        b_cfg['trailing_stop_atr_mult'] = 2.5
         b_cfg['max_hold_days_without_new_high'] = 15
         
     seasons = [
