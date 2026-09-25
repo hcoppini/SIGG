@@ -50,7 +50,7 @@ DEFAULTS = {
     'commission_pct': 0.0039,  # 0.39% standard broker commission (mBank/Bossa)
     'slippage_pct': 0.001,     # 0.1% expected slippage
     
-    # AGGRESSIVE SIGG ETAP 1 SETTINGS 
+    # Normal SIGG ETAP 1 SETTINGS
     'max_positions': 3,                 
     'target_position_pct': 0.33,         
     'min_position_pct': 0.30,            
@@ -134,7 +134,7 @@ class TruthfulBacktester:
             
             df['atr'] = calculate_atr(high_prices, low_prices, close_prices, 14)
             
-            if self.strategy == 'breakout':
+            if self.strategy in ('breakout', 'home_run'):
                 # Donchian channel generated based on previous days' highs
                 df['donchian_high'] = high_prices.rolling(window=self.breakout_period).max().shift(1)
                 df['sma_volume'] = volumes.rolling(window=self.breakout_period).mean().shift(1)
@@ -313,7 +313,7 @@ class TruthfulBacktester:
                     
                     if pd.isna(c) or pd.isna(atr): continue
                     
-                    if self.strategy == 'breakout':
+                    if self.strategy in ('breakout', 'home_run'):
                         dh = float(row['donchian_high'])
                         v = float(row['volume'])
                         sv = float(row['sma_volume'])
@@ -372,6 +372,13 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
     if 'macd' in base_config: b_cfg['macd'] = base_config['macd']
     if 'rsi' in base_config: b_cfg['rsi'] = base_config['rsi']
     
+    if strategy == 'home_run':
+        b_cfg['max_positions'] = 1
+        b_cfg['target_position_pct'] = 0.99
+        b_cfg['min_position_pct'] = 0.50
+        b_cfg['trailing_stop_atr_mult'] = 3.5
+        b_cfg['max_hold_days_without_new_high'] = 15
+        
     seasons = [
         ("2020/2021", "2020-11-16", "2021-01-15"),
         ("2021/2022", "2021-11-15", "2022-01-14"),
@@ -550,7 +557,7 @@ def run_5year_backtest(strategy: str = 'breakout', config: Optional[Dict] = None
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--strategy', type=str, default='breakout', choices=['breakout', 'macd_rsi'])
+    parser.add_argument('--strategy', type=str, default='breakout', choices=['breakout', 'macd_rsi', 'home_run'])
     parser.add_argument('--5year', dest='five_year', action='store_true', help='Run 5-year historical Stage 1 backtest')
     args = parser.parse_args()
     
