@@ -1,6 +1,6 @@
 import pandas as pd
 from itertools import product
-from backtester import VectorizedBacktester, DEFAULTS, load_config
+from backtester import TruthfulBacktester, DEFAULTS, load_config
 import os
 import json
 import argparse
@@ -21,16 +21,16 @@ def run_optimization():
     print(f"Starting 5-Year SIGG Scenario Optimizer (Strategy: {args.strategy})...")
     
     if args.strategy == 'breakout':
-        p1 = [10, 15, 20, 25] # Breakout
-        p2 = [0.02, 0.03, 0.04] # ATR
-        p3 = [1.2, 1.5, 2.0] # Vol
-        p4 = [1.5, 2.0, 2.5] # Stop
+        p1 = [5, 10, 15, 20, 25, 30] # Breakout
+        p2 = [0.02, 0.03, 0.04, 0.05] # ATR
+        p3 = [1.2, 1.5, 2.0, 2.5] # Vol
+        p4 = [1.5, 2.0, 2.5, 3.0] # Stop
         combos = list(product(p1, p2, p3, p4))
     else:
-        p1 = [10, 12, 14] # Fast
-        p2 = [24, 26, 28] # Slow
-        p3 = [60, 65, 70] # RSI Threshold
-        p4 = [1.5, 2.0] # Stop
+        p1 = [8, 10, 12, 14] # Fast
+        p2 = [21, 24, 26, 28] # Slow
+        p3 = [55, 60, 65, 70, 75] # RSI Threshold
+        p4 = [1.5, 2.0, 2.5, 3.0] # Stop
         combos = list(product(p1, p2, p3, p4))
         
     total_combos = len(combos)
@@ -73,7 +73,7 @@ def run_optimization():
         scenario_winrates = []
         
         with HiddenPrints():
-            bt = VectorizedBacktester(cfg)
+            bt = TruthfulBacktester(cfg)
             for start, end in scenarios:
                 try:
                     bt.run(start_date=pd.Timestamp(start), end_date=pd.Timestamp(end))

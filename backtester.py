@@ -34,14 +34,14 @@ DEFAULTS = {
     'stocks': DEFAULT_STOCKS,
     'strategy': 'breakout',
     
-    # Breakout specific
-    'breakout_period': 20,
-    'atr_min_pct': 0.03,
-    'volume_surge_multiplier': 1.5,
+    # Breakout specific (Optimized for Truthful Engine)
+    'breakout_period': 10,
+    'atr_min_pct': 0.02,
+    'volume_surge_multiplier': 2.0,
     
-    # MACD/RSI specific
-    'macd': {'fast': 12, 'slow': 26, 'signal': 9},
-    'rsi': {'period': 14, 'buy_threshold': 65},
+    # MACD/RSI specific (Optimized for Truthful Engine)
+    'macd': {'fast': 12, 'slow': 21, 'signal': 9},
+    'rsi': {'period': 14, 'buy_threshold': 70},
     
     'data_period_days': 365, 
     'initial_capital': 20000.0, 
@@ -55,7 +55,7 @@ DEFAULTS = {
     'target_position_pct': 0.33,         
     'min_position_pct': 0.30,            
     'max_total_exposure': 1.00,          
-    'trailing_stop_atr_mult': 2.0,      
+    'trailing_stop_atr_mult': 1.5,      
     'max_hold_days_without_new_high': 10, 
     'risk_free_rate': 0.00 
 }
