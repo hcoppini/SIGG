@@ -1,0 +1,8 @@
+{
+  "regime": "RED",
+  "status_label": "LOCKED (Kill Switch Active)",
+  "action_msg": "Zero new stock purchases. Optional 33% rotation into ETFBW20ST.WA (WIG20 Short ETF).",
+  "index_change_pct": 0.19,
+  "breadth_above_sma20_pct": 44.6,
+  "updated_at": "2026-11-01 22:41:57"
+}

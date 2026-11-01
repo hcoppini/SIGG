@@ -1,0 +1,3074 @@
+[
+    {
+        "Avg_Return": 60.09,
+        "Avg_Winrate": 60.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 56.88,
+        "Avg_Winrate": 60.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 56.17,
+        "Avg_Winrate": 65.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 54.74,
+        "Avg_Winrate": 53.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 54.05,
+        "Avg_Winrate": 58.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 51.17,
+        "Avg_Winrate": 56.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.85,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 49.26,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 48.49,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 48.48,
+        "Avg_Winrate": 42.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 46.84,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 46.29,
+        "Avg_Winrate": 40.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 46.21,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 46.17,
+        "Avg_Winrate": 39.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 45.88,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 45.8,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 45.31,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 45.12,
+        "Avg_Winrate": 44.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 45.02,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 44.46,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 44.37,
+        "Avg_Winrate": 44.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 44.29,
+        "Avg_Winrate": 56.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 44.11,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 44.09,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 44.09,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 44.0,
+        "Avg_Winrate": 41.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 43.93,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 43.89,
+        "Avg_Winrate": 42.62,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 43.77,
+        "Avg_Winrate": 42.62,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 43.72,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 43.44,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 43.29,
+        "Avg_Winrate": 38.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 43.25,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 43.04,
+        "Avg_Winrate": 38.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 42.95,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 42.87,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 42.7,
+        "Avg_Winrate": 31.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 42.65,
+        "Avg_Winrate": 37.43,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 42.5,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 42.14,
+        "Avg_Winrate": 48.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 41.93,
+        "Avg_Winrate": 44.86,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 41.93,
+        "Avg_Winrate": 44.86,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 41.68,
+        "Avg_Winrate": 41.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 41.65,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 41.62,
+        "Avg_Winrate": 39.21,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 41.61,
+        "Avg_Winrate": 37.43,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 41.59,
+        "Avg_Winrate": 51.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 41.39,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 41.3,
+        "Avg_Winrate": 35.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 41.2,
+        "Avg_Winrate": 35.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 41.11,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 41.06,
+        "Avg_Winrate": 39.19,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 41.04,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 40.93,
+        "Avg_Winrate": 52.19,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 40.83,
+        "Avg_Winrate": 36.71,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 40.65,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 40.54,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 40.51,
+        "Avg_Winrate": 43.24,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 40.5,
+        "Avg_Winrate": 41.1,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 40.4,
+        "Avg_Winrate": 47.52,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 40.27,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 40.19,
+        "Avg_Winrate": 34.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 39.98,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 39.92,
+        "Avg_Winrate": 48.5,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 39.91,
+        "Avg_Winrate": 43.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 39.6,
+        "Avg_Winrate": 49.21,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 39.53,
+        "Avg_Winrate": 48.86,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 39.49,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 39.32,
+        "Avg_Winrate": 47.06,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 39.32,
+        "Avg_Winrate": 47.06,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 39.08,
+        "Avg_Winrate": 38.24,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 39.07,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 38.64,
+        "Avg_Winrate": 46.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 38.63,
+        "Avg_Winrate": 47.06,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 38.46,
+        "Avg_Winrate": 43.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 38.46,
+        "Avg_Winrate": 43.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 38.43,
+        "Avg_Winrate": 46.36,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 38.18,
+        "Avg_Winrate": 48.5,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 37.91,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 37.71,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 37.64,
+        "Avg_Winrate": 46.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 37.49,
+        "Avg_Winrate": 46.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 37.36,
+        "Avg_Winrate": 48.22,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 37.09,
+        "Avg_Winrate": 45.24,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 36.87,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 36.87,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 36.87,
+        "Avg_Winrate": 30.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 36.8,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 36.66,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 36.66,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 36.65,
+        "Avg_Winrate": 50.44,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 36.63,
+        "Avg_Winrate": 50.44,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 36.3,
+        "Avg_Winrate": 28.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 36.24,
+        "Avg_Winrate": 50.44,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 36.22,
+        "Avg_Winrate": 50.44,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 35.48,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 35.28,
+        "Avg_Winrate": 34.52,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 34.65,
+        "Avg_Winrate": 40.82,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 34.5,
+        "Avg_Winrate": 33.52,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 34.38,
+        "Avg_Winrate": 33.86,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 34.06,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 33.66,
+        "Avg_Winrate": 40.87,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 33.47,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 32.75,
+        "Avg_Winrate": 24.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 32.23,
+        "Avg_Winrate": 28.36,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 32.15,
+        "Avg_Winrate": 47.5,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 31.97,
+        "Avg_Winrate": 39.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 31.89,
+        "Avg_Winrate": 42.27,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 31.67,
+        "Avg_Winrate": 43.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 31.67,
+        "Avg_Winrate": 43.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 31.54,
+        "Avg_Winrate": 38.64,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 31.2,
+        "Avg_Winrate": 40.64,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 31.09,
+        "Avg_Winrate": 41.48,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 30.93,
+        "Avg_Winrate": 42.58,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 30.73,
+        "Avg_Winrate": 44.17,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 30.67,
+        "Avg_Winrate": 27.36,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 30.44,
+        "Avg_Winrate": 38.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 30.43,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 30.35,
+        "Avg_Winrate": 37.52,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 29.2,
+        "Avg_Winrate": 38.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 28.33,
+        "Avg_Winrate": 35.64,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 28.33,
+        "Avg_Winrate": 35.64,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 28.14,
+        "Avg_Winrate": 46.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 27.89,
+        "Avg_Winrate": 40.24,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 27.87,
+        "Avg_Winrate": 52.1,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 27.27,
+        "Avg_Winrate": 45.98,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 26.97,
+        "Avg_Winrate": 42.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 26.83,
+        "Avg_Winrate": 44.17,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 26.75,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 25.93,
+        "Avg_Winrate": 60.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 25.9,
+        "Avg_Winrate": 42.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 25.75,
+        "Avg_Winrate": 53.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 25.51,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 24.8,
+        "Avg_Winrate": 55.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 24.35,
+        "Avg_Winrate": 52.57,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 24.11,
+        "Avg_Winrate": 50.9,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 24.03,
+        "Avg_Winrate": 51.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 23.94,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 23.93,
+        "Avg_Winrate": 45.71,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 23.79,
+        "Avg_Winrate": 44.38,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 23.64,
+        "Avg_Winrate": 43.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 23.63,
+        "Avg_Winrate": 56.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 23.26,
+        "Avg_Winrate": 37.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 23.16,
+        "Avg_Winrate": 45.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 22.97,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 22.92,
+        "Avg_Winrate": 37.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 22.75,
+        "Avg_Winrate": 60.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 22.74,
+        "Avg_Winrate": 31.77,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 22.74,
+        "Avg_Winrate": 31.77,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 22.48,
+        "Avg_Winrate": 38.53,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 22.34,
+        "Avg_Winrate": 56.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 22.33,
+        "Avg_Winrate": 35.53,
+        "Trailing_Stop": 1.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 22.21,
+        "Avg_Winrate": 38.9,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 21.75,
+        "Avg_Winrate": 49.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 21.64,
+        "Avg_Winrate": 43.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 21.45,
+        "Avg_Winrate": 60.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 21.27,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 20.89,
+        "Avg_Winrate": 61.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 20.86,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 20.69,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 20.61,
+        "Avg_Winrate": 44.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 20.42,
+        "Avg_Winrate": 42.38,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 19.94,
+        "Avg_Winrate": 47.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 19.71,
+        "Avg_Winrate": 44.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 19.71,
+        "Avg_Winrate": 43.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 19.68,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 19.67,
+        "Avg_Winrate": 58.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 19.54,
+        "Avg_Winrate": 61.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 19.19,
+        "Avg_Winrate": 40.48,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 19.19,
+        "Avg_Winrate": 40.48,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 18.84,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 18.82,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 18.65,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 18.65,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 18.63,
+        "Avg_Winrate": 39.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 18.28,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 17.88,
+        "Avg_Winrate": 53.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 17.77,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 17.71,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 17.57,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 17.45,
+        "Avg_Winrate": 42.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 17.2,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 17.12,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 16.98,
+        "Avg_Winrate": 37.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 16.96,
+        "Avg_Winrate": 33.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 16.84,
+        "Avg_Winrate": 66.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 16.84,
+        "Avg_Winrate": 66.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 16.2,
+        "Avg_Winrate": 40.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 15.11,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 14.84,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 14.51,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 14.5,
+        "Avg_Winrate": 50.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 14.28,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 14.01,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 13.62,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 13.54,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 13.42,
+        "Avg_Winrate": 43.43,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 13.41,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 13.14,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 12.02,
+        "Avg_Winrate": 64.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 11.79,
+        "Avg_Winrate": 56.48,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 11.59,
+        "Avg_Winrate": 36.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 11.52,
+        "Avg_Winrate": 50.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 11.36,
+        "Avg_Winrate": 52.48,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 11.28,
+        "Avg_Winrate": 68.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 10.9,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 10.43,
+        "Avg_Winrate": 37.76,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 10.36,
+        "Avg_Winrate": 39.71,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 10.28,
+        "Avg_Winrate": 61.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 10.23,
+        "Avg_Winrate": 37.73,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 10.17,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 10.17,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 10.03,
+        "Avg_Winrate": 36.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 9.84,
+        "Avg_Winrate": 51.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 9.8,
+        "Avg_Winrate": 47.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 9.63,
+        "Avg_Winrate": 56.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 9.42,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 9.37,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 9.12,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 9.05,
+        "Avg_Winrate": 39.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.87,
+        "Avg_Winrate": 54.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.56,
+        "Avg_Winrate": 41.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 8.53,
+        "Avg_Winrate": 41.77,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.53,
+        "Avg_Winrate": 41.21,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.4,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 8.4,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.4,
+        "Avg_Winrate": 55.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.27,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 8.19,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 8.19,
+        "Avg_Winrate": 41.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 8.09,
+        "Avg_Winrate": 42.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 8.01,
+        "Avg_Winrate": 43.46,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 7.95,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 7.71,
+        "Avg_Winrate": 58.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 7.71,
+        "Avg_Winrate": 58.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 7.57,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 7.57,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 7.44,
+        "Avg_Winrate": 33.67,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 7.11,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 6.97,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 6.93,
+        "Avg_Winrate": 39.27,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 6.28,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 6.28,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 5.91,
+        "Avg_Winrate": 42.86,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 5.91,
+        "Avg_Winrate": 42.86,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 5.83,
+        "Avg_Winrate": 60.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 5.83,
+        "Avg_Winrate": 60.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 5.8,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 5.61,
+        "Avg_Winrate": 35.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 4.92,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 4.81,
+        "Avg_Winrate": 46.71,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 4.56,
+        "Avg_Winrate": 37.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 4.52,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 4.49,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 4.49,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 4.24,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 4.23,
+        "Avg_Winrate": 38.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 4.19,
+        "Avg_Winrate": 42.71,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 4.14,
+        "Avg_Winrate": 37.83,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 4.03,
+        "Avg_Winrate": 39.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 3.7,
+        "Avg_Winrate": 50.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 3.61,
+        "Avg_Winrate": 48.43,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 3.1,
+        "Avg_Winrate": 23.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 3.07,
+        "Avg_Winrate": 42.9,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.94,
+        "Avg_Winrate": 41.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.91,
+        "Avg_Winrate": 38.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 2.91,
+        "Avg_Winrate": 38.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 2.68,
+        "Avg_Winrate": 43.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 2.6,
+        "Avg_Winrate": 47.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 2.54,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.54,
+        "Avg_Winrate": 40.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 2.39,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.39,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 2.39,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.39,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 2.26,
+        "Avg_Winrate": 49.21,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 2.26,
+        "Avg_Winrate": 49.21,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 2.22,
+        "Avg_Winrate": 44.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 1.97,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 1.97,
+        "Avg_Winrate": 46.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 1.84,
+        "Avg_Winrate": 52.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 1.82,
+        "Avg_Winrate": 42.44,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 1.64,
+        "Avg_Winrate": 52.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 1.6,
+        "Avg_Winrate": 31.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 1.4,
+        "Avg_Winrate": 39.11,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 1.26,
+        "Avg_Winrate": 41.43,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 0.93,
+        "Avg_Winrate": 33.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 0.89,
+        "Avg_Winrate": 45.36,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.71,
+        "Avg_Winrate": 40.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 0.71,
+        "Avg_Winrate": 40.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 0.62,
+        "Avg_Winrate": 37.43,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.5,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.5,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.5,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 0.49,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.49,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": 0.23,
+        "Avg_Winrate": 53.24,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 0.17,
+        "Avg_Winrate": 37.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 0.17,
+        "Avg_Winrate": 37.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": 0.17,
+        "Avg_Winrate": 37.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": 0.1,
+        "Avg_Winrate": 43.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": 0.08,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -0.05,
+        "Avg_Winrate": 46.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -0.05,
+        "Avg_Winrate": 46.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -0.08,
+        "Avg_Winrate": 48.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -0.21,
+        "Avg_Winrate": 45.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -0.22,
+        "Avg_Winrate": 32.79,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -0.27,
+        "Avg_Winrate": 49.38,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -0.31,
+        "Avg_Winrate": 39.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -0.83,
+        "Avg_Winrate": 39.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -1.57,
+        "Avg_Winrate": 42.33,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -1.64,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -1.64,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -1.77,
+        "Avg_Winrate": 42.64,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -2.33,
+        "Avg_Winrate": 38.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -2.5,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -2.5,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -2.85,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -2.85,
+        "Avg_Winrate": 45.0,
+        "Trailing_Stop": 3.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -3.09,
+        "Avg_Winrate": 27.05,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -3.17,
+        "Avg_Winrate": 28.67,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -3.34,
+        "Avg_Winrate": 36.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -3.34,
+        "Avg_Winrate": 50.24,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -3.55,
+        "Avg_Winrate": 45.24,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -3.65,
+        "Avg_Winrate": 36.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -3.65,
+        "Avg_Winrate": 36.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -3.8,
+        "Avg_Winrate": 35.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -3.94,
+        "Avg_Winrate": 27.0,
+        "Trailing_Stop": 2.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -3.94,
+        "Avg_Winrate": 40.87,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -4.28,
+        "Avg_Winrate": 38.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -4.38,
+        "Avg_Winrate": 39.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -4.45,
+        "Avg_Winrate": 40.24,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -4.83,
+        "Avg_Winrate": 31.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -5.02,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 1.5,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -5.52,
+        "Avg_Winrate": 41.14,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -5.63,
+        "Avg_Winrate": 45.24,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -6.01,
+        "Avg_Winrate": 35.33,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -6.3,
+        "Avg_Winrate": 36.33,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -6.53,
+        "Avg_Winrate": 35.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -6.63,
+        "Avg_Winrate": 39.46,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -6.8,
+        "Avg_Winrate": 42.38,
+        "Trailing_Stop": 2.5,
+        "Breakout": 30,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -7.0,
+        "Avg_Winrate": 36.6,
+        "Trailing_Stop": 1.5,
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -7.09,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 20,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -7.29,
+        "Avg_Winrate": 40.32,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -7.77,
+        "Avg_Winrate": 42.9,
+        "Trailing_Stop": 2.0,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -8.05,
+        "Avg_Winrate": 37.38,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -8.05,
+        "Avg_Winrate": 37.38,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -8.13,
+        "Avg_Winrate": 38.57,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -8.13,
+        "Avg_Winrate": 38.57,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -8.35,
+        "Avg_Winrate": 37.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -8.6,
+        "Avg_Winrate": 38.57,
+        "Trailing_Stop": 2.5,
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -8.73,
+        "Avg_Winrate": 26.67,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -9.2,
+        "Avg_Winrate": 31.57,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -9.78,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -9.78,
+        "Avg_Winrate": 30.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -10.29,
+        "Avg_Winrate": 36.35,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -10.29,
+        "Avg_Winrate": 36.35,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -10.42,
+        "Avg_Winrate": 33.57,
+        "Trailing_Stop": 2.5,
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -10.58,
+        "Avg_Winrate": 34.9,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -11.43,
+        "Avg_Winrate": 39.9,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.5
+    },
+    {
+        "Avg_Return": -12.06,
+        "Avg_Winrate": 30.99,
+        "Trailing_Stop": 1.5,
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0
+    },
+    {
+        "Avg_Return": -13.66,
+        "Avg_Winrate": 16.67,
+        "Trailing_Stop": 3.0,
+        "Breakout": 5,
+        "ATR_Min": 0.05,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -15.51,
+        "Avg_Winrate": 23.0,
+        "Trailing_Stop": 2.5,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    },
+    {
+        "Avg_Return": -18.51,
+        "Avg_Winrate": 33.49,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5
+    },
+    {
+        "Avg_Return": -18.53,
+        "Avg_Winrate": 33.49,
+        "Trailing_Stop": 2.0,
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2
+    }
+]

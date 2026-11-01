@@ -1,0 +1,3445 @@
+{
+  "status": "success",
+  "strategy": "squeeze_ignition",
+  "summary": {
+    "strategy": "squeeze_ignition",
+    "initial_capital": 20000.0,
+    "target_capital": 30000.0,
+    "target_return_pct": 50.0,
+    "avg_return_pct": 6.06,
+    "overall_win_rate": 51.9,
+    "total_trades": 131,
+    "avg_trades_per_season": 21.8,
+    "total_fees_pln": 5149.28,
+    "best_season": {
+      "season": "2023/2024",
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 23312.63,
+      "net_profit": 3312.63,
+      "return_pct": 16.56,
+      "trades_count": 32,
+      "win_rate": 65.6,
+      "profit_factor": 2.0,
+      "avg_win_pct": 4.48,
+      "avg_loss_pct": -4.28,
+      "max_drawdown": 3.3,
+      "biggest_winner": {
+        "ticker": "BOS.WA",
+        "pnl_pct": 11.61,
+        "pnl_pln": 838.24,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "MAB.WA",
+        "pnl_pct": -6.52,
+        "pnl_pln": -440.97,
+        "days_held": 1,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    "worst_season": {
+      "season": "2022/2023",
+      "start_date": "2022-11-14",
+      "end_date": "2023-01-13",
+      "initial_capital": 20000.0,
+      "final_capital": 19589.7,
+      "net_profit": -410.3,
+      "return_pct": -2.05,
+      "trades_count": 36,
+      "win_rate": 44.4,
+      "profit_factor": 0.86,
+      "avg_win_pct": 2.55,
+      "avg_loss_pct": -2.34,
+      "max_drawdown": 8.9,
+      "biggest_winner": {
+        "ticker": "BRS.WA",
+        "pnl_pct": 9.12,
+        "pnl_pln": 556.24,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "PXM.WA",
+        "pnl_pct": -6.83,
+        "pnl_pln": -450.73,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      }
+    },
+    "active_params": {
+      "max_hold_days": 3,
+      "hard_time_stop": true,
+      "max_positions": 3,
+      "breakout_period": 10,
+      "atr_min_pct": 2.0,
+      "atr_max_pct": 8.0,
+      "min_tr_ratio": 1.3,
+      "min_day_gain_pct": 2.5,
+      "max_day_gain_pct": 12.0,
+      "min_close_pos": 0.7,
+      "volume_surge_multiplier": 1.5,
+      "min_turnover_pln": 150000.0,
+      "trailing_stop_atr_mult": 2.0,
+      "use_market_regime": true,
+      "use_profit_ratchet": false,
+      "exec_timing": "close_auction",
+      "commission_pct": 0.29
+    },
+    "notes": "Simulated across 6 historical Nov\u2013Jan SIGG windows (130 GPW tickers) | Hold: 3d (Hard Exit) | Slots: 3 | Exec: close_auction | Commission: 0.29% + 0.10% slippage."
+  },
+  "seasons": [
+    {
+      "season": "2020/2021",
+      "start_date": "2020-11-16",
+      "end_date": "2021-01-15",
+      "initial_capital": 20000.0,
+      "final_capital": 21391.33,
+      "net_profit": 1391.33,
+      "return_pct": 6.96,
+      "trades_count": 28,
+      "win_rate": 46.4,
+      "profit_factor": 1.4,
+      "avg_win_pct": 5.53,
+      "avg_loss_pct": -3.3,
+      "max_drawdown": 8.3,
+      "biggest_winner": {
+        "ticker": "SNK.WA",
+        "pnl_pct": 14.71,
+        "pnl_pln": 969.97,
+        "days_held": 3,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "MIL.WA",
+        "pnl_pct": -7.91,
+        "pnl_pln": -575.99,
+        "days_held": 2,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2021/2022",
+      "start_date": "2021-11-15",
+      "end_date": "2022-01-14",
+      "initial_capital": 20000.0,
+      "final_capital": 19965.12,
+      "net_profit": -34.88,
+      "return_pct": -0.17,
+      "trades_count": 10,
+      "win_rate": 50.0,
+      "profit_factor": 0.97,
+      "avg_win_pct": 3.25,
+      "avg_loss_pct": -3.24,
+      "max_drawdown": 5.5,
+      "biggest_winner": {
+        "ticker": "ATC.WA",
+        "pnl_pct": 6.64,
+        "pnl_pln": 438.9,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "BMX.WA",
+        "pnl_pct": -6.58,
+        "pnl_pln": -441.1,
+        "days_held": 1,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2022/2023",
+      "start_date": "2022-11-14",
+      "end_date": "2023-01-13",
+      "initial_capital": 20000.0,
+      "final_capital": 19589.7,
+      "net_profit": -410.3,
+      "return_pct": -2.05,
+      "trades_count": 36,
+      "win_rate": 44.4,
+      "profit_factor": 0.86,
+      "avg_win_pct": 2.55,
+      "avg_loss_pct": -2.34,
+      "max_drawdown": 8.9,
+      "biggest_winner": {
+        "ticker": "BRS.WA",
+        "pnl_pct": 9.12,
+        "pnl_pln": 556.24,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "PXM.WA",
+        "pnl_pct": -6.83,
+        "pnl_pln": -450.73,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      }
+    },
+    {
+      "season": "2023/2024",
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 23312.63,
+      "net_profit": 3312.63,
+      "return_pct": 16.56,
+      "trades_count": 32,
+      "win_rate": 65.6,
+      "profit_factor": 2.0,
+      "avg_win_pct": 4.48,
+      "avg_loss_pct": -4.28,
+      "max_drawdown": 3.3,
+      "biggest_winner": {
+        "ticker": "BOS.WA",
+        "pnl_pct": 11.61,
+        "pnl_pln": 838.24,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "MAB.WA",
+        "pnl_pct": -6.52,
+        "pnl_pln": -440.97,
+        "days_held": 1,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2024/2025",
+      "start_date": "2024-11-18",
+      "end_date": "2025-01-17",
+      "initial_capital": 20000.0,
+      "final_capital": 21277.08,
+      "net_profit": 1277.08,
+      "return_pct": 6.39,
+      "trades_count": 12,
+      "win_rate": 58.3,
+      "profit_factor": 1.96,
+      "avg_win_pct": 5.61,
+      "avg_loss_pct": -3.88,
+      "max_drawdown": 4.2,
+      "biggest_winner": {
+        "ticker": "CDR.WA",
+        "pnl_pct": 10.5,
+        "pnl_pln": 678.46,
+        "days_held": 3,
+        "exit_reason": "Max_Hold_3D_Exit"
+      },
+      "biggest_loser": {
+        "ticker": "CMP.WA",
+        "pnl_pct": -6.55,
+        "pnl_pln": -450.26,
+        "days_held": 2,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2025/2026",
+      "start_date": "2025-11-17",
+      "end_date": "2026-01-16",
+      "initial_capital": 20000.0,
+      "final_capital": 21733.92,
+      "net_profit": 1733.92,
+      "return_pct": 8.67,
+      "trades_count": 13,
+      "win_rate": 46.2,
+      "profit_factor": 2.73,
+      "avg_win_pct": 6.93,
+      "avg_loss_pct": -2.12,
+      "max_drawdown": 2.7,
+      "biggest_winner": {
+        "ticker": "CRJ.WA",
+        "pnl_pct": 14.14,
+        "pnl_pln": 868.68,
+        "days_held": 3,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      },
+      "biggest_loser": {
+        "ticker": "ERB.WA",
+        "pnl_pct": -4.45,
+        "pnl_pln": -290.77,
+        "days_held": 2,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    }
+  ],
+  "equity_curves": {
+    "2020/2021": [
+      {
+        "date": "2020-11-16",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2020-11-17",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2020-11-18",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2020-11-19",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2020-11-22",
+        "value": 19922.98,
+        "day": 4
+      },
+      {
+        "date": "2020-11-23",
+        "value": 21296.71,
+        "day": 5
+      },
+      {
+        "date": "2020-11-24",
+        "value": 21542.95,
+        "day": 6
+      },
+      {
+        "date": "2020-11-25",
+        "value": 21223.86,
+        "day": 7
+      },
+      {
+        "date": "2020-11-26",
+        "value": 21197.23,
+        "day": 8
+      },
+      {
+        "date": "2020-11-29",
+        "value": 21310.85,
+        "day": 9
+      },
+      {
+        "date": "2020-11-30",
+        "value": 20818.41,
+        "day": 10
+      },
+      {
+        "date": "2020-12-01",
+        "value": 21318.28,
+        "day": 11
+      },
+      {
+        "date": "2020-12-02",
+        "value": 21224.48,
+        "day": 12
+      },
+      {
+        "date": "2020-12-03",
+        "value": 21160.12,
+        "day": 13
+      },
+      {
+        "date": "2020-12-06",
+        "value": 21410.81,
+        "day": 14
+      },
+      {
+        "date": "2020-12-07",
+        "value": 21229.55,
+        "day": 15
+      },
+      {
+        "date": "2020-12-08",
+        "value": 21965.47,
+        "day": 16
+      },
+      {
+        "date": "2020-12-09",
+        "value": 21950.47,
+        "day": 17
+      },
+      {
+        "date": "2020-12-10",
+        "value": 21512.18,
+        "day": 18
+      },
+      {
+        "date": "2020-12-13",
+        "value": 21123.71,
+        "day": 19
+      },
+      {
+        "date": "2020-12-14",
+        "value": 21019.65,
+        "day": 20
+      },
+      {
+        "date": "2020-12-15",
+        "value": 21244.29,
+        "day": 21
+      },
+      {
+        "date": "2020-12-16",
+        "value": 21047.16,
+        "day": 22
+      },
+      {
+        "date": "2020-12-17",
+        "value": 20346.02,
+        "day": 23
+      },
+      {
+        "date": "2020-12-20",
+        "value": 20262.95,
+        "day": 24
+      },
+      {
+        "date": "2020-12-21",
+        "value": 20262.95,
+        "day": 25
+      },
+      {
+        "date": "2020-12-22",
+        "value": 20210.87,
+        "day": 26
+      },
+      {
+        "date": "2020-12-27",
+        "value": 20342.57,
+        "day": 27
+      },
+      {
+        "date": "2020-12-28",
+        "value": 20308.61,
+        "day": 28
+      },
+      {
+        "date": "2020-12-29",
+        "value": 20147.86,
+        "day": 29
+      },
+      {
+        "date": "2021-01-03",
+        "value": 21021.03,
+        "day": 30
+      },
+      {
+        "date": "2021-01-04",
+        "value": 21338.47,
+        "day": 31
+      },
+      {
+        "date": "2021-01-06",
+        "value": 21846.54,
+        "day": 32
+      },
+      {
+        "date": "2021-01-07",
+        "value": 21772.27,
+        "day": 33
+      },
+      {
+        "date": "2021-01-10",
+        "value": 22199.38,
+        "day": 34
+      },
+      {
+        "date": "2021-01-11",
+        "value": 22111.03,
+        "day": 35
+      },
+      {
+        "date": "2021-01-12",
+        "value": 21612.36,
+        "day": 36
+      },
+      {
+        "date": "2021-01-13",
+        "value": 21310.33,
+        "day": 37
+      },
+      {
+        "date": "2021-01-14",
+        "value": 21391.33,
+        "day": 38
+      }
+    ],
+    "2021/2022": [
+      {
+        "date": "2021-11-15",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2021-11-16",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2021-11-17",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2021-11-18",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2021-11-21",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2021-11-22",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2021-11-23",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2021-11-24",
+        "value": 20000.0,
+        "day": 7
+      },
+      {
+        "date": "2021-11-25",
+        "value": 20000.0,
+        "day": 8
+      },
+      {
+        "date": "2021-11-28",
+        "value": 20000.0,
+        "day": 9
+      },
+      {
+        "date": "2021-11-29",
+        "value": 20000.0,
+        "day": 10
+      },
+      {
+        "date": "2021-11-30",
+        "value": 20000.0,
+        "day": 11
+      },
+      {
+        "date": "2021-12-01",
+        "value": 20000.0,
+        "day": 12
+      },
+      {
+        "date": "2021-12-02",
+        "value": 20000.0,
+        "day": 13
+      },
+      {
+        "date": "2021-12-05",
+        "value": 20000.0,
+        "day": 14
+      },
+      {
+        "date": "2021-12-06",
+        "value": 20000.0,
+        "day": 15
+      },
+      {
+        "date": "2021-12-07",
+        "value": 20000.0,
+        "day": 16
+      },
+      {
+        "date": "2021-12-08",
+        "value": 20000.0,
+        "day": 17
+      },
+      {
+        "date": "2021-12-09",
+        "value": 20000.0,
+        "day": 18
+      },
+      {
+        "date": "2021-12-12",
+        "value": 20000.0,
+        "day": 19
+      },
+      {
+        "date": "2021-12-13",
+        "value": 20000.0,
+        "day": 20
+      },
+      {
+        "date": "2021-12-14",
+        "value": 20000.0,
+        "day": 21
+      },
+      {
+        "date": "2021-12-15",
+        "value": 20000.0,
+        "day": 22
+      },
+      {
+        "date": "2021-12-16",
+        "value": 20000.0,
+        "day": 23
+      },
+      {
+        "date": "2021-12-19",
+        "value": 20000.0,
+        "day": 24
+      },
+      {
+        "date": "2021-12-20",
+        "value": 20000.0,
+        "day": 25
+      },
+      {
+        "date": "2021-12-21",
+        "value": 20000.0,
+        "day": 26
+      },
+      {
+        "date": "2021-12-22",
+        "value": 20000.0,
+        "day": 27
+      },
+      {
+        "date": "2021-12-26",
+        "value": 20000.0,
+        "day": 28
+      },
+      {
+        "date": "2021-12-27",
+        "value": 20000.0,
+        "day": 29
+      },
+      {
+        "date": "2021-12-28",
+        "value": 20000.0,
+        "day": 30
+      },
+      {
+        "date": "2021-12-29",
+        "value": 19948.61,
+        "day": 31
+      },
+      {
+        "date": "2022-01-02",
+        "value": 20189.77,
+        "day": 32
+      },
+      {
+        "date": "2022-01-03",
+        "value": 20108.25,
+        "day": 33
+      },
+      {
+        "date": "2022-01-04",
+        "value": 20578.37,
+        "day": 34
+      },
+      {
+        "date": "2022-01-06",
+        "value": 20295.52,
+        "day": 35
+      },
+      {
+        "date": "2022-01-09",
+        "value": 19440.69,
+        "day": 36
+      },
+      {
+        "date": "2022-01-10",
+        "value": 19543.24,
+        "day": 37
+      },
+      {
+        "date": "2022-01-11",
+        "value": 20099.54,
+        "day": 38
+      },
+      {
+        "date": "2022-01-12",
+        "value": 20034.43,
+        "day": 39
+      },
+      {
+        "date": "2022-01-13",
+        "value": 19965.12,
+        "day": 40
+      }
+    ],
+    "2022/2023": [
+      {
+        "date": "2022-11-14",
+        "value": 19922.98,
+        "day": 0
+      },
+      {
+        "date": "2022-11-15",
+        "value": 19879.69,
+        "day": 1
+      },
+      {
+        "date": "2022-11-16",
+        "value": 19543.2,
+        "day": 2
+      },
+      {
+        "date": "2022-11-17",
+        "value": 19480.8,
+        "day": 3
+      },
+      {
+        "date": "2022-11-20",
+        "value": 19319.93,
+        "day": 4
+      },
+      {
+        "date": "2022-11-21",
+        "value": 19646.91,
+        "day": 5
+      },
+      {
+        "date": "2022-11-22",
+        "value": 19473.41,
+        "day": 6
+      },
+      {
+        "date": "2022-11-23",
+        "value": 19503.64,
+        "day": 7
+      },
+      {
+        "date": "2022-11-24",
+        "value": 19523.96,
+        "day": 8
+      },
+      {
+        "date": "2022-11-27",
+        "value": 19797.59,
+        "day": 9
+      },
+      {
+        "date": "2022-11-28",
+        "value": 19725.66,
+        "day": 10
+      },
+      {
+        "date": "2022-11-29",
+        "value": 19461.78,
+        "day": 11
+      },
+      {
+        "date": "2022-11-30",
+        "value": 19709.02,
+        "day": 12
+      },
+      {
+        "date": "2022-12-01",
+        "value": 19581.94,
+        "day": 13
+      },
+      {
+        "date": "2022-12-04",
+        "value": 20197.81,
+        "day": 14
+      },
+      {
+        "date": "2022-12-05",
+        "value": 19490.84,
+        "day": 15
+      },
+      {
+        "date": "2022-12-06",
+        "value": 19242.38,
+        "day": 16
+      },
+      {
+        "date": "2022-12-07",
+        "value": 19184.88,
+        "day": 17
+      },
+      {
+        "date": "2022-12-08",
+        "value": 19251.97,
+        "day": 18
+      },
+      {
+        "date": "2022-12-11",
+        "value": 19144.09,
+        "day": 19
+      },
+      {
+        "date": "2022-12-12",
+        "value": 19004.45,
+        "day": 20
+      },
+      {
+        "date": "2022-12-13",
+        "value": 19226.55,
+        "day": 21
+      },
+      {
+        "date": "2022-12-14",
+        "value": 18634.03,
+        "day": 22
+      },
+      {
+        "date": "2022-12-15",
+        "value": 18922.76,
+        "day": 23
+      },
+      {
+        "date": "2022-12-18",
+        "value": 18879.66,
+        "day": 24
+      },
+      {
+        "date": "2022-12-19",
+        "value": 18736.16,
+        "day": 25
+      },
+      {
+        "date": "2022-12-20",
+        "value": 18772.33,
+        "day": 26
+      },
+      {
+        "date": "2022-12-21",
+        "value": 18595.62,
+        "day": 27
+      },
+      {
+        "date": "2022-12-22",
+        "value": 18490.32,
+        "day": 28
+      },
+      {
+        "date": "2022-12-26",
+        "value": 18454.39,
+        "day": 29
+      },
+      {
+        "date": "2022-12-27",
+        "value": 18454.39,
+        "day": 30
+      },
+      {
+        "date": "2022-12-28",
+        "value": 18407.68,
+        "day": 31
+      },
+      {
+        "date": "2022-12-29",
+        "value": 18760.44,
+        "day": 32
+      },
+      {
+        "date": "2023-01-01",
+        "value": 19245.45,
+        "day": 33
+      },
+      {
+        "date": "2023-01-02",
+        "value": 19071.59,
+        "day": 34
+      },
+      {
+        "date": "2023-01-03",
+        "value": 19286.42,
+        "day": 35
+      },
+      {
+        "date": "2023-01-04",
+        "value": 19257.41,
+        "day": 36
+      },
+      {
+        "date": "2023-01-08",
+        "value": 19447.51,
+        "day": 37
+      },
+      {
+        "date": "2023-01-09",
+        "value": 19612.34,
+        "day": 38
+      },
+      {
+        "date": "2023-01-10",
+        "value": 19059.41,
+        "day": 39
+      },
+      {
+        "date": "2023-01-11",
+        "value": 19446.6,
+        "day": 40
+      },
+      {
+        "date": "2023-01-12",
+        "value": 19589.7,
+        "day": 41
+      }
+    ],
+    "2023/2024": [
+      {
+        "date": "2023-11-13",
+        "value": 19974.28,
+        "day": 0
+      },
+      {
+        "date": "2023-11-14",
+        "value": 19996.18,
+        "day": 1
+      },
+      {
+        "date": "2023-11-15",
+        "value": 20125.26,
+        "day": 2
+      },
+      {
+        "date": "2023-11-16",
+        "value": 19902.87,
+        "day": 3
+      },
+      {
+        "date": "2023-11-19",
+        "value": 20120.53,
+        "day": 4
+      },
+      {
+        "date": "2023-11-20",
+        "value": 19991.89,
+        "day": 5
+      },
+      {
+        "date": "2023-11-21",
+        "value": 19849.95,
+        "day": 6
+      },
+      {
+        "date": "2023-11-22",
+        "value": 20097.49,
+        "day": 7
+      },
+      {
+        "date": "2023-11-23",
+        "value": 20020.08,
+        "day": 8
+      },
+      {
+        "date": "2023-11-26",
+        "value": 20956.02,
+        "day": 9
+      },
+      {
+        "date": "2023-11-27",
+        "value": 21098.57,
+        "day": 10
+      },
+      {
+        "date": "2023-11-28",
+        "value": 20404.4,
+        "day": 11
+      },
+      {
+        "date": "2023-11-29",
+        "value": 20645.33,
+        "day": 12
+      },
+      {
+        "date": "2023-11-30",
+        "value": 20767.98,
+        "day": 13
+      },
+      {
+        "date": "2023-12-03",
+        "value": 20908.57,
+        "day": 14
+      },
+      {
+        "date": "2023-12-04",
+        "value": 21117.88,
+        "day": 15
+      },
+      {
+        "date": "2023-12-05",
+        "value": 21184.18,
+        "day": 16
+      },
+      {
+        "date": "2023-12-06",
+        "value": 21212.53,
+        "day": 17
+      },
+      {
+        "date": "2023-12-07",
+        "value": 21159.17,
+        "day": 18
+      },
+      {
+        "date": "2023-12-10",
+        "value": 21152.94,
+        "day": 19
+      },
+      {
+        "date": "2023-12-11",
+        "value": 20993.96,
+        "day": 20
+      },
+      {
+        "date": "2023-12-12",
+        "value": 21121.33,
+        "day": 21
+      },
+      {
+        "date": "2023-12-13",
+        "value": 21774.03,
+        "day": 22
+      },
+      {
+        "date": "2023-12-14",
+        "value": 22381.59,
+        "day": 23
+      },
+      {
+        "date": "2023-12-17",
+        "value": 22644.47,
+        "day": 24
+      },
+      {
+        "date": "2023-12-18",
+        "value": 23003.3,
+        "day": 25
+      },
+      {
+        "date": "2023-12-19",
+        "value": 23434.82,
+        "day": 26
+      },
+      {
+        "date": "2023-12-20",
+        "value": 23476.58,
+        "day": 27
+      },
+      {
+        "date": "2023-12-21",
+        "value": 23417.44,
+        "day": 28
+      },
+      {
+        "date": "2023-12-26",
+        "value": 23328.15,
+        "day": 29
+      },
+      {
+        "date": "2023-12-27",
+        "value": 22906.62,
+        "day": 30
+      },
+      {
+        "date": "2023-12-28",
+        "value": 22753.28,
+        "day": 31
+      },
+      {
+        "date": "2024-01-01",
+        "value": 23112.22,
+        "day": 32
+      },
+      {
+        "date": "2024-01-02",
+        "value": 23112.22,
+        "day": 33
+      },
+      {
+        "date": "2024-01-03",
+        "value": 23023.15,
+        "day": 34
+      },
+      {
+        "date": "2024-01-04",
+        "value": 22921.94,
+        "day": 35
+      },
+      {
+        "date": "2024-01-07",
+        "value": 22764.94,
+        "day": 36
+      },
+      {
+        "date": "2024-01-08",
+        "value": 23085.52,
+        "day": 37
+      },
+      {
+        "date": "2024-01-09",
+        "value": 23379.75,
+        "day": 38
+      },
+      {
+        "date": "2024-01-10",
+        "value": 23256.03,
+        "day": 39
+      },
+      {
+        "date": "2024-01-11",
+        "value": 23312.63,
+        "day": 40
+      }
+    ],
+    "2024/2025": [
+      {
+        "date": "2024-11-18",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2024-11-19",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2024-11-20",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2024-11-21",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2024-11-24",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2024-11-25",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2024-11-26",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2024-11-27",
+        "value": 20000.0,
+        "day": 7
+      },
+      {
+        "date": "2024-11-28",
+        "value": 20000.0,
+        "day": 8
+      },
+      {
+        "date": "2024-12-01",
+        "value": 19974.32,
+        "day": 9
+      },
+      {
+        "date": "2024-12-02",
+        "value": 19898.31,
+        "day": 10
+      },
+      {
+        "date": "2024-12-03",
+        "value": 20076.03,
+        "day": 11
+      },
+      {
+        "date": "2024-12-04",
+        "value": 20779.77,
+        "day": 12
+      },
+      {
+        "date": "2024-12-05",
+        "value": 20793.39,
+        "day": 13
+      },
+      {
+        "date": "2024-12-08",
+        "value": 20898.75,
+        "day": 14
+      },
+      {
+        "date": "2024-12-09",
+        "value": 20856.61,
+        "day": 15
+      },
+      {
+        "date": "2024-12-10",
+        "value": 21083.24,
+        "day": 16
+      },
+      {
+        "date": "2024-12-11",
+        "value": 21083.24,
+        "day": 17
+      },
+      {
+        "date": "2024-12-12",
+        "value": 21055.35,
+        "day": 18
+      },
+      {
+        "date": "2024-12-15",
+        "value": 21055.35,
+        "day": 19
+      },
+      {
+        "date": "2024-12-16",
+        "value": 21055.35,
+        "day": 20
+      },
+      {
+        "date": "2024-12-17",
+        "value": 21055.35,
+        "day": 21
+      },
+      {
+        "date": "2024-12-18",
+        "value": 21055.35,
+        "day": 22
+      },
+      {
+        "date": "2024-12-19",
+        "value": 21055.35,
+        "day": 23
+      },
+      {
+        "date": "2024-12-22",
+        "value": 21055.35,
+        "day": 24
+      },
+      {
+        "date": "2024-12-26",
+        "value": 21055.35,
+        "day": 25
+      },
+      {
+        "date": "2024-12-29",
+        "value": 21055.35,
+        "day": 26
+      },
+      {
+        "date": "2025-01-01",
+        "value": 20974.51,
+        "day": 27
+      },
+      {
+        "date": "2025-01-02",
+        "value": 20649.01,
+        "day": 28
+      },
+      {
+        "date": "2025-01-06",
+        "value": 20517.19,
+        "day": 29
+      },
+      {
+        "date": "2025-01-07",
+        "value": 20243.48,
+        "day": 30
+      },
+      {
+        "date": "2025-01-08",
+        "value": 20243.48,
+        "day": 31
+      },
+      {
+        "date": "2025-01-09",
+        "value": 20243.48,
+        "day": 32
+      },
+      {
+        "date": "2025-01-12",
+        "value": 20243.48,
+        "day": 33
+      },
+      {
+        "date": "2025-01-13",
+        "value": 20191.59,
+        "day": 34
+      },
+      {
+        "date": "2025-01-14",
+        "value": 20789.12,
+        "day": 35
+      },
+      {
+        "date": "2025-01-15",
+        "value": 20886.36,
+        "day": 36
+      },
+      {
+        "date": "2025-01-16",
+        "value": 21277.08,
+        "day": 37
+      }
+    ],
+    "2025/2026": [
+      {
+        "date": "2025-11-17",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2025-11-18",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2025-11-19",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2025-11-20",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2025-11-23",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2025-11-24",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2025-11-25",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2025-11-26",
+        "value": 20000.0,
+        "day": 7
+      },
+      {
+        "date": "2025-11-27",
+        "value": 20000.0,
+        "day": 8
+      },
+      {
+        "date": "2025-11-30",
+        "value": 20000.0,
+        "day": 9
+      },
+      {
+        "date": "2025-12-01",
+        "value": 20000.0,
+        "day": 10
+      },
+      {
+        "date": "2025-12-02",
+        "value": 20000.0,
+        "day": 11
+      },
+      {
+        "date": "2025-12-03",
+        "value": 20000.0,
+        "day": 12
+      },
+      {
+        "date": "2025-12-04",
+        "value": 20000.0,
+        "day": 13
+      },
+      {
+        "date": "2025-12-07",
+        "value": 20000.0,
+        "day": 14
+      },
+      {
+        "date": "2025-12-08",
+        "value": 20000.0,
+        "day": 15
+      },
+      {
+        "date": "2025-12-09",
+        "value": 20000.0,
+        "day": 16
+      },
+      {
+        "date": "2025-12-10",
+        "value": 19974.37,
+        "day": 17
+      },
+      {
+        "date": "2025-12-11",
+        "value": 20044.67,
+        "day": 18
+      },
+      {
+        "date": "2025-12-14",
+        "value": 20233.92,
+        "day": 19
+      },
+      {
+        "date": "2025-12-15",
+        "value": 19786.32,
+        "day": 20
+      },
+      {
+        "date": "2025-12-16",
+        "value": 19688.36,
+        "day": 21
+      },
+      {
+        "date": "2025-12-17",
+        "value": 19820.85,
+        "day": 22
+      },
+      {
+        "date": "2025-12-18",
+        "value": 19820.85,
+        "day": 23
+      },
+      {
+        "date": "2025-12-21",
+        "value": 19820.85,
+        "day": 24
+      },
+      {
+        "date": "2025-12-22",
+        "value": 19820.85,
+        "day": 25
+      },
+      {
+        "date": "2025-12-28",
+        "value": 19820.85,
+        "day": 26
+      },
+      {
+        "date": "2025-12-29",
+        "value": 19795.43,
+        "day": 27
+      },
+      {
+        "date": "2026-01-01",
+        "value": 19756.62,
+        "day": 28
+      },
+      {
+        "date": "2026-01-04",
+        "value": 19931.58,
+        "day": 29
+      },
+      {
+        "date": "2026-01-06",
+        "value": 19862.03,
+        "day": 30
+      },
+      {
+        "date": "2026-01-07",
+        "value": 19716.07,
+        "day": 31
+      },
+      {
+        "date": "2026-01-08",
+        "value": 21075.72,
+        "day": 32
+      },
+      {
+        "date": "2026-01-11",
+        "value": 21089.6,
+        "day": 33
+      },
+      {
+        "date": "2026-01-12",
+        "value": 20894.66,
+        "day": 34
+      },
+      {
+        "date": "2026-01-13",
+        "value": 21515.92,
+        "day": 35
+      },
+      {
+        "date": "2026-01-14",
+        "value": 21527.16,
+        "day": 36
+      },
+      {
+        "date": "2026-01-15",
+        "value": 21733.92,
+        "day": 37
+      }
+    ]
+  },
+  "trades": [
+    {
+      "Ticker": "MCI.WA",
+      "Entry_Date": "2020-11-22",
+      "Exit_Date": "2020-11-25",
+      "Entry_Price": 12.55,
+      "Exit_Price": 12.7,
+      "Shares": 525,
+      "Fees_PLN": 38.44,
+      "PnL": 37.55,
+      "PnL_Pct": 0.57,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "IMP.WA",
+      "Entry_Date": "2020-11-22",
+      "Exit_Date": "2020-11-25",
+      "Entry_Price": 1.47,
+      "Exit_Price": 1.53,
+      "Shares": 4479,
+      "Fees_PLN": 38.97,
+      "PnL": 216.34,
+      "PnL_Pct": 3.27,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SNK.WA",
+      "Entry_Date": "2020-11-22",
+      "Exit_Date": "2020-11-25",
+      "Entry_Price": 11.53,
+      "Exit_Price": 13.31,
+      "Shares": 570,
+      "Fees_PLN": 41.06,
+      "PnL": 969.97,
+      "PnL_Pct": 14.71,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "BDX.WA",
+      "Entry_Date": "2020-11-26",
+      "Exit_Date": "2020-11-30",
+      "Entry_Price": 179.74,
+      "Exit_Price": 171.5,
+      "Shares": 38,
+      "Fees_PLN": 38.71,
+      "PnL": -351.82,
+      "PnL_Pct": -5.14,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "LBW.WA",
+      "Entry_Date": "2020-11-30",
+      "Exit_Date": "2020-12-03",
+      "Entry_Price": 1.58,
+      "Exit_Price": 1.49,
+      "Shares": 4354,
+      "Fees_PLN": 38.75,
+      "PnL": -450.19,
+      "PnL_Pct": -6.52,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "FRO.WA",
+      "Entry_Date": "2020-11-30",
+      "Exit_Date": "2020-12-03",
+      "Entry_Price": 14.64,
+      "Exit_Price": 16.48,
+      "Shares": 469,
+      "Fees_PLN": 42.34,
+      "PnL": 820.09,
+      "PnL_Pct": 11.91,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ETFBW20LV.WA",
+      "Entry_Date": "2020-12-03",
+      "Exit_Date": "2020-12-08",
+      "Entry_Price": 38.65,
+      "Exit_Price": 40.34,
+      "Shares": 181,
+      "Fees_PLN": 41.46,
+      "PnL": 264.61,
+      "PnL_Pct": 3.77,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2020-12-03",
+      "Exit_Date": "2020-12-08",
+      "Entry_Price": 6.15,
+      "Exit_Price": 6.13,
+      "Shares": 1139,
+      "Fees_PLN": 40.56,
+      "PnL": -54.55,
+      "PnL_Pct": -0.78,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MIL.WA",
+      "Entry_Date": "2020-12-03",
+      "Exit_Date": "2020-12-08",
+      "Entry_Price": 3.09,
+      "Exit_Price": 3.38,
+      "Shares": 2260,
+      "Fees_PLN": 42.4,
+      "PnL": 598.38,
+      "PnL_Pct": 8.54,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "TPE.WA",
+      "Entry_Date": "2020-12-08",
+      "Exit_Date": "2020-12-10",
+      "Entry_Price": 2.45,
+      "Exit_Price": 2.37,
+      "Shares": 2967,
+      "Fees_PLN": 41.53,
+      "PnL": -272.02,
+      "PnL_Pct": -3.73,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MIL.WA",
+      "Entry_Date": "2020-12-08",
+      "Exit_Date": "2020-12-10",
+      "Entry_Price": 3.38,
+      "Exit_Price": 3.13,
+      "Shares": 2147,
+      "Fees_PLN": 40.58,
+      "PnL": -575.99,
+      "PnL_Pct": -7.91,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MFO.WA",
+      "Entry_Date": "2020-12-08",
+      "Exit_Date": "2020-12-13",
+      "Entry_Price": 20.98,
+      "Exit_Price": 21.29,
+      "Shares": 345,
+      "Fees_PLN": 42.29,
+      "PnL": 63.88,
+      "PnL_Pct": 0.88,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MCI.WA",
+      "Entry_Date": "2020-12-10",
+      "Exit_Date": "2020-12-14",
+      "Entry_Price": 12.97,
+      "Exit_Price": 12.65,
+      "Shares": 547,
+      "Fees_PLN": 40.64,
+      "PnL": -219.53,
+      "PnL_Pct": -3.08,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ERB.WA",
+      "Entry_Date": "2020-12-14",
+      "Exit_Date": "2020-12-17",
+      "Entry_Price": 22.46,
+      "Exit_Price": 22.33,
+      "Shares": 309,
+      "Fees_PLN": 40.14,
+      "PnL": -81.79,
+      "PnL_Pct": -1.17,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MDV.WA",
+      "Entry_Date": "2020-12-15",
+      "Exit_Date": "2020-12-17",
+      "Entry_Price": 79.08,
+      "Exit_Price": 74.01,
+      "Shares": 88,
+      "Fees_PLN": 39.07,
+      "PnL": -485.0,
+      "PnL_Pct": -6.95,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "KTY.WA",
+      "Entry_Date": "2020-12-15",
+      "Exit_Date": "2020-12-20",
+      "Entry_Price": 306.98,
+      "Exit_Price": 298.87,
+      "Shares": 22,
+      "Fees_PLN": 38.65,
+      "PnL": -216.98,
+      "PnL_Pct": -3.2,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ASB.WA",
+      "Entry_Date": "2020-12-22",
+      "Exit_Date": "2020-12-29",
+      "Entry_Price": 7.19,
+      "Exit_Price": 7.33,
+      "Shares": 930,
+      "Fees_PLN": 39.16,
+      "PnL": 96.14,
+      "PnL_Pct": 1.43,
+      "Days_Held": 3,
+      "Calendar_Days": 7,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "GPW.WA",
+      "Entry_Date": "2020-12-22",
+      "Exit_Date": "2020-12-29",
+      "Entry_Price": 31.78,
+      "Exit_Price": 31.93,
+      "Shares": 210,
+      "Fees_PLN": 38.8,
+      "PnL": -8.08,
+      "PnL_Pct": -0.12,
+      "Days_Held": 3,
+      "Calendar_Days": 7,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "CIG.WA",
+      "Entry_Date": "2020-12-28",
+      "Exit_Date": "2021-01-04",
+      "Entry_Price": 1.33,
+      "Exit_Price": 1.46,
+      "Shares": 5040,
+      "Fees_PLN": 40.78,
+      "PnL": 600.36,
+      "PnL_Pct": 8.92,
+      "Days_Held": 3,
+      "Calendar_Days": 7,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SLV.WA",
+      "Entry_Date": "2020-12-29",
+      "Exit_Date": "2021-01-06",
+      "Entry_Price": 49.35,
+      "Exit_Price": 53.15,
+      "Shares": 134,
+      "Fees_PLN": 39.83,
+      "PnL": 469.04,
+      "PnL_Pct": 7.07,
+      "Days_Held": 3,
+      "Calendar_Days": 8,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "LSI.WA",
+      "Entry_Date": "2021-01-03",
+      "Exit_Date": "2021-01-07",
+      "Entry_Price": 12.38,
+      "Exit_Price": 13.17,
+      "Shares": 560,
+      "Fees_PLN": 41.49,
+      "PnL": 397.8,
+      "PnL_Pct": 5.72,
+      "Days_Held": 3,
+      "Calendar_Days": 4,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "DEL.WA",
+      "Entry_Date": "2021-01-04",
+      "Exit_Date": "2021-01-10",
+      "Entry_Price": 5.68,
+      "Exit_Price": 5.69,
+      "Shares": 1242,
+      "Fees_PLN": 40.95,
+      "PnL": -17.81,
+      "PnL_Pct": -0.25,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SLV.WA",
+      "Entry_Date": "2021-01-07",
+      "Exit_Date": "2021-01-12",
+      "Entry_Price": 55.46,
+      "Exit_Price": 56.14,
+      "Shares": 129,
+      "Fees_PLN": 41.75,
+      "PnL": 47.05,
+      "PnL_Pct": 0.66,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "KRU.WA",
+      "Entry_Date": "2021-01-07",
+      "Exit_Date": "2021-01-12",
+      "Entry_Price": 125.19,
+      "Exit_Price": 125.63,
+      "Shares": 57,
+      "Fees_PLN": 41.46,
+      "PnL": -15.86,
+      "PnL_Pct": -0.22,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ENP.WA",
+      "Entry_Date": "2021-01-10",
+      "Exit_Date": "2021-01-13",
+      "Entry_Price": 1.35,
+      "Exit_Price": 1.32,
+      "Shares": 5428,
+      "Fees_PLN": 42.03,
+      "PnL": -219.36,
+      "PnL_Pct": -2.98,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SNT.WA",
+      "Entry_Date": "2021-01-12",
+      "Exit_Date": "2021-01-14",
+      "Entry_Price": 28.28,
+      "Exit_Price": 27.0,
+      "Shares": 252,
+      "Fees_PLN": 40.4,
+      "PnL": -361.77,
+      "PnL_Pct": -5.06,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MRB.WA",
+      "Entry_Date": "2021-01-13",
+      "Exit_Date": "2021-01-14",
+      "Entry_Price": 3.74,
+      "Exit_Price": 3.68,
+      "Shares": 1883,
+      "Fees_PLN": 40.52,
+      "PnL": -167.47,
+      "PnL_Pct": -2.37,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "AST.WA",
+      "Entry_Date": "2021-01-13",
+      "Exit_Date": "2021-01-14",
+      "Entry_Price": 31.22,
+      "Exit_Price": 32.78,
+      "Shares": 225,
+      "Fees_PLN": 41.76,
+      "PnL": 308.34,
+      "PnL_Pct": 4.38,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MSP.WA",
+      "Entry_Date": "2021-12-29",
+      "Exit_Date": "2022-01-04",
+      "Entry_Price": 20.35,
+      "Exit_Price": 20.31,
+      "Shares": 324,
+      "Fees_PLN": 38.2,
+      "PnL": -51.38,
+      "PnL_Pct": -0.78,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "ATC.WA",
+      "Entry_Date": "2021-12-29",
+      "Exit_Date": "2022-01-04",
+      "Entry_Price": 6.83,
+      "Exit_Price": 7.32,
+      "Shares": 965,
+      "Fees_PLN": 39.6,
+      "PnL": 438.9,
+      "PnL_Pct": 6.64,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "APR.WA",
+      "Entry_Date": "2022-01-02",
+      "Exit_Date": "2022-01-06",
+      "Entry_Price": 14.34,
+      "Exit_Price": 14.51,
+      "Shares": 465,
+      "Fees_PLN": 38.9,
+      "PnL": 36.03,
+      "PnL_Pct": 0.54,
+      "Days_Held": 3,
+      "Calendar_Days": 4,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "ATC.WA",
+      "Entry_Date": "2022-01-04",
+      "Exit_Date": "2022-01-09",
+      "Entry_Price": 7.34,
+      "Exit_Price": 6.96,
+      "Shares": 927,
+      "Fees_PLN": 38.44,
+      "PnL": -388.06,
+      "PnL_Pct": -5.69,
+      "Days_Held": 2,
+      "Calendar_Days": 5,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "BMX.WA",
+      "Entry_Date": "2022-01-06",
+      "Exit_Date": "2022-01-09",
+      "Entry_Price": 35.58,
+      "Exit_Price": 33.43,
+      "Shares": 188,
+      "Fees_PLN": 37.62,
+      "PnL": -441.1,
+      "PnL_Pct": -6.58,
+      "Days_Held": 1,
+      "Calendar_Days": 3,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "PKN.WA",
+      "Entry_Date": "2022-01-04",
+      "Exit_Date": "2022-01-10",
+      "Entry_Price": 56.73,
+      "Exit_Price": 55.29,
+      "Shares": 119,
+      "Fees_PLN": 38.66,
+      "PnL": -209.41,
+      "PnL_Pct": -3.09,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "CIG.WA",
+      "Entry_Date": "2022-01-09",
+      "Exit_Date": "2022-01-12",
+      "Entry_Price": 1.65,
+      "Exit_Price": 1.75,
+      "Shares": 3889,
+      "Fees_PLN": 38.34,
+      "PnL": 337.33,
+      "PnL_Pct": 5.24,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "ALR.WA",
+      "Entry_Date": "2022-01-10",
+      "Exit_Date": "2022-01-13",
+      "Entry_Price": 48.63,
+      "Exit_Price": 48.87,
+      "Shares": 132,
+      "Fees_PLN": 37.32,
+      "PnL": -5.31,
+      "PnL_Pct": -0.08,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "PEO.WA",
+      "Entry_Date": "2022-01-10",
+      "Exit_Date": "2022-01-13",
+      "Entry_Price": 87.89,
+      "Exit_Price": 90.58,
+      "Shares": 73,
+      "Fees_PLN": 37.78,
+      "PnL": 158.7,
+      "PnL_Pct": 2.47,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "SNT.WA",
+      "Entry_Date": "2022-01-12",
+      "Exit_Date": "2022-01-13",
+      "Entry_Price": 28.93,
+      "Exit_Price": 29.49,
+      "Shares": 228,
+      "Fees_PLN": 38.63,
+      "PnL": 89.41,
+      "PnL_Pct": 1.35,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "ENT.WA",
+      "Entry_Date": "2022-11-14",
+      "Exit_Date": "2022-11-17",
+      "Entry_Price": 18.86,
+      "Exit_Price": 18.99,
+      "Shares": 349,
+      "Fees_PLN": 38.31,
+      "PnL": 7.81,
+      "PnL_Pct": 0.12,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "APR.WA",
+      "Entry_Date": "2022-11-14",
+      "Exit_Date": "2022-11-17",
+      "Entry_Price": 12.94,
+      "Exit_Price": 12.92,
+      "Shares": 509,
+      "Fees_PLN": 38.17,
+      "PnL": -51.33,
+      "PnL_Pct": -0.78,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "PXM.WA",
+      "Entry_Date": "2022-11-14",
+      "Exit_Date": "2022-11-17",
+      "Entry_Price": 4.1,
+      "Exit_Price": 3.85,
+      "Shares": 1604,
+      "Fees_PLN": 36.98,
+      "PnL": -450.73,
+      "PnL_Pct": -6.83,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CTX.WA",
+      "Entry_Date": "2022-11-17",
+      "Exit_Date": "2022-11-22",
+      "Entry_Price": 188.19,
+      "Exit_Price": 179.82,
+      "Shares": 34,
+      "Fees_PLN": 36.29,
+      "PnL": -320.8,
+      "PnL_Pct": -5.0,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "TOA.WA",
+      "Entry_Date": "2022-11-20",
+      "Exit_Date": "2022-11-23",
+      "Entry_Price": 5.02,
+      "Exit_Price": 5.06,
+      "Shares": 1272,
+      "Fees_PLN": 37.18,
+      "PnL": 26.32,
+      "PnL_Pct": 0.41,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "EAT.WA",
+      "Entry_Date": "2022-11-21",
+      "Exit_Date": "2022-11-24",
+      "Entry_Price": 18.83,
+      "Exit_Price": 19.57,
+      "Shares": 344,
+      "Fees_PLN": 38.31,
+      "PnL": 216.8,
+      "PnL_Pct": 3.34,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "MRB.WA",
+      "Entry_Date": "2022-11-22",
+      "Exit_Date": "2022-11-27",
+      "Entry_Price": 3.69,
+      "Exit_Price": 3.77,
+      "Shares": 1698,
+      "Fees_PLN": 36.73,
+      "PnL": 86.44,
+      "PnL_Pct": 1.37,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "PZU.WA",
+      "Entry_Date": "2022-11-23",
+      "Exit_Date": "2022-11-28",
+      "Entry_Price": 25.34,
+      "Exit_Price": 25.13,
+      "Shares": 252,
+      "Fees_PLN": 36.88,
+      "PnL": -87.4,
+      "PnL_Pct": -1.37,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "AMC.WA",
+      "Entry_Date": "2022-11-24",
+      "Exit_Date": "2022-11-29",
+      "Entry_Price": 71.52,
+      "Exit_Price": 73.33,
+      "Shares": 90,
+      "Fees_PLN": 37.81,
+      "PnL": 124.66,
+      "PnL_Pct": 1.93,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "WLT.WA",
+      "Entry_Date": "2022-11-27",
+      "Exit_Date": "2022-11-30",
+      "Entry_Price": 6.72,
+      "Exit_Price": 6.72,
+      "Shares": 973,
+      "Fees_PLN": 37.92,
+      "PnL": -31.54,
+      "PnL_Pct": -0.48,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "LWB.WA",
+      "Entry_Date": "2022-11-28",
+      "Exit_Date": "2022-12-01",
+      "Entry_Price": 36.36,
+      "Exit_Price": 35.77,
+      "Shares": 175,
+      "Fees_PLN": 36.61,
+      "PnL": -138.48,
+      "PnL_Pct": -2.17,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "ENT.WA",
+      "Entry_Date": "2022-11-29",
+      "Exit_Date": "2022-12-01",
+      "Entry_Price": 21.14,
+      "Exit_Price": 21.52,
+      "Shares": 304,
+      "Fees_PLN": 37.61,
+      "PnL": 76.24,
+      "PnL_Pct": 1.18,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "PXM.WA",
+      "Entry_Date": "2022-11-30",
+      "Exit_Date": "2022-12-05",
+      "Entry_Price": 4.25,
+      "Exit_Price": 4.53,
+      "Shares": 1530,
+      "Fees_PLN": 38.96,
+      "PnL": 376.01,
+      "PnL_Pct": 5.76,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CMP.WA",
+      "Entry_Date": "2022-12-01",
+      "Exit_Date": "2022-12-05",
+      "Entry_Price": 8.95,
+      "Exit_Price": 8.86,
+      "Shares": 723,
+      "Fees_PLN": 37.33,
+      "PnL": -103.92,
+      "PnL_Pct": -1.6,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "BDX.WA",
+      "Entry_Date": "2022-12-01",
+      "Exit_Date": "2022-12-06",
+      "Entry_Price": 231.17,
+      "Exit_Price": 222.87,
+      "Shares": 27,
+      "Fees_PLN": 35.55,
+      "PnL": -259.8,
+      "PnL_Pct": -4.15,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "MAB.WA",
+      "Entry_Date": "2022-12-05",
+      "Exit_Date": "2022-12-08",
+      "Entry_Price": 23.48,
+      "Exit_Price": 23.33,
+      "Shares": 274,
+      "Fees_PLN": 37.2,
+      "PnL": -80.16,
+      "PnL_Pct": -1.24,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "ASB.WA",
+      "Entry_Date": "2022-12-06",
+      "Exit_Date": "2022-12-11",
+      "Entry_Price": 23.82,
+      "Exit_Price": 23.67,
+      "Shares": 266,
+      "Fees_PLN": 36.63,
+      "PnL": -78.53,
+      "PnL_Pct": -1.24,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CLN.WA",
+      "Entry_Date": "2022-12-07",
+      "Exit_Date": "2022-12-12",
+      "Entry_Price": 15.95,
+      "Exit_Price": 15.91,
+      "Shares": 397,
+      "Fees_PLN": 36.68,
+      "PnL": -49.33,
+      "PnL_Pct": -0.78,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "AGO.WA",
+      "Entry_Date": "2022-12-08",
+      "Exit_Date": "2022-12-13",
+      "Entry_Price": 4.55,
+      "Exit_Price": 4.48,
+      "Shares": 1396,
+      "Fees_PLN": 36.57,
+      "PnL": -142.91,
+      "PnL_Pct": -2.24,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2022-12-11",
+      "Exit_Date": "2022-12-14",
+      "Entry_Price": 8.81,
+      "Exit_Price": 8.56,
+      "Shares": 718,
+      "Fees_PLN": 36.17,
+      "PnL": -213.78,
+      "PnL_Pct": -3.37,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "COG.WA",
+      "Entry_Date": "2022-12-12",
+      "Exit_Date": "2022-12-15",
+      "Entry_Price": 3.72,
+      "Exit_Price": 3.88,
+      "Shares": 1686,
+      "Fees_PLN": 37.16,
+      "PnL": 219.79,
+      "PnL_Pct": 3.49,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "MRB.WA",
+      "Entry_Date": "2022-12-13",
+      "Exit_Date": "2022-12-18",
+      "Entry_Price": 4.28,
+      "Exit_Price": 4.18,
+      "Shares": 1482,
+      "Fees_PLN": 36.36,
+      "PnL": -197.1,
+      "PnL_Pct": -3.1,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "COG.WA",
+      "Entry_Date": "2022-12-18",
+      "Exit_Date": "2022-12-21",
+      "Entry_Price": 4.11,
+      "Exit_Price": 3.94,
+      "Shares": 1518,
+      "Fees_PLN": 35.44,
+      "PnL": -305.72,
+      "PnL_Pct": -4.88,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "XTB.WA",
+      "Entry_Date": "2022-12-18",
+      "Exit_Date": "2022-12-21",
+      "Entry_Price": 23.38,
+      "Exit_Price": 23.16,
+      "Shares": 266,
+      "Fees_PLN": 35.9,
+      "PnL": -96.16,
+      "PnL_Pct": -1.54,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "DOM.WA",
+      "Entry_Date": "2022-12-20",
+      "Exit_Date": "2022-12-26",
+      "Entry_Price": 75.71,
+      "Exit_Price": 75.25,
+      "Shares": 81,
+      "Fees_PLN": 35.46,
+      "PnL": -71.99,
+      "PnL_Pct": -1.17,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "NEU.WA",
+      "Entry_Date": "2022-12-28",
+      "Exit_Date": "2023-01-02",
+      "Entry_Price": 589.9,
+      "Exit_Price": 590.57,
+      "Shares": 10,
+      "Fees_PLN": 34.23,
+      "PnL": -27.54,
+      "PnL_Pct": -0.47,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "BRS.WA",
+      "Entry_Date": "2022-12-28",
+      "Exit_Date": "2023-01-02",
+      "Entry_Price": 4.11,
+      "Exit_Price": 4.52,
+      "Shares": 1478,
+      "Fees_PLN": 36.99,
+      "PnL": 556.24,
+      "PnL_Pct": 9.12,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "ENT.WA",
+      "Entry_Date": "2023-01-01",
+      "Exit_Date": "2023-01-04",
+      "Entry_Price": 23.08,
+      "Exit_Price": 23.8,
+      "Shares": 275,
+      "Fees_PLN": 37.39,
+      "PnL": 158.72,
+      "PnL_Pct": 2.49,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2023-01-02",
+      "Exit_Date": "2023-01-08",
+      "Entry_Price": 9.1,
+      "Exit_Price": 9.47,
+      "Shares": 693,
+      "Fees_PLN": 37.32,
+      "PnL": 220.08,
+      "PnL_Pct": 3.48,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "EUR.WA",
+      "Entry_Date": "2023-01-02",
+      "Exit_Date": "2023-01-08",
+      "Entry_Price": 13.52,
+      "Exit_Price": 13.86,
+      "Shares": 463,
+      "Fees_PLN": 36.76,
+      "PnL": 117.24,
+      "PnL_Pct": 1.87,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "WLT.WA",
+      "Entry_Date": "2023-01-04",
+      "Exit_Date": "2023-01-10",
+      "Entry_Price": 7.42,
+      "Exit_Price": 7.17,
+      "Shares": 857,
+      "Fees_PLN": 36.26,
+      "PnL": -245.87,
+      "PnL_Pct": -3.86,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "TOA.WA",
+      "Entry_Date": "2023-01-08",
+      "Exit_Date": "2023-01-11",
+      "Entry_Price": 5.68,
+      "Exit_Price": 5.67,
+      "Shares": 1133,
+      "Fees_PLN": 37.29,
+      "PnL": -38.82,
+      "PnL_Pct": -0.6,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "KGH.WA",
+      "Entry_Date": "2023-01-08",
+      "Exit_Date": "2023-01-11",
+      "Entry_Price": 143.49,
+      "Exit_Price": 146.1,
+      "Shares": 44,
+      "Fees_PLN": 36.95,
+      "PnL": 77.91,
+      "PnL_Pct": 1.23,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CLN.WA",
+      "Entry_Date": "2023-01-10",
+      "Exit_Date": "2023-01-12",
+      "Entry_Price": 15.91,
+      "Exit_Price": 16.6,
+      "Shares": 395,
+      "Fees_PLN": 37.24,
+      "PnL": 238.27,
+      "PnL_Pct": 3.78,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "1AT.WA",
+      "Entry_Date": "2023-01-11",
+      "Exit_Date": "2023-01-12",
+      "Entry_Price": 25.52,
+      "Exit_Price": 25.87,
+      "Shares": 252,
+      "Fees_PLN": 37.56,
+      "PnL": 52.81,
+      "PnL_Pct": 0.82,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "ALE.WA",
+      "Entry_Date": "2023-01-11",
+      "Exit_Date": "2023-01-12",
+      "Entry_Price": 31.01,
+      "Exit_Price": 31.32,
+      "Shares": 207,
+      "Fees_PLN": 37.42,
+      "PnL": 26.27,
+      "PnL_Pct": 0.41,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CBF.WA",
+      "Entry_Date": "2023-11-13",
+      "Exit_Date": "2023-11-16",
+      "Entry_Price": 80.45,
+      "Exit_Price": 78.36,
+      "Shares": 82,
+      "Fees_PLN": 37.77,
+      "PnL": -209.05,
+      "PnL_Pct": -3.16,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "BHW.WA",
+      "Entry_Date": "2023-11-14",
+      "Exit_Date": "2023-11-19",
+      "Entry_Price": 68.55,
+      "Exit_Price": 72.4,
+      "Shares": 96,
+      "Fees_PLN": 39.24,
+      "PnL": 330.27,
+      "PnL_Pct": 5.0,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MRB.WA",
+      "Entry_Date": "2023-11-16",
+      "Exit_Date": "2023-11-21",
+      "Entry_Price": 7.76,
+      "Exit_Price": 8.09,
+      "Shares": 847,
+      "Fees_PLN": 38.93,
+      "PnL": 244.09,
+      "PnL_Pct": 3.7,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "TEN.WA",
+      "Entry_Date": "2023-11-20",
+      "Exit_Date": "2023-11-21",
+      "Entry_Price": 72.78,
+      "Exit_Price": 68.56,
+      "Shares": 90,
+      "Fees_PLN": 36.89,
+      "PnL": -417.32,
+      "PnL_Pct": -6.35,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ELT.WA",
+      "Entry_Date": "2023-11-19",
+      "Exit_Date": "2023-11-22",
+      "Entry_Price": 13.8,
+      "Exit_Price": 14.2,
+      "Shares": 481,
+      "Fees_PLN": 39.06,
+      "PnL": 149.5,
+      "PnL_Pct": 2.25,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "VOX.WA",
+      "Entry_Date": "2023-11-23",
+      "Exit_Date": "2023-11-27",
+      "Entry_Price": 63.55,
+      "Exit_Price": 63.4,
+      "Shares": 104,
+      "Fees_PLN": 38.29,
+      "PnL": -54.31,
+      "PnL_Pct": -0.82,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "TPE.WA",
+      "Entry_Date": "2023-11-23",
+      "Exit_Date": "2023-11-28",
+      "Entry_Price": 3.86,
+      "Exit_Price": 4.1,
+      "Shares": 1716,
+      "Fees_PLN": 39.61,
+      "PnL": 358.57,
+      "PnL_Pct": 5.39,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "PGE.WA",
+      "Entry_Date": "2023-11-23",
+      "Exit_Date": "2023-11-28",
+      "Entry_Price": 7.7,
+      "Exit_Price": 8.32,
+      "Shares": 859,
+      "Fees_PLN": 39.91,
+      "PnL": 496.09,
+      "PnL_Pct": 7.48,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MAB.WA",
+      "Entry_Date": "2023-11-27",
+      "Exit_Date": "2023-11-28",
+      "Entry_Price": 22.62,
+      "Exit_Price": 21.27,
+      "Shares": 298,
+      "Fees_PLN": 37.93,
+      "PnL": -440.97,
+      "PnL_Pct": -6.52,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CRI.WA",
+      "Entry_Date": "2023-11-28",
+      "Exit_Date": "2023-12-03",
+      "Entry_Price": 232.23,
+      "Exit_Price": 219.78,
+      "Shares": 29,
+      "Fees_PLN": 38.01,
+      "PnL": -399.12,
+      "PnL_Pct": -5.91,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "FRO.WA",
+      "Entry_Date": "2023-11-28",
+      "Exit_Date": "2023-12-03",
+      "Entry_Price": 23.1,
+      "Exit_Price": 25.01,
+      "Shares": 291,
+      "Fees_PLN": 40.61,
+      "PnL": 515.75,
+      "PnL_Pct": 7.65,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MDV.WA",
+      "Entry_Date": "2023-11-29",
+      "Exit_Date": "2023-12-04",
+      "Entry_Price": 54.35,
+      "Exit_Price": 59.78,
+      "Shares": 125,
+      "Fees_PLN": 41.37,
+      "PnL": 636.86,
+      "PnL_Pct": 9.35,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MAK.WA",
+      "Entry_Date": "2023-12-03",
+      "Exit_Date": "2023-12-06",
+      "Entry_Price": 17.72,
+      "Exit_Price": 17.95,
+      "Shares": 390,
+      "Fees_PLN": 40.34,
+      "PnL": 51.05,
+      "PnL_Pct": 0.74,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "APR.WA",
+      "Entry_Date": "2023-12-03",
+      "Exit_Date": "2023-12-06",
+      "Entry_Price": 26.65,
+      "Exit_Price": 27.23,
+      "Shares": 255,
+      "Fees_PLN": 39.84,
+      "PnL": 109.62,
+      "PnL_Pct": 1.61,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MBR.WA",
+      "Entry_Date": "2023-12-04",
+      "Exit_Date": "2023-12-07",
+      "Entry_Price": 274.32,
+      "Exit_Price": 268.51,
+      "Shares": 25,
+      "Fees_PLN": 39.36,
+      "PnL": -184.68,
+      "PnL_Pct": -2.69,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "TEN.WA",
+      "Entry_Date": "2023-12-07",
+      "Exit_Date": "2023-12-12",
+      "Entry_Price": 76.58,
+      "Exit_Price": 78.18,
+      "Shares": 91,
+      "Fees_PLN": 40.84,
+      "PnL": 105.24,
+      "PnL_Pct": 1.51,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "AGO.WA",
+      "Entry_Date": "2023-12-10",
+      "Exit_Date": "2023-12-13",
+      "Entry_Price": 10.81,
+      "Exit_Price": 10.93,
+      "Shares": 647,
+      "Fees_PLN": 40.79,
+      "PnL": 35.72,
+      "PnL_Pct": 0.51,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MFO.WA",
+      "Entry_Date": "2023-12-10",
+      "Exit_Date": "2023-12-13",
+      "Entry_Price": 31.13,
+      "Exit_Price": 32.97,
+      "Shares": 224,
+      "Fees_PLN": 41.64,
+      "PnL": 369.6,
+      "PnL_Pct": 5.28,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MAK.WA",
+      "Entry_Date": "2023-12-12",
+      "Exit_Date": "2023-12-17",
+      "Entry_Price": 19.57,
+      "Exit_Price": 20.61,
+      "Shares": 356,
+      "Fees_PLN": 41.48,
+      "PnL": 328.7,
+      "PnL_Pct": 4.7,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2023-12-13",
+      "Exit_Date": "2023-12-18",
+      "Entry_Price": 9.7,
+      "Exit_Price": 10.89,
+      "Shares": 742,
+      "Fees_PLN": 44.3,
+      "PnL": 838.24,
+      "PnL_Pct": 11.61,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "PEP.WA",
+      "Entry_Date": "2023-12-13",
+      "Exit_Date": "2023-12-18",
+      "Entry_Price": 75.98,
+      "Exit_Price": 78.22,
+      "Shares": 94,
+      "Fees_PLN": 42.03,
+      "PnL": 169.07,
+      "PnL_Pct": 2.36,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2023-12-18",
+      "Exit_Date": "2023-12-21",
+      "Entry_Price": 10.91,
+      "Exit_Price": 11.53,
+      "Shares": 696,
+      "Fees_PLN": 45.29,
+      "PnL": 384.53,
+      "PnL_Pct": 5.05,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MBR.WA",
+      "Entry_Date": "2023-12-26",
+      "Exit_Date": "2023-12-27",
+      "Entry_Price": 300.27,
+      "Exit_Price": 284.69,
+      "Shares": 25,
+      "Fees_PLN": 42.41,
+      "PnL": -431.89,
+      "PnL_Pct": -5.74,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Entry_Date": "2023-12-26",
+      "Exit_Date": "2024-01-01",
+      "Entry_Price": 37.94,
+      "Exit_Price": 40.26,
+      "Shares": 203,
+      "Fees_PLN": 46.03,
+      "PnL": 425.29,
+      "PnL_Pct": 5.51,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ABE.WA",
+      "Entry_Date": "2023-12-26",
+      "Exit_Date": "2024-01-01",
+      "Entry_Price": 65.19,
+      "Exit_Price": 66.49,
+      "Shares": 118,
+      "Fees_PLN": 45.06,
+      "PnL": 109.32,
+      "PnL_Pct": 1.42,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "NEU.WA",
+      "Entry_Date": "2023-12-27",
+      "Exit_Date": "2024-01-01",
+      "Entry_Price": 877.47,
+      "Exit_Price": 831.43,
+      "Shares": 8,
+      "Fees_PLN": 39.65,
+      "PnL": -407.95,
+      "PnL_Pct": -5.79,
+      "Days_Held": 2,
+      "Calendar_Days": 5,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "1AT.WA",
+      "Entry_Date": "2024-01-03",
+      "Exit_Date": "2024-01-07",
+      "Entry_Price": 46.94,
+      "Exit_Price": 44.55,
+      "Shares": 162,
+      "Fees_PLN": 42.98,
+      "PnL": -430.4,
+      "PnL_Pct": -5.64,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "EDI.WA",
+      "Entry_Date": "2024-01-03",
+      "Exit_Date": "2024-01-08",
+      "Entry_Price": 4.96,
+      "Exit_Price": 5.13,
+      "Shares": 1536,
+      "Fees_PLN": 44.99,
+      "PnL": 215.98,
+      "PnL_Pct": 2.82,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "DVL.WA",
+      "Entry_Date": "2024-01-03",
+      "Exit_Date": "2024-01-08",
+      "Entry_Price": 3.52,
+      "Exit_Price": 3.46,
+      "Shares": 2161,
+      "Fees_PLN": 43.74,
+      "PnL": -188.49,
+      "PnL_Pct": -2.47,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "NTT.WA",
+      "Entry_Date": "2024-01-07",
+      "Exit_Date": "2024-01-10",
+      "Entry_Price": 5.56,
+      "Exit_Price": 6.1,
+      "Shares": 1327,
+      "Fees_PLN": 44.87,
+      "PnL": 682.78,
+      "PnL_Pct": 9.23,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ECH.WA",
+      "Entry_Date": "2024-01-08",
+      "Exit_Date": "2024-01-11",
+      "Entry_Price": 3.4,
+      "Exit_Price": 3.36,
+      "Shares": 2244,
+      "Fees_PLN": 43.99,
+      "PnL": -148.92,
+      "PnL_Pct": -1.94,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CMP.WA",
+      "Entry_Date": "2024-01-08",
+      "Exit_Date": "2024-01-11",
+      "Entry_Price": 16.5,
+      "Exit_Price": 16.74,
+      "Shares": 462,
+      "Fees_PLN": 44.53,
+      "PnL": 69.47,
+      "PnL_Pct": 0.91,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CMP.WA",
+      "Entry_Date": "2024-12-01",
+      "Exit_Date": "2024-12-04",
+      "Entry_Price": 25.53,
+      "Exit_Price": 27.47,
+      "Shares": 258,
+      "Fees_PLN": 39.65,
+      "PnL": 462.67,
+      "PnL_Pct": 7.01,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "SNT.WA",
+      "Entry_Date": "2024-12-02",
+      "Exit_Date": "2024-12-05",
+      "Entry_Price": 169.38,
+      "Exit_Price": 168.48,
+      "Shares": 38,
+      "Fees_PLN": 37.23,
+      "PnL": -71.35,
+      "PnL_Pct": -1.11,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "CDR.WA",
+      "Entry_Date": "2024-12-02",
+      "Exit_Date": "2024-12-05",
+      "Entry_Price": 178.98,
+      "Exit_Price": 198.92,
+      "Shares": 36,
+      "Fees_PLN": 39.45,
+      "PnL": 678.46,
+      "PnL_Pct": 10.5,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "CMP.WA",
+      "Entry_Date": "2024-12-04",
+      "Exit_Date": "2024-12-08",
+      "Entry_Price": 27.53,
+      "Exit_Price": 25.87,
+      "Shares": 249,
+      "Fees_PLN": 38.56,
+      "PnL": -450.26,
+      "PnL_Pct": -6.55,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "NEU.WA",
+      "Entry_Date": "2024-12-05",
+      "Exit_Date": "2024-12-10",
+      "Entry_Price": 819.88,
+      "Exit_Price": 851.55,
+      "Shares": 8,
+      "Fees_PLN": 38.78,
+      "PnL": 214.57,
+      "PnL_Pct": 3.26,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ECH.WA",
+      "Entry_Date": "2024-12-09",
+      "Exit_Date": "2024-12-12",
+      "Entry_Price": 3.74,
+      "Exit_Price": 3.89,
+      "Shares": 1840,
+      "Fees_PLN": 40.71,
+      "PnL": 221.25,
+      "PnL_Pct": 3.2,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ATG.WA",
+      "Entry_Date": "2025-01-01",
+      "Exit_Date": "2025-01-07",
+      "Entry_Price": 3.85,
+      "Exit_Price": 3.75,
+      "Shares": 1802,
+      "Fees_PLN": 39.72,
+      "PnL": -233.61,
+      "PnL_Pct": -3.35,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "MDV.WA",
+      "Entry_Date": "2025-01-01",
+      "Exit_Date": "2025-01-07",
+      "Entry_Price": 196.0,
+      "Exit_Price": 185.46,
+      "Shares": 35,
+      "Fees_PLN": 38.72,
+      "PnL": -407.57,
+      "PnL_Pct": -5.92,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ERB.WA",
+      "Entry_Date": "2025-01-01",
+      "Exit_Date": "2025-01-07",
+      "Entry_Price": 34.29,
+      "Exit_Price": 33.65,
+      "Shares": 202,
+      "Fees_PLN": 39.8,
+      "PnL": -170.68,
+      "PnL_Pct": -2.46,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "DNP.WA",
+      "Entry_Date": "2025-01-13",
+      "Exit_Date": "2025-01-16",
+      "Entry_Price": 41.04,
+      "Exit_Price": 43.54,
+      "Shares": 162,
+      "Fees_PLN": 39.73,
+      "PnL": 364.52,
+      "PnL_Pct": 5.47,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Entry_Date": "2025-01-13",
+      "Exit_Date": "2025-01-16",
+      "Entry_Price": 11.01,
+      "Exit_Price": 11.59,
+      "Shares": 605,
+      "Fees_PLN": 39.65,
+      "PnL": 309.68,
+      "PnL_Pct": 4.64,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "EUR.WA",
+      "Entry_Date": "2025-01-14",
+      "Exit_Date": "2025-01-16",
+      "Entry_Price": 7.79,
+      "Exit_Price": 8.24,
+      "Shares": 882,
+      "Fees_PLN": 41.0,
+      "PnL": 359.4,
+      "PnL_Pct": 5.22,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ETFBW20LV.WA",
+      "Entry_Date": "2025-12-10",
+      "Exit_Date": "2025-12-15",
+      "Entry_Price": 69.2,
+      "Exit_Price": 70.73,
+      "Shares": 95,
+      "Fees_PLN": 38.55,
+      "PnL": 106.81,
+      "PnL_Pct": 1.62,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "IFI.WA",
+      "Entry_Date": "2025-12-14",
+      "Exit_Date": "2025-12-17",
+      "Entry_Price": 29.31,
+      "Exit_Price": 29.35,
+      "Shares": 228,
+      "Fees_PLN": 38.79,
+      "PnL": -29.36,
+      "PnL_Pct": -0.44,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ALR.WA",
+      "Entry_Date": "2025-12-14",
+      "Exit_Date": "2025-12-17",
+      "Entry_Price": 104.17,
+      "Exit_Price": 100.76,
+      "Shares": 64,
+      "Fees_PLN": 38.04,
+      "PnL": -256.59,
+      "PnL_Pct": -3.84,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ERB.WA",
+      "Entry_Date": "2025-12-29",
+      "Exit_Date": "2026-01-04",
+      "Entry_Price": 28.23,
+      "Exit_Price": 27.13,
+      "Shares": 231,
+      "Fees_PLN": 37.08,
+      "PnL": -290.77,
+      "PnL_Pct": -4.45,
+      "Days_Held": 2,
+      "Calendar_Days": 6,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "AGO.WA",
+      "Entry_Date": "2026-01-01",
+      "Exit_Date": "2026-01-07",
+      "Entry_Price": 8.99,
+      "Exit_Price": 9.43,
+      "Shares": 727,
+      "Fees_PLN": 38.83,
+      "PnL": 282.19,
+      "PnL_Pct": 4.31,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "CRI.WA",
+      "Entry_Date": "2026-01-01",
+      "Exit_Date": "2026-01-07",
+      "Entry_Price": 425.42,
+      "Exit_Price": 438.06,
+      "Shares": 15,
+      "Fees_PLN": 37.56,
+      "PnL": 151.99,
+      "PnL_Pct": 2.37,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ASB.WA",
+      "Entry_Date": "2026-01-04",
+      "Exit_Date": "2026-01-08",
+      "Entry_Price": 33.56,
+      "Exit_Price": 33.56,
+      "Shares": 195,
+      "Fees_PLN": 37.96,
+      "PnL": -39.34,
+      "PnL_Pct": -0.6,
+      "Days_Held": 3,
+      "Calendar_Days": 4,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "CRJ.WA",
+      "Entry_Date": "2026-01-07",
+      "Exit_Date": "2026-01-12",
+      "Entry_Price": 612.61,
+      "Exit_Price": 703.3,
+      "Shares": 10,
+      "Fees_PLN": 38.16,
+      "PnL": 868.68,
+      "PnL_Pct": 14.14,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "SNT.WA",
+      "Entry_Date": "2026-01-07",
+      "Exit_Date": "2026-01-12",
+      "Entry_Price": 294.28,
+      "Exit_Price": 294.85,
+      "Shares": 22,
+      "Fees_PLN": 37.59,
+      "PnL": -25.03,
+      "PnL_Pct": -0.39,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "KGN.WA",
+      "Entry_Date": "2026-01-08",
+      "Exit_Date": "2026-01-13",
+      "Entry_Price": 73.47,
+      "Exit_Price": 78.32,
+      "Shares": 94,
+      "Fees_PLN": 41.38,
+      "PnL": 414.35,
+      "PnL_Pct": 5.98,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "DAD.WA",
+      "Entry_Date": "2026-01-12",
+      "Exit_Date": "2026-01-15",
+      "Entry_Price": 67.07,
+      "Exit_Price": 76.32,
+      "Shares": 103,
+      "Fees_PLN": 42.83,
+      "PnL": 910.6,
+      "PnL_Pct": 13.14,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ATC.WA",
+      "Entry_Date": "2026-01-12",
+      "Exit_Date": "2026-01-15",
+      "Entry_Price": 9.46,
+      "Exit_Price": 9.23,
+      "Shares": 728,
+      "Fees_PLN": 39.46,
+      "PnL": -205.95,
+      "PnL_Pct": -2.98,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Exit_Reason": "Max_Hold_3D_Exit",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "KGN.WA",
+      "Entry_Date": "2026-01-13",
+      "Exit_Date": "2026-01-15",
+      "Entry_Price": 78.48,
+      "Exit_Price": 77.22,
+      "Shares": 90,
+      "Fees_PLN": 40.64,
+      "PnL": -153.65,
+      "PnL_Pct": -2.17,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2025/2026"
+    }
+  ]
+}

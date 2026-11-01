@@ -1,0 +1,131 @@
+﻿Ticker,Name,Close,Day_Gain_Pct,Breakout_Target,ATR_Pct,TR_Ratio,Close_Pos,Volume_Surge,Turnover_PLN,Runner_Score,Trend_SMA50,Stop_Loss,Max_Hold,Target,RR_Ratio,Tier,BT_Stats,Strategy_Signal,Chart
+KGN.WA,KGN,74.8,6.86,71.8,2.39,2.84,1.0,9.02,8015867,4.94,Uptrend,70.7,3 Days,80.78,1.46,TIER 1 (STRICT),50.0% WR (+1.9% / 2t),Buy,https://pl.tradingview.com/symbols/GPW-KGN/
+DNP.WA,DNP,34.78,7.71,34.03,2.59,3.01,0.84,2.61,445136161,2.41,Uptrend,32.66,3 Days,37.67,1.36,TIER 1 (STRICT),100.0% WR (+5.5% / 1t),Buy,https://pl.tradingview.com/symbols/GPW-DNP/
+LWB.WA,LWB,23.8,2.81,23.75,2.96,1.62,0.83,1.62,2290511,1.46,Uptrend,22.17,3 Days,26.02,1.36,TIER 2 (3D BURST),0.0% WR (-2.2% / 1t),Buy,https://pl.tradingview.com/symbols/GPW-LWB/
+HRS.WA,HRS,1.35,3.85,1.3,2.88,2.8,1.0,5.54,123321,3.54,Uptrend,1.26,3 Days,1.47,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-HRS/
+DCR.WA,DCR,84.6,2.05,83.6,2.32,1.41,0.93,4.84,589238,2.69,Uptrend,80.07,3 Days,91.37,1.5,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-DCR/
+KGH.WA,KGH,342.35,2.98,370.2,4.77,0.68,0.91,3.52,916499039,1.86,Uptrend,307.58,3 Days,389.76,1.36,WATCH,100.0% WR (+1.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-KGH/
+BFT.WA,BFT,5395.0,-3.23,5695.0,2.63,2.37,0.49,1.91,41250170,1.81,Uptrend,5042.21,3 Days,5876.07,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-BFT/
+JSW.WA,JSW,29.59,3.39,29.4,3.71,1.21,0.81,2.86,25752798,1.79,Uptrend,27.13,3 Days,32.95,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-JSW/
+ATD.WA,ATD,5.36,8.06,4.99,6.09,1.26,1.0,2.43,1212710,1.68,Uptrend,4.66,3 Days,6.31,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ATD/
+IMP.WA,IMP,1.41,7.63,1.48,3.87,2.14,0.5,1.81,8379,1.68,Downtrend,1.3,3 Days,1.56,1.36,WATCH,100.0% WR (+3.3% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-IMP/
+TOA.WA,TOA,9.5,0.42,9.55,1.17,1.16,0.69,2.62,601160,1.65,Uptrend,9.25,3 Days,10.26,3.08,WATCH,50.0% WR (-0.1% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-TOA/
+LKD.WA,LKD,22.8,1.79,23.2,2.2,2.03,0.25,1.62,9211,1.51,Uptrend,21.72,3 Days,24.62,1.68,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-LKD/
+ETFBW20ST.WA,ETFBW20ST,159.4,2.09,161.12,1.36,1.65,0.88,1.66,1253680,1.5,Downtrend,154.49,3 Days,172.15,2.6,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ETFBW20ST/
+TPE.WA,TPE,8.25,-2.02,9.34,3.24,0.97,0.18,2.63,75958819,1.48,Downtrend,7.66,3 Days,9.06,1.36,WATCH,50.0% WR (+0.8% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-TPE/
+ETFBM40TR.WA,ETFBM40TR,175.16,-2.36,180.0,1.25,1.95,0.14,1.59,4448013,1.45,Uptrend,169.75,3 Days,189.17,2.59,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ETFBM40TR/
+WPL.WA,WPL,62.8,-1.88,65.5,2.06,2.76,0.59,0.4,348916,1.38,Uptrend,59.69,3 Days,67.82,1.61,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-WPL/
+DIG.WA,DIG,370.0,-5.13,426.4,5.82,1.48,0.22,1.82,10041430,1.37,Uptrend,318.14,3 Days,440.71,1.36,WATCH,100.0% WR (+3.9% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-DIG/
+ETFBS80TR.WA,ETFBS80TR,473.6,-1.59,495.0,1.01,1.71,0.17,1.47,1529728,1.31,Downtrend,461.84,3 Days,511.49,3.22,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ETFBS80TR/
+DGA.WA,DGA,22.4,-1.32,22.8,2.99,1.91,1.0,0.84,2844,1.3,Downtrend,20.67,3 Days,24.76,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-DGA/
+INP.WA,INP,7.1,-0.7,7.55,2.2,0.98,0.0,2.28,12077,1.3,Downtrend,6.76,3 Days,7.67,1.68,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-INP/
+FRO.WA,FRO,31.6,1.61,33.0,3.17,1.78,0.13,1.36,570190,1.28,Downtrend,29.25,3 Days,34.81,1.36,WATCH,100.0% WR (+9.8% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-FRO/
+CPS.WA,CPS,15.82,-1.8,17.51,3.21,1.51,0.4,1.46,13589205,1.26,Downtrend,14.6,3 Days,17.48,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CPS/
+ETFBW20LV.WA,ETFBW20LV,126.5,-4.59,133.28,2.35,1.8,0.0,1.26,2489140,1.22,Uptrend,119.07,3 Days,136.63,1.36,WATCH,100.0% WR (+2.7% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-ETFBW20LV/
+DBC.WA,DBC,96.1,-2.24,100.2,1.32,1.72,0.1,1.23,490302,1.2,Uptrend,93.02,3 Days,103.79,2.5,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-DBC/
+SNK.WA,SNK,22.6,0.44,22.8,1.4,0.64,0.5,2.05,139216,1.18,Uptrend,21.91,3 Days,24.41,2.61,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-SNK/
+RVU.WA,RVU,18.1,-1.74,19.58,4.75,1.35,0.61,1.28,1158924,1.17,Uptrend,16.02,3 Days,20.94,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-RVU/
+MDV.WA,MDV,92.9,-4.23,97.96,3.61,1.52,0.06,1.35,36868201,1.16,Uptrend,84.84,3 Days,103.9,1.36,WATCH,33.3% WR (-1.2% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-MDV/
+VGO.WA,VGO,492.0,-0.2,500.0,1.74,1.28,0.36,1.34,569244,1.12,Downtrend,473.14,3 Days,531.36,2.09,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-VGO/
+DVL.WA,DVL,8.95,-1.32,9.77,2.76,0.85,0.29,1.74,5279560,1.09,Downtrend,8.41,3 Days,9.69,1.36,WATCH,0.0% WR (-2.3% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-DVL/
+WLT.WA,WLT,5.34,-0.19,5.36,1.87,1.38,0.69,0.88,197457,1.04,Uptrend,5.13,3 Days,5.77,2.06,WATCH,0.0% WR (-2.2% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-WLT/
+BMX.WA,BMX,9.99,-1.09,10.22,1.44,0.93,0.37,1.39,37502,1.01,Downtrend,9.66,3 Days,10.79,2.42,WATCH,0.0% WR (-6.6% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-BMX/
+EBP.WA,EBP,801.4,1.29,800.0,2.65,1.38,0.81,0.72,39877665,1.0,Uptrend,753.91,3 Days,866.16,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-EBP/
+PGE.WA,PGE,10.19,-0.1,11.23,4.08,1.06,0.56,1.12,37884838,0.98,Uptrend,9.27,3 Days,11.44,1.36,WATCH,100.0% WR (+5.4% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-PGE/
+ATC.WA,ATC,5.95,0.0,6.7,2.61,0.39,0.17,1.92,236393,0.96,Downtrend,5.61,3 Days,6.43,1.4,WATCH,33.3% WR (-0.7% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-ATC/
+XTB.WA,XTB,168.3,3.07,177.8,4.19,0.81,0.95,1.1,113751952,0.95,Uptrend,153.18,3 Days,188.91,1.36,WATCH,0.0% WR (-1.5% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-XTB/
+ABE.WA,ABE,154.8,2.25,157.0,3.15,0.93,0.86,0.99,1073228,0.94,Uptrend,144.43,3 Days,168.94,1.36,WATCH,100.0% WR (+1.4% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-ABE/
+BOS.WA,BOS,10.36,0.19,11.48,3.23,0.6,0.8,1.31,685676,0.92,Uptrend,9.62,3 Days,11.37,1.36,WATCH,66.7% WR (+3.4% / 6t),Hold,https://pl.tradingview.com/symbols/GPW-BOS/
+CLE.WA,CLE,1.8,0.45,1.92,3.46,0.76,1.0,1.01,92599,0.91,Downtrend,1.67,3 Days,1.98,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CLE/
+BHW.WA,BHW,123.0,0.49,124.0,1.61,1.12,0.73,0.76,2457417,0.9,Uptrend,118.66,3 Days,132.84,2.27,WATCH,100.0% WR (+5.0% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-BHW/
+PKN.WA,PKN,153.14,-1.83,156.5,2.88,1.13,0.2,0.99,206881113,0.89,Uptrend,143.27,3 Days,166.6,1.36,WATCH,0.0% WR (-3.1% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-PKN/
+CRJ.WA,CRJ,528.0,1.54,558.0,3.68,0.77,1.0,0.97,1144704,0.89,Uptrend,487.77,3 Days,582.86,1.36,WATCH,100.0% WR (+14.1% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-CRJ/
+BOW.WA,BOW,7.42,-1.59,8.06,4.02,0.77,0.55,1.19,123031,0.89,Downtrend,6.73,3 Days,8.36,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-BOW/
+KRU.WA,KRU,435.7,1.28,441.0,2.04,1.0,0.65,0.88,12721568,0.88,Uptrend,417.19,3 Days,470.56,1.88,WATCH,0.0% WR (-0.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-KRU/
+PXM.WA,PXM,7.75,3.61,8.06,4.54,1.25,0.6,0.66,4937222,0.88,Uptrend,6.97,3 Days,8.81,1.36,WATCH,50.0% WR (-0.6% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-PXM/
+AGO.WA,AGO,10.7,1.9,10.95,4.5,1.06,1.0,0.64,483629,0.88,Uptrend,9.66,3 Days,12.12,1.36,WATCH,66.7% WR (+0.9% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-AGO/
+CRI.WA,CRI,744.0,-5.22,798.0,4.34,1.19,0.0,0.95,6674424,0.85,Uptrend,667.94,3 Days,847.71,1.36,WATCH,50.0% WR (-1.8% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-CRI/
+NEU.WA,NEU,766.0,0.79,800.0,2.32,0.75,0.85,0.93,2183100,0.84,Uptrend,727.97,3 Days,827.28,1.61,WATCH,33.3% WR (-1.0% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-NEU/
+DOM.WA,DOM,251.0,0.0,259.0,1.99,0.82,0.5,0.99,2102376,0.83,Uptrend,240.31,3 Days,271.08,1.88,WATCH,0.0% WR (-1.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-DOM/
+KTY.WA,KTY,1227.0,1.15,1275.0,2.67,1.27,0.1,0.72,20281083,0.82,Uptrend,1155.73,3 Days,1325.16,1.38,WATCH,0.0% WR (-3.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-KTY/
+1AT.WA,1AT,61.2,1.49,61.8,2.97,0.95,0.47,0.87,2410912,0.82,Uptrend,57.27,3 Days,66.56,1.36,WATCH,50.0% WR (-2.4% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-1AT/
+11B.WA,11B,133.0,0.91,139.0,2.76,0.83,0.39,0.98,783503,0.8,Downtrend,125.28,3 Days,143.64,1.38,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-11B/
+APA.WA,APA,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0,0.8,Downtrend,1.0,3 Days,1.08,8.0,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-APA/
+DAD.WA,DAD,97.0,-4.72,108.0,4.48,1.19,0.12,0.74,1102405,0.8,Uptrend,86.47,3 Days,111.36,1.36,WATCH,50.0% WR (+5.7% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-DAD/
+LBD.WA,LBD,0.89,0.0,0.89,0.0,1.0,0.0,1.0,0,0.8,Downtrend,0.89,3 Days,0.97,7.16,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-LBD/
+MNC.WA,MNC,41.6,-0.24,43.0,3.58,1.16,0.5,0.52,96179,0.77,Uptrend,38.17,3 Days,46.27,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MNC/
+CLC.WA,CLC,2.79,-0.54,3.0,4.12,1.03,0.79,0.51,54831,0.77,Downtrend,2.53,3 Days,3.14,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CLC/
+MDG.WA,MDG,25.4,-0.78,26.65,2.54,1.21,0.19,0.62,280238,0.77,Downtrend,23.95,3 Days,27.43,1.4,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MDG/
+CDR.WA,CDR,258.7,1.29,269.0,3.16,0.84,0.68,0.71,56264406,0.75,Uptrend,240.8,3 Days,283.11,1.36,WATCH,100.0% WR (+10.5% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-CDR/
+MIL.WA,MIL,20.89,0.29,21.82,3.07,0.9,0.25,0.85,11737986,0.75,Uptrend,19.5,3 Days,22.79,1.36,WATCH,50.0% WR (+0.3% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-MIL/
+TEN.WA,TEN,103.0,0.98,108.2,2.38,1.01,1.0,0.35,848514,0.75,Uptrend,97.56,3 Days,111.24,1.52,WATCH,50.0% WR (-2.4% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-TEN/
+AST.WA,AST,41.3,-1.67,44.2,2.6,1.18,0.04,0.69,175483,0.75,Downtrend,38.78,3 Days,44.74,1.36,WATCH,100.0% WR (+4.4% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-AST/
+CLN.WA,CLN,19.8,2.06,22.9,4.02,0.55,1.0,0.82,279496,0.75,Downtrend,18.13,3 Days,22.08,1.36,WATCH,50.0% WR (+1.5% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-CLN/
+DEL.WA,DEL,6.03,0.84,6.1,1.3,0.79,1.0,0.56,13266,0.74,Uptrend,5.86,3 Days,6.51,2.87,WATCH,0.0% WR (-0.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-DEL/
+MGT.WA,MGT,61.6,0.98,62.8,1.94,0.55,1.0,0.81,13305,0.74,Downtrend,59.18,3 Days,66.53,2.04,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MGT/
+LEN.WA,LEN,2.06,-0.96,2.17,1.99,1.02,0.0,0.8,16037,0.73,Downtrend,1.97,3 Days,2.22,1.91,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-LEN/
+ALE.WA,ALE,45.1,1.08,47.63,2.54,0.57,0.76,0.85,183549957,0.72,Uptrend,42.65,3 Days,48.7,1.48,WATCH,100.0% WR (+0.4% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-ALE/
+CBF.WA,CBF,208.4,0.29,215.8,3.43,0.68,0.46,0.9,6388085,0.72,Uptrend,192.84,3 Days,229.61,1.36,WATCH,0.0% WR (-3.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-CBF/
+GTC.WA,GTC,2.34,1.3,2.4,2.5,1.51,0.5,0.03,341,0.72,Downtrend,2.22,3 Days,2.53,1.61,WATCH,100.0% WR (+8.7% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-GTC/
+OPL.WA,OPL,14.16,0.07,15.6,2.92,0.93,0.23,0.73,13262632,0.71,Downtrend,13.29,3 Days,15.36,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-OPL/
+IFI.WA,IFI,21.6,-1.82,22.9,3.39,0.66,0.11,1.07,98884,0.71,Downtrend,20.1,3 Days,23.65,1.36,WATCH,0.0% WR (-0.5% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-IFI/
+AMC.WA,AMC,47.3,0.32,48.0,2.11,0.51,1.0,0.75,360520,0.7,Downtrend,45.15,3 Days,51.08,1.76,WATCH,100.0% WR (+1.9% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-AMC/
+ENT.WA,ENT,49.35,-1.3,51.5,2.57,0.81,0.05,0.91,570288,0.7,Downtrend,46.62,3 Days,53.3,1.45,WATCH,100.0% WR (+1.3% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-ENT/
+VOX.WA,VOX,134.8,0.9,133.8,2.84,0.68,0.77,0.65,1141890,0.69,Uptrend,126.38,3 Days,146.29,1.36,WATCH,0.0% WR (-0.8% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-VOX/
+BDX.WA,BDX,704.6,0.23,731.8,2.94,0.82,0.52,0.62,15175674,0.68,Downtrend,660.19,3 Days,765.16,1.36,WATCH,0.0% WR (-4.6% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-BDX/
+ACT.WA,ACT,43.6,-0.34,45.0,2.82,0.71,0.8,0.57,282615,0.67,Downtrend,41.28,3 Days,47.09,1.5,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ACT/
+ECH.WA,ECH,5.38,0.0,5.52,3.13,0.88,0.47,0.53,50771,0.66,Uptrend,5.0,3 Days,5.89,1.36,WATCH,50.0% WR (+0.6% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-ECH/
+ERB.WA,ERB,18.1,-1.09,21.9,3.7,0.66,0.33,0.84,223788,0.66,Downtrend,16.7,3 Days,20.01,1.36,WATCH,0.0% WR (-2.7% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-ERB/
+EAT.WA,EAT,10.84,-0.55,11.66,2.86,1.24,0.05,0.35,205504,0.65,Uptrend,10.16,3 Days,11.76,1.36,WATCH,100.0% WR (+3.3% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-EAT/
+CAV.WA,CAV,13.0,0.0,13.2,1.9,0.84,0.0,0.78,4823,0.65,Downtrend,12.47,3 Days,14.04,1.98,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CAV/
+CIG.WA,CIG,2.39,-1.03,2.48,2.69,0.87,0.18,0.68,263921,0.65,Downtrend,2.26,3 Days,2.59,1.37,WATCH,100.0% WR (+7.0% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-CIG/
+ASB.WA,ASB,128.6,-1.23,136.0,5.12,0.81,0.02,0.77,30845997,0.64,Uptrend,114.13,3 Days,148.34,1.36,WATCH,33.3% WR (-0.1% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-ASB/
+MAB.WA,MAB,7.84,0.0,8.08,2.68,0.75,0.88,0.42,109313,0.64,Uptrend,7.37,3 Days,8.48,1.36,WATCH,0.0% WR (-3.9% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-MAB/
+ATG.WA,ATG,3.63,-0.55,3.69,1.1,1.21,0.0,0.4,36659,0.64,Downtrend,3.54,3 Days,3.92,3.19,WATCH,0.0% WR (-3.7% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-ATG/
+PEO.WA,PEO,258.8,-0.31,263.9,2.09,0.91,0.0,0.67,84659169,0.63,Uptrend,246.9,3 Days,279.5,1.74,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-PEO/
+BIP.WA,BIP,23.8,3.48,28.5,6.4,0.77,1.0,0.29,14470,0.63,Downtrend,20.39,3 Days,28.45,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-BIP/
+PKO.WA,PKO,113.96,0.23,115.3,2.12,0.71,0.04,0.83,241803175,0.62,Uptrend,108.72,3 Days,123.08,1.74,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-PKO/
+EUR.WA,EUR,5.26,0.77,5.86,3.94,0.86,0.32,0.53,1630421,0.62,Uptrend,4.82,3 Days,5.85,1.36,WATCH,100.0% WR (+3.5% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-EUR/
+MCI.WA,MCI,27.1,0.0,28.0,1.97,0.73,0.75,0.46,63847,0.62,Uptrend,25.89,3 Days,29.27,1.8,WATCH,50.0% WR (-1.2% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-MCI/
+PZU.WA,PZU,72.02,-0.25,73.76,1.59,0.71,0.0,0.81,81993253,0.61,Uptrend,69.55,3 Days,77.78,2.34,WATCH,0.0% WR (-1.4% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-PZU/
+GPW.WA,GPW,99.5,1.07,109.0,3.05,0.46,0.75,0.7,5614586,0.61,Uptrend,93.04,3 Days,108.31,1.36,WATCH,0.0% WR (-0.1% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-GPW/
+CAR.WA,CAR,915.0,-0.22,955.0,3.26,0.64,0.68,0.53,2916105,0.61,Downtrend,850.1,3 Days,1003.5,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CAR/
+ELT.WA,ELT,61.45,1.07,68.7,5.15,0.71,0.89,0.35,892991,0.6,Downtrend,54.49,3 Days,70.94,1.36,WATCH,100.0% WR (+2.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-ELT/
+MAK.WA,MAK,24.4,-0.61,24.8,1.35,0.63,0.0,0.87,41406,0.6,Downtrend,23.7,3 Days,26.35,2.79,WATCH,100.0% WR (+2.7% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-MAK/
+NTT.WA,NTT,16.15,-2.12,16.7,2.75,0.82,0.0,0.68,54829,0.6,Uptrend,15.21,3 Days,17.44,1.38,WATCH,100.0% WR (+9.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-NTT/
+ALR.WA,ALR,130.05,0.04,136.6,2.7,0.63,0.02,0.84,25111094,0.59,Downtrend,122.5,3 Days,140.45,1.38,WATCH,0.0% WR (-2.0% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-ALR/
+APR.WA,APR,30.4,0.5,32.0,3.16,0.66,0.73,0.42,2854195,0.58,Uptrend,28.58,3 Days,32.89,1.36,WATCH,66.7% WR (+0.5% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-APR/
+AMB.WA,AMB,19.1,-0.52,19.7,2.03,0.7,0.29,0.58,105355,0.57,Uptrend,18.21,3 Days,20.63,1.72,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-AMB/
+BRS.WA,BRS,4.93,-0.9,5.1,2.23,0.94,0.47,0.24,177539,0.57,Downtrend,4.71,3 Days,5.32,1.77,WATCH,100.0% WR (+9.2% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-BRS/
+MBR.WA,MBR,402.5,-0.98,414.0,2.49,0.89,0.39,0.35,856520,0.57,Uptrend,380.19,3 Days,434.7,1.44,WATCH,0.0% WR (-4.2% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-MBR/
+MBK.WA,MBK,1385.5,-0.04,1449.5,2.8,0.8,0.17,0.5,15668619,0.56,Downtrend,1299.07,3 Days,1503.36,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MBK/
+MFO.WA,MFO,29.5,-0.67,31.6,2.77,0.61,0.0,0.78,47465,0.56,Downtrend,27.69,3 Days,31.96,1.36,WATCH,100.0% WR (+5.3% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-MFO/
+FSG.WA,FSG,14.4,0.0,15.5,2.43,0.82,1.0,0.06,1699,0.55,Downtrend,13.6,3 Days,15.55,1.44,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-FSG/
+PEP.WA,PEP,55.0,-0.9,63.9,3.6,0.72,0.29,0.49,446380,0.54,Downtrend,50.69,3 Days,60.87,1.36,WATCH,100.0% WR (+2.4% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-PEP/
+LPP.WA,LPP,20800.0,0.48,22580.0,2.55,0.53,0.25,0.67,46217600,0.53,Uptrend,19634.0,3 Days,22464.0,1.43,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-LPP/
+CFI.WA,CFI,0.12,0.83,0.13,1.25,0.64,0.0,0.7,738,0.53,Downtrend,0.12,3 Days,0.13,1.0,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CFI/
+NTC.WA,NTC,0.61,0.0,0.62,3.9,0.35,1.0,0.45,4884,0.52,Downtrend,0.56,3 Days,0.68,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-NTC/
+LBW.WA,LBW,11.52,-2.62,12.46,3.67,0.83,0.0,0.42,1520582,0.5,Uptrend,10.59,3 Days,12.79,1.36,WATCH,0.0% WR (-6.6% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-LBW/
+DAT.WA,DAT,129.6,1.57,139.6,4.42,0.56,0.87,0.23,328406,0.49,Uptrend,117.72,3 Days,145.8,1.36,WATCH,100.0% WR (+5.5% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-DAT/
+CTX.WA,CTX,69.8,-0.71,74.8,3.03,0.52,0.55,0.42,78664,0.49,Downtrend,65.15,3 Days,76.14,1.36,WATCH,0.0% WR (-5.0% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-CTX/
+MSW.WA,MSW,3.53,0.86,3.66,3.98,0.45,1.0,0.26,11740,0.48,Uptrend,3.23,3 Days,3.93,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MSW/
+INC.WA,INC,1.49,-1.66,1.6,4.82,0.71,0.1,0.41,16361,0.47,Uptrend,1.33,3 Days,1.7,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-INC/
+AGP.WA,AGP,3.28,3.8,3.3,4.61,1.11,0.0,0.03,9,0.46,Uptrend,3.04,3 Days,3.61,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-AGP/
+SLV.WA,SLV,28.8,0.52,29.15,3.3,0.4,0.86,0.22,142502,0.42,Downtrend,26.88,3 Days,31.41,1.36,WATCH,100.0% WR (+3.9% / 2t),Hold,https://pl.tradingview.com/symbols/GPW-SLV/
+FEE.WA,FEE,17.5,0.57,17.5,1.85,0.46,1.0,0.09,8540,0.42,Uptrend,16.79,3 Days,18.9,1.96,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-FEE/
+CRM.WA,CRM,0.53,-0.38,0.57,3.98,0.39,1.0,0.1,2354,0.4,Downtrend,0.48,3 Days,0.59,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-CRM/
+MEG.WA,MEG,6.05,0.0,6.05,0.0,1.0,0.0,0.0,0,0.4,Downtrend,6.05,3 Days,6.53,48.4,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MEG/
+MRB.WA,MRB,12.84,0.23,13.48,2.88,0.44,0.31,0.24,475606,0.34,Uptrend,12.04,3 Days,13.92,1.36,WATCH,50.0% WR (-0.1% / 4t),Hold,https://pl.tradingview.com/symbols/GPW-MRB/
+LSI.WA,LSI,52.4,0.0,52.4,3.61,0.22,1.0,0.14,6183,0.34,Downtrend,48.46,3 Days,57.78,1.36,WATCH,100.0% WR (+5.7% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-LSI/
+SNT.WA,SNT,355.6,-0.39,369.4,3.14,0.46,0.08,0.22,3504438,0.29,Uptrend,332.75,3 Days,386.76,1.36,WATCH,40.0% WR (+0.3% / 5t),Hold,https://pl.tradingview.com/symbols/GPW-SNT/
+CMP.WA,CMP,96.5,-0.52,97.8,3.0,0.49,0.36,0.06,142530,0.29,Uptrend,90.23,3 Days,105.05,1.36,WATCH,50.0% WR (-0.1% / 4t),Hold,https://pl.tradingview.com/symbols/GPW-CMP/
+MSP.WA,MSP,13.25,1.15,13.65,2.81,0.57,0.0,0.15,2398,0.29,Uptrend,12.48,3 Days,14.31,1.38,WATCH,0.0% WR (-0.8% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-MSP/
+COG.WA,COG,5.45,-1.27,5.89,4.53,0.46,0.23,0.13,415791,0.28,Downtrend,4.93,3 Days,6.17,1.36,WATCH,66.7% WR (-0.2% / 3t),Hold,https://pl.tradingview.com/symbols/GPW-COG/
+GTN.WA,GTN,0.3,-0.33,0.35,7.51,0.38,0.18,0.24,25724,0.28,Downtrend,0.25,3 Days,0.37,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-GTN/
+MOL.WA,MOL,62.7,1.29,64.0,42.19,0.13,0.27,0.41,185592,0.27,Uptrend,5.89,3 Days,140.17,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MOL/
+FOR.WA,FOR,2.29,-0.43,2.45,2.8,0.47,0.0,0.12,3194,0.24,Downtrend,2.15,3 Days,2.48,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-FOR/
+EDI.WA,EDI,8.48,0.0,8.78,3.12,0.0,0.0,0.48,3663,0.19,Uptrend,7.93,3 Days,9.23,1.36,WATCH,100.0% WR (+2.8% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-EDI/
+ACG.WA,ACG,19.25,0.52,19.65,1.83,0.34,0.0,0.08,1886,0.17,Downtrend,18.6,3 Days,20.79,2.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-ACG/
+ENP.WA,ENP,3.46,-0.57,3.52,3.2,0.18,0.0,0.03,41,0.08,Downtrend,3.21,3 Days,3.8,1.36,WATCH,0.0% WR (-2.9% / 1t),Hold,https://pl.tradingview.com/symbols/GPW-ENP/
+INT.WA,INT,9.95,0.0,11.3,7.0,0.0,0.0,0.01,19,0.0,Uptrend,8.56,3 Days,11.85,1.36,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-INT/
+MZA.WA,MZA,8.6,0.0,8.6,1.33,0.0,0.0,0.0,0,0.0,Downtrend,8.35,3 Days,9.29,2.74,WATCH,No past triggers,Hold,https://pl.tradingview.com/symbols/GPW-MZA/

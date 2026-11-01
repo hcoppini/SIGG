@@ -1,0 +1,1684 @@
+{
+  "status": "success",
+  "strategy": "home_run",
+  "summary": {
+    "strategy": "home_run",
+    "initial_capital": 20000.0,
+    "target_capital": 30000.0,
+    "target_return_pct": 50.0,
+    "avg_return_pct": 52.06,
+    "overall_win_rate": 46.7,
+    "total_trades": 15,
+    "best_season": {
+      "season": "2021/2022",
+      "start_date": "2021-11-15",
+      "end_date": "2022-01-14",
+      "initial_capital": 20000.0,
+      "final_capital": 66056.8,
+      "net_profit": 46056.8,
+      "return_pct": 230.28,
+      "trades_count": 1,
+      "win_rate": 100.0,
+      "profit_factor": 99.9,
+      "avg_win_pct": 231.37,
+      "avg_loss_pct": 0.0,
+      "max_drawdown": 0.5,
+      "biggest_winner": {
+        "ticker": "LBD.WA",
+        "pnl_pct": 231.37,
+        "pnl_pln": 45811.2,
+        "days_held": 36,
+        "exit_reason": "Backtest_end"
+      },
+      "biggest_loser": {
+        "ticker": "LBD.WA",
+        "pnl_pct": 231.37,
+        "pnl_pln": 45811.2,
+        "days_held": 36,
+        "exit_reason": "Backtest_end"
+      }
+    },
+    "worst_season": {
+      "season": "2023/2024",
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 17073.88,
+      "net_profit": -2926.12,
+      "return_pct": -14.63,
+      "trades_count": 3,
+      "win_rate": 33.3,
+      "profit_factor": 0.0,
+      "avg_win_pct": 0.07,
+      "avg_loss_pct": -7.35,
+      "max_drawdown": 27.0,
+      "biggest_winner": {
+        "ticker": "INC.WA",
+        "pnl_pct": 0.07,
+        "pnl_pln": 13.33,
+        "days_held": 7,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "DAT.WA",
+        "pnl_pct": -9.52,
+        "pnl_pln": -1774.1,
+        "days_held": 9,
+        "exit_reason": "Backtest_end"
+      }
+    },
+    "notes": "WARNING: Backtest is subject to Survivorship Bias because it uses the current WIG50 constituent list."
+  },
+  "seasons": [
+    {
+      "season": "2020/2021",
+      "start_date": "2020-11-16",
+      "end_date": "2021-01-15",
+      "initial_capital": 20000.0,
+      "final_capital": 21384.14,
+      "net_profit": 1384.14,
+      "return_pct": 6.92,
+      "trades_count": 5,
+      "win_rate": 20.0,
+      "profit_factor": 1.54,
+      "avg_win_pct": 28.27,
+      "avg_loss_pct": -3.92,
+      "max_drawdown": 16.8,
+      "biggest_winner": {
+        "ticker": "BIP.WA",
+        "pnl_pct": 28.27,
+        "pnl_pln": 4696.12,
+        "days_held": 21,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      },
+      "biggest_loser": {
+        "ticker": "CFI.WA",
+        "pnl_pct": -13.51,
+        "pnl_pln": -2675.62,
+        "days_held": 1,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2021/2022",
+      "start_date": "2021-11-15",
+      "end_date": "2022-01-14",
+      "initial_capital": 20000.0,
+      "final_capital": 66056.8,
+      "net_profit": 46056.8,
+      "return_pct": 230.28,
+      "trades_count": 1,
+      "win_rate": 100.0,
+      "profit_factor": 99.9,
+      "avg_win_pct": 231.37,
+      "avg_loss_pct": 0.0,
+      "max_drawdown": 0.5,
+      "biggest_winner": {
+        "ticker": "LBD.WA",
+        "pnl_pct": 231.37,
+        "pnl_pln": 45811.2,
+        "days_held": 36,
+        "exit_reason": "Backtest_end"
+      },
+      "biggest_loser": {
+        "ticker": "LBD.WA",
+        "pnl_pct": 231.37,
+        "pnl_pln": 45811.2,
+        "days_held": 36,
+        "exit_reason": "Backtest_end"
+      }
+    },
+    {
+      "season": "2022/2023",
+      "start_date": "2022-11-14",
+      "end_date": "2023-01-13",
+      "initial_capital": 20000.0,
+      "final_capital": 24288.44,
+      "net_profit": 4288.44,
+      "return_pct": 21.44,
+      "trades_count": 2,
+      "win_rate": 50.0,
+      "profit_factor": 3665.48,
+      "avg_win_pct": 21.93,
+      "avg_loss_pct": -0.01,
+      "max_drawdown": 12.8,
+      "biggest_winner": {
+        "ticker": "GTN.WA",
+        "pnl_pct": 21.93,
+        "pnl_pln": 4325.27,
+        "days_held": 15,
+        "exit_reason": "Backtest_end"
+      },
+      "biggest_loser": {
+        "ticker": "TEN.WA",
+        "pnl_pct": -0.01,
+        "pnl_pln": -1.18,
+        "days_held": 27,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2023/2024",
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 17073.88,
+      "net_profit": -2926.12,
+      "return_pct": -14.63,
+      "trades_count": 3,
+      "win_rate": 33.3,
+      "profit_factor": 0.0,
+      "avg_win_pct": 0.07,
+      "avg_loss_pct": -7.35,
+      "max_drawdown": 27.0,
+      "biggest_winner": {
+        "ticker": "INC.WA",
+        "pnl_pct": 0.07,
+        "pnl_pln": 13.33,
+        "days_held": 7,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "DAT.WA",
+        "pnl_pct": -9.52,
+        "pnl_pln": -1774.1,
+        "days_held": 9,
+        "exit_reason": "Backtest_end"
+      }
+    },
+    {
+      "season": "2024/2025",
+      "start_date": "2024-11-18",
+      "end_date": "2025-01-17",
+      "initial_capital": 20000.0,
+      "final_capital": 20572.61,
+      "net_profit": 572.61,
+      "return_pct": 2.86,
+      "trades_count": 2,
+      "win_rate": 50.0,
+      "profit_factor": 3.91,
+      "avg_win_pct": 4.31,
+      "avg_loss_pct": -1.09,
+      "max_drawdown": 12.0,
+      "biggest_winner": {
+        "ticker": "DAT.WA",
+        "pnl_pct": 4.31,
+        "pnl_pln": 840.45,
+        "days_held": 15,
+        "exit_reason": "Backtest_end"
+      },
+      "biggest_loser": {
+        "ticker": "DAT.WA",
+        "pnl_pct": -1.09,
+        "pnl_pln": -214.7,
+        "days_held": 20,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2025/2026",
+      "start_date": "2025-11-17",
+      "end_date": "2026-01-16",
+      "initial_capital": 20000.0,
+      "final_capital": 33098.74,
+      "net_profit": 13098.74,
+      "return_pct": 65.49,
+      "trades_count": 2,
+      "win_rate": 100.0,
+      "profit_factor": 99.9,
+      "avg_win_pct": 30.98,
+      "avg_loss_pct": 0.0,
+      "max_drawdown": 18.1,
+      "biggest_winner": {
+        "ticker": "DAT.WA",
+        "pnl_pct": 53.37,
+        "pnl_pln": 11401.96,
+        "days_held": 31,
+        "exit_reason": "Backtest_end"
+      },
+      "biggest_loser": {
+        "ticker": "CTX.WA",
+        "pnl_pct": 8.58,
+        "pnl_pln": 1695.94,
+        "days_held": 14,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    }
+  ],
+  "equity_curves": {
+    "2020/2021": [
+      {
+        "date": "2020-11-16",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2020-11-17",
+        "value": 18616.49,
+        "day": 1
+      },
+      {
+        "date": "2020-11-18",
+        "value": 17651.6,
+        "day": 2
+      },
+      {
+        "date": "2020-11-19",
+        "value": 17251.28,
+        "day": 3
+      },
+      {
+        "date": "2020-11-22",
+        "value": 17075.77,
+        "day": 4
+      },
+      {
+        "date": "2020-11-23",
+        "value": 16637.01,
+        "day": 5
+      },
+      {
+        "date": "2020-11-24",
+        "value": 16841.76,
+        "day": 6
+      },
+      {
+        "date": "2020-11-25",
+        "value": 17485.29,
+        "day": 7
+      },
+      {
+        "date": "2020-11-26",
+        "value": 17280.53,
+        "day": 8
+      },
+      {
+        "date": "2020-11-29",
+        "value": 17192.78,
+        "day": 9
+      },
+      {
+        "date": "2020-11-30",
+        "value": 16929.52,
+        "day": 10
+      },
+      {
+        "date": "2020-12-01",
+        "value": 17075.77,
+        "day": 11
+      },
+      {
+        "date": "2020-12-02",
+        "value": 17075.77,
+        "day": 12
+      },
+      {
+        "date": "2020-12-03",
+        "value": 17163.53,
+        "day": 13
+      },
+      {
+        "date": "2020-12-06",
+        "value": 17280.53,
+        "day": 14
+      },
+      {
+        "date": "2020-12-07",
+        "value": 17192.78,
+        "day": 15
+      },
+      {
+        "date": "2020-12-08",
+        "value": 17109.14,
+        "day": 16
+      },
+      {
+        "date": "2020-12-09",
+        "value": 18327.76,
+        "day": 17
+      },
+      {
+        "date": "2020-12-10",
+        "value": 17807.12,
+        "day": 18
+      },
+      {
+        "date": "2020-12-13",
+        "value": 16795.29,
+        "day": 19
+      },
+      {
+        "date": "2020-12-14",
+        "value": 17891.54,
+        "day": 20
+      },
+      {
+        "date": "2020-12-15",
+        "value": 18319.77,
+        "day": 21
+      },
+      {
+        "date": "2020-12-16",
+        "value": 18319.77,
+        "day": 22
+      },
+      {
+        "date": "2020-12-17",
+        "value": 18319.77,
+        "day": 23
+      },
+      {
+        "date": "2020-12-20",
+        "value": 19069.16,
+        "day": 24
+      },
+      {
+        "date": "2020-12-21",
+        "value": 17784.48,
+        "day": 25
+      },
+      {
+        "date": "2020-12-22",
+        "value": 17677.43,
+        "day": 26
+      },
+      {
+        "date": "2020-12-27",
+        "value": 19390.33,
+        "day": 27
+      },
+      {
+        "date": "2020-12-28",
+        "value": 19818.56,
+        "day": 28
+      },
+      {
+        "date": "2020-12-29",
+        "value": 18533.88,
+        "day": 29
+      },
+      {
+        "date": "2021-01-03",
+        "value": 22602.03,
+        "day": 30
+      },
+      {
+        "date": "2021-01-04",
+        "value": 21852.63,
+        "day": 31
+      },
+      {
+        "date": "2021-01-06",
+        "value": 20708.52,
+        "day": 32
+      },
+      {
+        "date": "2021-01-07",
+        "value": 21015.62,
+        "day": 33
+      },
+      {
+        "date": "2021-01-10",
+        "value": 20892.78,
+        "day": 34
+      },
+      {
+        "date": "2021-01-11",
+        "value": 20647.1,
+        "day": 35
+      },
+      {
+        "date": "2021-01-12",
+        "value": 20462.84,
+        "day": 36
+      },
+      {
+        "date": "2021-01-13",
+        "value": 21261.3,
+        "day": 37
+      },
+      {
+        "date": "2021-01-14",
+        "value": 21384.14,
+        "day": 38
+      },
+      {
+        "date": "2021-01-14",
+        "value": 21384.14,
+        "day": 39
+      }
+    ],
+    "2021/2022": [
+      {
+        "date": "2021-11-15",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2021-11-16",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2021-11-17",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2021-11-18",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2021-11-21",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2021-11-22",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2021-11-23",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2021-11-24",
+        "value": 20000.0,
+        "day": 7
+      },
+      {
+        "date": "2021-11-25",
+        "value": 20000.0,
+        "day": 8
+      },
+      {
+        "date": "2021-11-28",
+        "value": 20000.0,
+        "day": 9
+      },
+      {
+        "date": "2021-11-29",
+        "value": 20000.0,
+        "day": 10
+      },
+      {
+        "date": "2021-11-30",
+        "value": 20000.0,
+        "day": 11
+      },
+      {
+        "date": "2021-12-01",
+        "value": 20000.0,
+        "day": 12
+      },
+      {
+        "date": "2021-12-02",
+        "value": 20000.0,
+        "day": 13
+      },
+      {
+        "date": "2021-12-05",
+        "value": 20000.0,
+        "day": 14
+      },
+      {
+        "date": "2021-12-06",
+        "value": 20000.0,
+        "day": 15
+      },
+      {
+        "date": "2021-12-07",
+        "value": 20000.0,
+        "day": 16
+      },
+      {
+        "date": "2021-12-08",
+        "value": 19903.0,
+        "day": 17
+      },
+      {
+        "date": "2021-12-09",
+        "value": 19903.0,
+        "day": 18
+      },
+      {
+        "date": "2021-12-12",
+        "value": 19903.0,
+        "day": 19
+      },
+      {
+        "date": "2021-12-13",
+        "value": 19903.0,
+        "day": 20
+      },
+      {
+        "date": "2021-12-14",
+        "value": 27695.2,
+        "day": 21
+      },
+      {
+        "date": "2021-12-15",
+        "value": 27695.2,
+        "day": 22
+      },
+      {
+        "date": "2021-12-16",
+        "value": 27695.2,
+        "day": 23
+      },
+      {
+        "date": "2021-12-19",
+        "value": 27695.2,
+        "day": 24
+      },
+      {
+        "date": "2021-12-20",
+        "value": 27695.2,
+        "day": 25
+      },
+      {
+        "date": "2021-12-21",
+        "value": 34088.8,
+        "day": 26
+      },
+      {
+        "date": "2021-12-22",
+        "value": 34088.8,
+        "day": 27
+      },
+      {
+        "date": "2021-12-26",
+        "value": 34088.8,
+        "day": 28
+      },
+      {
+        "date": "2021-12-27",
+        "value": 34088.8,
+        "day": 29
+      },
+      {
+        "date": "2021-12-28",
+        "value": 40882.0,
+        "day": 30
+      },
+      {
+        "date": "2021-12-29",
+        "value": 40882.0,
+        "day": 31
+      },
+      {
+        "date": "2022-01-02",
+        "value": 40882.0,
+        "day": 32
+      },
+      {
+        "date": "2022-01-03",
+        "value": 40882.0,
+        "day": 33
+      },
+      {
+        "date": "2022-01-04",
+        "value": 51571.3,
+        "day": 34
+      },
+      {
+        "date": "2022-01-06",
+        "value": 51571.3,
+        "day": 35
+      },
+      {
+        "date": "2022-01-09",
+        "value": 51571.3,
+        "day": 36
+      },
+      {
+        "date": "2022-01-10",
+        "value": 51571.3,
+        "day": 37
+      },
+      {
+        "date": "2022-01-11",
+        "value": 66056.8,
+        "day": 38
+      },
+      {
+        "date": "2022-01-12",
+        "value": 66056.8,
+        "day": 39
+      },
+      {
+        "date": "2022-01-13",
+        "value": 66056.8,
+        "day": 40
+      },
+      {
+        "date": "2022-01-13",
+        "value": 66056.8,
+        "day": 41
+      }
+    ],
+    "2022/2023": [
+      {
+        "date": "2022-11-14",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2022-11-15",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2022-11-16",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2022-11-17",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2022-11-20",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2022-11-21",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2022-11-22",
+        "value": 20224.24,
+        "day": 6
+      },
+      {
+        "date": "2022-11-23",
+        "value": 21172.03,
+        "day": 7
+      },
+      {
+        "date": "2022-11-24",
+        "value": 20835.72,
+        "day": 8
+      },
+      {
+        "date": "2022-11-27",
+        "value": 20652.28,
+        "day": 9
+      },
+      {
+        "date": "2022-11-28",
+        "value": 21095.59,
+        "day": 10
+      },
+      {
+        "date": "2022-11-29",
+        "value": 20820.43,
+        "day": 11
+      },
+      {
+        "date": "2022-11-30",
+        "value": 20361.83,
+        "day": 12
+      },
+      {
+        "date": "2022-12-01",
+        "value": 21493.05,
+        "day": 13
+      },
+      {
+        "date": "2022-12-04",
+        "value": 21966.95,
+        "day": 14
+      },
+      {
+        "date": "2022-12-05",
+        "value": 21416.62,
+        "day": 15
+      },
+      {
+        "date": "2022-12-06",
+        "value": 21798.79,
+        "day": 16
+      },
+      {
+        "date": "2022-12-07",
+        "value": 21019.16,
+        "day": 17
+      },
+      {
+        "date": "2022-12-08",
+        "value": 21737.64,
+        "day": 18
+      },
+      {
+        "date": "2022-12-11",
+        "value": 21263.75,
+        "day": 19
+      },
+      {
+        "date": "2022-12-12",
+        "value": 21554.2,
+        "day": 20
+      },
+      {
+        "date": "2022-12-13",
+        "value": 22272.68,
+        "day": 21
+      },
+      {
+        "date": "2022-12-14",
+        "value": 20698.14,
+        "day": 22
+      },
+      {
+        "date": "2022-12-15",
+        "value": 20774.57,
+        "day": 23
+      },
+      {
+        "date": "2022-12-18",
+        "value": 20346.54,
+        "day": 24
+      },
+      {
+        "date": "2022-12-19",
+        "value": 19918.51,
+        "day": 25
+      },
+      {
+        "date": "2022-12-20",
+        "value": 19921.77,
+        "day": 26
+      },
+      {
+        "date": "2022-12-21",
+        "value": 19921.77,
+        "day": 27
+      },
+      {
+        "date": "2022-12-22",
+        "value": 19921.77,
+        "day": 28
+      },
+      {
+        "date": "2022-12-26",
+        "value": 19921.77,
+        "day": 29
+      },
+      {
+        "date": "2022-12-27",
+        "value": 19921.77,
+        "day": 30
+      },
+      {
+        "date": "2022-12-28",
+        "value": 19423.05,
+        "day": 31
+      },
+      {
+        "date": "2022-12-29",
+        "value": 20227.25,
+        "day": 32
+      },
+      {
+        "date": "2023-01-01",
+        "value": 23645.09,
+        "day": 33
+      },
+      {
+        "date": "2023-01-02",
+        "value": 24851.38,
+        "day": 34
+      },
+      {
+        "date": "2023-01-03",
+        "value": 23886.34,
+        "day": 35
+      },
+      {
+        "date": "2023-01-04",
+        "value": 24851.38,
+        "day": 36
+      },
+      {
+        "date": "2023-01-08",
+        "value": 25052.43,
+        "day": 37
+      },
+      {
+        "date": "2023-01-09",
+        "value": 25012.22,
+        "day": 38
+      },
+      {
+        "date": "2023-01-10",
+        "value": 24569.91,
+        "day": 39
+      },
+      {
+        "date": "2023-01-11",
+        "value": 24409.07,
+        "day": 40
+      },
+      {
+        "date": "2023-01-12",
+        "value": 24288.44,
+        "day": 41
+      },
+      {
+        "date": "2023-01-12",
+        "value": 24288.44,
+        "day": 42
+      }
+    ],
+    "2023/2024": [
+      {
+        "date": "2023-11-13",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2023-11-14",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2023-11-15",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2023-11-16",
+        "value": 19986.11,
+        "day": 3
+      },
+      {
+        "date": "2023-11-19",
+        "value": 21980.75,
+        "day": 4
+      },
+      {
+        "date": "2023-11-20",
+        "value": 22479.41,
+        "day": 5
+      },
+      {
+        "date": "2023-11-21",
+        "value": 22479.41,
+        "day": 6
+      },
+      {
+        "date": "2023-11-22",
+        "value": 22063.86,
+        "day": 7
+      },
+      {
+        "date": "2023-11-23",
+        "value": 20567.88,
+        "day": 8
+      },
+      {
+        "date": "2023-11-26",
+        "value": 19936.11,
+        "day": 9
+      },
+      {
+        "date": "2023-11-27",
+        "value": 19936.11,
+        "day": 10
+      },
+      {
+        "date": "2023-11-28",
+        "value": 19936.11,
+        "day": 11
+      },
+      {
+        "date": "2023-11-29",
+        "value": 19936.11,
+        "day": 12
+      },
+      {
+        "date": "2023-11-30",
+        "value": 19936.11,
+        "day": 13
+      },
+      {
+        "date": "2023-12-03",
+        "value": 20332.25,
+        "day": 14
+      },
+      {
+        "date": "2023-12-04",
+        "value": 19777.85,
+        "day": 15
+      },
+      {
+        "date": "2023-12-05",
+        "value": 21441.05,
+        "day": 16
+      },
+      {
+        "date": "2023-12-06",
+        "value": 22026.25,
+        "day": 17
+      },
+      {
+        "date": "2023-12-07",
+        "value": 21379.45,
+        "day": 18
+      },
+      {
+        "date": "2023-12-10",
+        "value": 21071.45,
+        "day": 19
+      },
+      {
+        "date": "2023-12-11",
+        "value": 20640.25,
+        "day": 20
+      },
+      {
+        "date": "2023-12-12",
+        "value": 20332.25,
+        "day": 21
+      },
+      {
+        "date": "2023-12-13",
+        "value": 20055.05,
+        "day": 22
+      },
+      {
+        "date": "2023-12-14",
+        "value": 19839.45,
+        "day": 23
+      },
+      {
+        "date": "2023-12-17",
+        "value": 19161.85,
+        "day": 24
+      },
+      {
+        "date": "2023-12-18",
+        "value": 19408.25,
+        "day": 25
+      },
+      {
+        "date": "2023-12-19",
+        "value": 18837.69,
+        "day": 26
+      },
+      {
+        "date": "2023-12-20",
+        "value": 18837.69,
+        "day": 27
+      },
+      {
+        "date": "2023-12-21",
+        "value": 18837.69,
+        "day": 28
+      },
+      {
+        "date": "2023-12-26",
+        "value": 18837.69,
+        "day": 29
+      },
+      {
+        "date": "2023-12-27",
+        "value": 18837.69,
+        "day": 30
+      },
+      {
+        "date": "2023-12-28",
+        "value": 18837.69,
+        "day": 31
+      },
+      {
+        "date": "2024-01-01",
+        "value": 18837.69,
+        "day": 32
+      },
+      {
+        "date": "2024-01-02",
+        "value": 17943.58,
+        "day": 33
+      },
+      {
+        "date": "2024-01-03",
+        "value": 19482.28,
+        "day": 34
+      },
+      {
+        "date": "2024-01-04",
+        "value": 19080.88,
+        "day": 35
+      },
+      {
+        "date": "2024-01-07",
+        "value": 18411.88,
+        "day": 36
+      },
+      {
+        "date": "2024-01-08",
+        "value": 17965.88,
+        "day": 37
+      },
+      {
+        "date": "2024-01-09",
+        "value": 17519.88,
+        "day": 38
+      },
+      {
+        "date": "2024-01-10",
+        "value": 16404.88,
+        "day": 39
+      },
+      {
+        "date": "2024-01-11",
+        "value": 17073.88,
+        "day": 40
+      },
+      {
+        "date": "2024-01-11",
+        "value": 17073.88,
+        "day": 41
+      }
+    ],
+    "2024/2025": [
+      {
+        "date": "2024-11-18",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2024-11-19",
+        "value": 18500.59,
+        "day": 1
+      },
+      {
+        "date": "2024-11-20",
+        "value": 18500.59,
+        "day": 2
+      },
+      {
+        "date": "2024-11-21",
+        "value": 17608.09,
+        "day": 3
+      },
+      {
+        "date": "2024-11-24",
+        "value": 18755.59,
+        "day": 4
+      },
+      {
+        "date": "2024-11-25",
+        "value": 21178.09,
+        "day": 5
+      },
+      {
+        "date": "2024-11-26",
+        "value": 20540.59,
+        "day": 6
+      },
+      {
+        "date": "2024-11-27",
+        "value": 20540.59,
+        "day": 7
+      },
+      {
+        "date": "2024-11-28",
+        "value": 19775.59,
+        "day": 8
+      },
+      {
+        "date": "2024-12-01",
+        "value": 20965.59,
+        "day": 9
+      },
+      {
+        "date": "2024-12-02",
+        "value": 22240.59,
+        "day": 10
+      },
+      {
+        "date": "2024-12-03",
+        "value": 22070.59,
+        "day": 11
+      },
+      {
+        "date": "2024-12-04",
+        "value": 20965.59,
+        "day": 12
+      },
+      {
+        "date": "2024-12-05",
+        "value": 20540.59,
+        "day": 13
+      },
+      {
+        "date": "2024-12-08",
+        "value": 20285.59,
+        "day": 14
+      },
+      {
+        "date": "2024-12-09",
+        "value": 19945.59,
+        "day": 15
+      },
+      {
+        "date": "2024-12-10",
+        "value": 19708.15,
+        "day": 16
+      },
+      {
+        "date": "2024-12-11",
+        "value": 19708.15,
+        "day": 17
+      },
+      {
+        "date": "2024-12-12",
+        "value": 19708.15,
+        "day": 18
+      },
+      {
+        "date": "2024-12-15",
+        "value": 19708.15,
+        "day": 19
+      },
+      {
+        "date": "2024-12-16",
+        "value": 19708.15,
+        "day": 20
+      },
+      {
+        "date": "2024-12-17",
+        "value": 19708.15,
+        "day": 21
+      },
+      {
+        "date": "2024-12-18",
+        "value": 19708.15,
+        "day": 22
+      },
+      {
+        "date": "2024-12-19",
+        "value": 19708.15,
+        "day": 23
+      },
+      {
+        "date": "2024-12-22",
+        "value": 19708.15,
+        "day": 24
+      },
+      {
+        "date": "2024-12-26",
+        "value": 19708.15,
+        "day": 25
+      },
+      {
+        "date": "2024-12-29",
+        "value": 19708.15,
+        "day": 26
+      },
+      {
+        "date": "2025-01-01",
+        "value": 21333.91,
+        "day": 27
+      },
+      {
+        "date": "2025-01-02",
+        "value": 21234.61,
+        "day": 28
+      },
+      {
+        "date": "2025-01-06",
+        "value": 21036.01,
+        "day": 29
+      },
+      {
+        "date": "2025-01-07",
+        "value": 21267.71,
+        "day": 30
+      },
+      {
+        "date": "2025-01-08",
+        "value": 20638.81,
+        "day": 31
+      },
+      {
+        "date": "2025-01-09",
+        "value": 20738.11,
+        "day": 32
+      },
+      {
+        "date": "2025-01-12",
+        "value": 19976.81,
+        "day": 33
+      },
+      {
+        "date": "2025-01-13",
+        "value": 20340.91,
+        "day": 34
+      },
+      {
+        "date": "2025-01-14",
+        "value": 20307.81,
+        "day": 35
+      },
+      {
+        "date": "2025-01-15",
+        "value": 20307.81,
+        "day": 36
+      },
+      {
+        "date": "2025-01-16",
+        "value": 20572.61,
+        "day": 37
+      },
+      {
+        "date": "2025-01-16",
+        "value": 20572.61,
+        "day": 38
+      }
+    ],
+    "2025/2026": [
+      {
+        "date": "2025-11-17",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2025-11-18",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2025-11-19",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2025-11-20",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2025-11-23",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2025-11-24",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2025-11-25",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2025-11-26",
+        "value": 21350.8,
+        "day": 7
+      },
+      {
+        "date": "2025-11-27",
+        "value": 21811.4,
+        "day": 8
+      },
+      {
+        "date": "2025-11-30",
+        "value": 22469.4,
+        "day": 9
+      },
+      {
+        "date": "2025-12-01",
+        "value": 24246.0,
+        "day": 10
+      },
+      {
+        "date": "2025-12-02",
+        "value": 24969.8,
+        "day": 11
+      },
+      {
+        "date": "2025-12-03",
+        "value": 24311.8,
+        "day": 12
+      },
+      {
+        "date": "2025-12-04",
+        "value": 24180.2,
+        "day": 13
+      },
+      {
+        "date": "2025-12-07",
+        "value": 23390.6,
+        "day": 14
+      },
+      {
+        "date": "2025-12-08",
+        "value": 23061.6,
+        "day": 15
+      },
+      {
+        "date": "2025-12-09",
+        "value": 22601.0,
+        "day": 16
+      },
+      {
+        "date": "2025-12-10",
+        "value": 22140.4,
+        "day": 17
+      },
+      {
+        "date": "2025-12-11",
+        "value": 21618.88,
+        "day": 18
+      },
+      {
+        "date": "2025-12-14",
+        "value": 21618.88,
+        "day": 19
+      },
+      {
+        "date": "2025-12-15",
+        "value": 21536.02,
+        "day": 20
+      },
+      {
+        "date": "2025-12-16",
+        "value": 20882.02,
+        "day": 21
+      },
+      {
+        "date": "2025-12-17",
+        "value": 20446.02,
+        "day": 22
+      },
+      {
+        "date": "2025-12-18",
+        "value": 21413.94,
+        "day": 23
+      },
+      {
+        "date": "2025-12-21",
+        "value": 23266.94,
+        "day": 24
+      },
+      {
+        "date": "2025-12-22",
+        "value": 23035.86,
+        "day": 25
+      },
+      {
+        "date": "2025-12-28",
+        "value": 22800.42,
+        "day": 26
+      },
+      {
+        "date": "2025-12-29",
+        "value": 22647.82,
+        "day": 27
+      },
+      {
+        "date": "2026-01-01",
+        "value": 24370.02,
+        "day": 28
+      },
+      {
+        "date": "2026-01-04",
+        "value": 25673.66,
+        "day": 29
+      },
+      {
+        "date": "2026-01-06",
+        "value": 27945.22,
+        "day": 30
+      },
+      {
+        "date": "2026-01-07",
+        "value": 27749.02,
+        "day": 31
+      },
+      {
+        "date": "2026-01-08",
+        "value": 30526.34,
+        "day": 32
+      },
+      {
+        "date": "2026-01-11",
+        "value": 30474.02,
+        "day": 33
+      },
+      {
+        "date": "2026-01-12",
+        "value": 30735.62,
+        "day": 34
+      },
+      {
+        "date": "2026-01-13",
+        "value": 30369.38,
+        "day": 35
+      },
+      {
+        "date": "2026-01-14",
+        "value": 31564.02,
+        "day": 36
+      },
+      {
+        "date": "2026-01-15",
+        "value": 33098.74,
+        "day": 37
+      },
+      {
+        "date": "2026-01-15",
+        "value": 33098.74,
+        "day": 38
+      }
+    ]
+  },
+  "trades": [
+    {
+      "Ticker": "CFI.WA",
+      "Entry_Date": "2020-11-17",
+      "Exit_Date": "2020-11-18",
+      "Entry_Price": 0.25,
+      "Exit_Price": 0.21,
+      "Shares": 80407,
+      "PnL": -2675.62,
+      "PnL_Pct": -13.51,
+      "Days_Held": 1,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "WLT.WA",
+      "Entry_Date": "2020-11-19",
+      "Exit_Date": "2020-12-07",
+      "Entry_Price": 5.34,
+      "Exit_Price": 5.34,
+      "Shares": 3195,
+      "PnL": -71.44,
+      "PnL_Pct": -0.42,
+      "Days_Held": 18,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "CLE.WA",
+      "Entry_Date": "2020-12-09",
+      "Exit_Date": "2020-12-10",
+      "Entry_Price": 0.65,
+      "Exit_Price": 0.64,
+      "Shares": 26032,
+      "PnL": -247.79,
+      "PnL_Pct": -1.46,
+      "Days_Held": 1,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "BIP.WA",
+      "Entry_Date": "2020-12-14",
+      "Exit_Date": "2021-01-04",
+      "Entry_Price": 28.64,
+      "Exit_Price": 36.88,
+      "Shares": 580,
+      "PnL": 4696.12,
+      "PnL_Pct": 28.27,
+      "Days_Held": 21,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MSW.WA",
+      "Entry_Date": "2021-01-06",
+      "Exit_Date": "2021-01-14",
+      "Entry_Price": 6.91,
+      "Exit_Price": 6.91,
+      "Shares": 3071,
+      "PnL": -63.82,
+      "PnL_Pct": -0.3,
+      "Days_Held": 8,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "LBD.WA",
+      "Entry_Date": "2021-12-08",
+      "Exit_Date": "2022-01-13",
+      "Entry_Price": 0.2,
+      "Exit_Price": 0.66,
+      "Shares": 99900,
+      "PnL": 45811.2,
+      "PnL_Pct": 231.37,
+      "Days_Held": 36,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "TEN.WA",
+      "Entry_Date": "2022-11-22",
+      "Exit_Date": "2022-12-19",
+      "Entry_Price": 91.04,
+      "Exit_Price": 91.39,
+      "Shares": 217,
+      "PnL": -1.18,
+      "PnL_Pct": -0.01,
+      "Days_Held": 27,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "GTN.WA",
+      "Entry_Date": "2022-12-28",
+      "Exit_Date": "2023-01-12",
+      "Entry_Price": 0.03,
+      "Exit_Price": 0.04,
+      "Shares": 592462,
+      "PnL": 4325.27,
+      "PnL_Pct": 21.93,
+      "Days_Held": 15,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "INC.WA",
+      "Entry_Date": "2023-11-16",
+      "Exit_Date": "2023-11-23",
+      "Entry_Price": 2.38,
+      "Exit_Price": 2.39,
+      "Shares": 8311,
+      "PnL": 13.33,
+      "PnL_Pct": 0.07,
+      "Days_Held": 7,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "MDG.WA",
+      "Entry_Date": "2023-12-03",
+      "Exit_Date": "2023-12-18",
+      "Entry_Price": 32.03,
+      "Exit_Price": 30.49,
+      "Shares": 616,
+      "PnL": -1021.47,
+      "PnL_Pct": -5.18,
+      "Days_Held": 15,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Entry_Date": "2024-01-02",
+      "Exit_Date": "2024-01-11",
+      "Entry_Price": 41.79,
+      "Exit_Price": 37.96,
+      "Shares": 446,
+      "PnL": -1774.1,
+      "PnL_Pct": -9.52,
+      "Days_Held": 9,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Entry_Date": "2024-11-19",
+      "Exit_Date": "2024-12-09",
+      "Entry_Price": 46.55,
+      "Exit_Price": 46.22,
+      "Shares": 425,
+      "PnL": -214.7,
+      "PnL_Pct": -1.09,
+      "Days_Held": 20,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Entry_Date": "2025-01-01",
+      "Exit_Date": "2025-01-16",
+      "Entry_Price": 58.86,
+      "Exit_Price": 61.64,
+      "Shares": 331,
+      "PnL": 840.45,
+      "PnL_Pct": 4.31,
+      "Days_Held": 15,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "CTX.WA",
+      "Entry_Date": "2025-11-26",
+      "Exit_Date": "2025-12-10",
+      "Entry_Price": 60.06,
+      "Exit_Price": 65.47,
+      "Shares": 329,
+      "PnL": 1695.94,
+      "PnL_Pct": 8.58,
+      "Days_Held": 14,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Entry_Date": "2025-12-15",
+      "Exit_Date": "2026-01-15",
+      "Entry_Price": 98.0,
+      "Exit_Price": 150.89,
+      "Shares": 218,
+      "PnL": 11401.96,
+      "PnL_Pct": 53.37,
+      "Days_Held": 31,
+      "Exit_Reason": "Backtest_end",
+      "Season": "2025/2026"
+    }
+  ]
+}

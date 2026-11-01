@@ -1,0 +1,1622 @@
+[
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 10,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 15,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 20,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.02,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.03,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.2,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 1.5,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 1.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.0,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    {
+        "Breakout": 25,
+        "ATR_Min": 0.04,
+        "Vol_Surge": 2.0,
+        "Trailing_Stop": 2.5,
+        "Avg_Return": 0.0,
+        "Avg_Winrate": 0.0,
+        "Scenario_Returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+]

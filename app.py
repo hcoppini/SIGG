@@ -1,13 +1,17 @@
 from flask import Flask, render_template, jsonify, request
 import subprocess
+import threading
 import glob
 import os
 import json
 import pandas as pd
 import sys
-from backtester import run_5year_backtest
+from backtester import run_5year_backtest, _RAW_DATA_CACHE
 
 app = Flask(__name__)
+
+# Track active background backtest threads per strategy
+_RUNNING_BACKTESTS = set()
 
 def get_latest_csv(prefix):
     files = glob.glob(f"Output/{prefix}_*.csv")
@@ -111,6 +115,16 @@ def get_scan_results():
         "backtest_summary": get_backtest_summary_for_scanner(strategy)
     })
 
+def _bg_backtest_worker(strategy, custom_params):
+    try:
+        run_5year_backtest(strategy, custom_params)
+    except Exception as e:
+        os.makedirs('Output', exist_ok=True)
+        with open(f'Output/backtest_5year_{strategy}.json', 'w', encoding='utf-8') as f:
+            json.dump({"status": "error", "message": str(e)}, f)
+    finally:
+        _RUNNING_BACKTESTS.discard(strategy)
+
 @app.route('/api/backtest', methods=['POST'])
 def run_backtest():
     try:
@@ -118,27 +132,36 @@ def run_backtest():
         strategy = data.get('strategy', 'squeeze_ignition')
         custom_params = data.get('params', None)
         
-        # Run synchronously using cached data (completes in ~2-3 seconds)
-        res_data = run_5year_backtest(strategy, custom_params)
-        return jsonify(res_data)
+        # If in-memory cache is already warm, run directly (~1.5s); otherwise use background thread so Render never times out
+        if len(_RAW_DATA_CACHE) >= 50:
+            res_data = run_5year_backtest(strategy, custom_params)
+            return jsonify(res_data)
+        
+        if strategy not in _RUNNING_BACKTESTS:
+            _RUNNING_BACKTESTS.add(strategy)
+            t = threading.Thread(target=_bg_backtest_worker, args=(strategy, custom_params), daemon=True)
+            t.start()
+            
+        return jsonify({"status": "running", "message": "Backtest running in background thread..."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/api/results/backtest', methods=['GET'])
 def get_backtest_results():
     strategy = request.args.get('strategy', 'squeeze_ignition')
-    results_file = f"Output/backtest_5year_{strategy}.json"
-    
-    if os.path.exists(results_file):
-        with open(results_file, 'r', encoding='utf-8') as f:
-            res_data = json.load(f)
-        return jsonify(res_data)
+    if strategy in _RUNNING_BACKTESTS:
+        return jsonify({"status": "running", "message": "Computing 6-season simulation..."})
         
-    try:
-        res_data = run_5year_backtest(strategy)
-        return jsonify(res_data)
-    except Exception as e:
-        return jsonify({"status": "error", "message": f"No backtest data: {e}"})
+    results_file = f"Output/backtest_5year_{strategy}.json"
+    if os.path.exists(results_file):
+        try:
+            with open(results_file, 'r', encoding='utf-8') as f:
+                res_data = json.load(f)
+            return jsonify(res_data)
+        except Exception:
+            return jsonify({"status": "running", "message": "Writing backtest results..."})
+        
+    return jsonify({"status": "error", "message": "No backtest data found yet."})
 
 @app.route('/api/optimize', methods=['POST'])
 def run_optimize():

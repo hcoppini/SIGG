@@ -451,35 +451,80 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function safeJsonFetch(url, options) {
+        const res = await fetch(url, options);
+        const text = await res.text();
+        if (!text || !text.trim()) {
+            return { status: 'running', message: 'Server warming up...' };
+        }
+        try {
+            return JSON.parse(text);
+        } catch (err) {
+            return { status: 'running', message: 'Waiting for background worker...' };
+        }
+    }
+
+    function pollBacktestUntilDone(strategy) {
+        let attempts = 0;
+        const pollTimer = setInterval(async () => {
+            attempts++;
+            try {
+                const pollJson = await safeJsonFetch('/api/results/backtest?strategy=' + strategy);
+                if (pollJson.status === 'success') {
+                    clearInterval(pollTimer);
+                    renderBacktestData(pollJson);
+                    if (pollJson.summary) renderScannerBacktestSummary(pollJson.summary);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    if (runBacktestBtn) runBacktestBtn.disabled = false;
+                } else if (pollJson.status === 'error' || attempts > 60) {
+                    clearInterval(pollTimer);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    if (runBacktestBtn) runBacktestBtn.disabled = false;
+                    if (pollJson.message) alert('Backtest error: ' + pollJson.message);
+                }
+            } catch (e) {
+                if (attempts > 60) {
+                    clearInterval(pollTimer);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    if (runBacktestBtn) runBacktestBtn.disabled = false;
+                }
+            }
+        }, 1500);
+    }
+
     if (runBacktestBtn) {
         runBacktestBtn.addEventListener('click', async () => {
             runBacktestBtn.disabled = true;
             if (backtestLoading) backtestLoading.classList.remove('hidden');
+            const activeStrat = getActiveStrategy();
 
             try {
                 const customParams = readFormParams();
-                const res = await fetch('/api/backtest', {
+                const json = await safeJsonFetch('/api/backtest', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        strategy: getActiveStrategy(),
+                        strategy: activeStrat,
                         params: customParams
                     })
                 });
-                const json = await res.json();
                 
                 if (json.status === 'success') {
                     renderBacktestData(json);
                     if (json.summary) renderScannerBacktestSummary(json.summary);
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    runBacktestBtn.disabled = false;
+                } else if (json.status === 'running') {
+                    pollBacktestUntilDone(activeStrat);
                 } else {
-                    alert('Error running backtest: ' + json.message);
+                    alert('Error running backtest: ' + (json.message || 'Unknown error'));
+                    if (backtestLoading) backtestLoading.classList.add('hidden');
+                    runBacktestBtn.disabled = false;
                 }
             } catch (e) {
-                alert('Backtest request failed: ' + e);
+                // If network connection dropped during Render cold boot, poll for result
+                pollBacktestUntilDone(activeStrat);
             }
-
-            if (backtestLoading) backtestLoading.classList.add('hidden');
-            runBacktestBtn.disabled = false;
         });
     }
 

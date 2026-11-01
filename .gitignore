@@ -24,7 +24,7 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Output files
-Output/
+# Temporary Output files (keep cache/ and Output/*.json for Render deployment)
+Output/equity_curve_*.csv
+Output/closed_positions_*.csv
 Staging/*.log
-cache/
