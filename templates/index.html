@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIGG Etap 1 Trading Hub & 5-Year Visual Backtester</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <title>SIGG Etap 1 Trading Hub & Interactive Backtester</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js for Visual Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Marked.js for rendering Strategy.md -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -23,7 +25,10 @@
                 <i data-lucide="radar" class="icon"></i> Daily Scanner
             </a>
             <a href="#" data-target="backtest">
-                <i data-lucide="line-chart" class="icon"></i> 5-Year Backtest Graphs
+                <i data-lucide="line-chart" class="icon"></i> Self-Service Backtester
+            </a>
+            <a href="#" data-target="blueprint">
+                <i data-lucide="file-text" class="icon"></i> Strategy Blueprint (.md)
             </a>
             <a href="#" data-target="optimizer">
                 <i data-lucide="sliders" class="icon"></i> 5-Year Optimizer
@@ -33,6 +38,7 @@
         <div class="strategy-selector">
             <label for="strategySelect">Active Strategy:</label>
             <select id="strategySelect">
+                <option value="squeeze_ignition" selected>Squeeze-Ignition (3-Day Burst)</option>
                 <option value="breakout">High-Velocity Breakout</option>
                 <option value="home_run">Home Run Chaser (All-In Risk)</option>
                 <option value="macd_rsi">RSI-Filtered MACD Momentum</option>
@@ -43,6 +49,10 @@
             <div class="stat-pill">
                 <span class="label">CAPITAL</span>
                 <span class="val">20,000 PLN</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">SLOTS / HOLD</span>
+                <span class="val">3 Stocks / 3 Days</span>
             </div>
             <div class="stat-pill target">
                 <span class="label">TARGET</span>
@@ -56,21 +66,70 @@
         <section id="dashboard" class="panel active">
             <header class="panel-header">
                 <div>
-                    <h2>Daily Momentum Scanner</h2>
-                    <p>Scans the top 140 GPW stocks for high-velocity momentum ignition setups.</p>
+                    <h2>Daily Momentum & Squeeze-Ignition Scanner</h2>
+                    <p>Evaluates WIG140 + BETA ETFs at 16:35 CET for 3-Day Squeeze-Ignition bursts.</p>
                 </div>
                 <div class="actions">
+                    <button id="openBlueprintBtn" class="btn secondary">
+                        <i data-lucide="book-open" class="btn-icon"></i> Read Strategy.md
+                    </button>
                     <button id="runScanBtn" class="btn primary">
                         <i data-lucide="play" class="btn-icon"></i> Run Scanner Now
                     </button>
                 </div>
             </header>
 
+            <!-- Layer 1: Market Regime Kill Switch Banner -->
+            <div id="marketRegimeBanner" class="regime-banner regime-green">
+                <div class="regime-left">
+                    <span id="regimeBadge" class="regime-pill">GREEN REGIME — UNLOCKED</span>
+                    <span id="regimeActionText" class="regime-desc">Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold).</span>
+                </div>
+                <div class="regime-right font-mono">
+                    <span id="regimeMetrics">WIG140 Breadth &gt; SMA20: --% | Daily Δ: --%</span>
+                </div>
+            </div>
+
+            <!-- Live Backtest Summary Bar right on the Scanner -->
+            <div class="glass-card scanner-bt-bar">
+                <div class="card-header-flex">
+                    <div>
+                        <h3>Active Strategy 5-Year Backtest Performance (2020–2026)</h3>
+                        <p id="scannerBtNotes" class="chart-subtitle">Verified on 126 cached GPW stocks across 6 historical Nov–Jan SIGG contest seasons.</p>
+                    </div>
+                    <button id="goToBacktestBtn" class="btn secondary">
+                        <i data-lucide="sliders" class="btn-icon"></i> Test Custom Parameters Yourself &rarr;
+                    </button>
+                </div>
+                <div class="kpi-grid scanner-kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-title">6-Season Avg Return</div>
+                        <div id="scanBtAvgReturn" class="kpi-value">--%</div>
+                        <div id="scanBtWinRate" class="kpi-sub">Win Rate: --%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Avg Trades / Contest</div>
+                        <div id="scanBtTradesPerSeason" class="kpi-value">--</div>
+                        <div id="scanBtTotalTrades" class="kpi-sub">Total 6-Yr Trades: --</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Best Contest Season</div>
+                        <div id="scanBtBestSeason" class="kpi-value">--</div>
+                        <div id="scanBtBestReturn" class="kpi-sub">Return: --%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Worst Contest Season</div>
+                        <div id="scanBtWorstSeason" class="kpi-value">--</div>
+                        <div id="scanBtWorstReturn" class="kpi-sub">Return: --%</div>
+                    </div>
+                </div>
+            </div>
+
             <div id="scanLoading" class="loader hidden"></div>
 
             <div class="glass-card">
                 <div class="card-header-flex">
-                    <h3>Top Qualified Buy Signals</h3>
+                    <h3>Top Qualified Signals (Ranked by Runner Score)</h3>
                     <span id="scanCountBadge" class="count-badge">0 signals</span>
                 </div>
                 <div class="table-container">
@@ -79,9 +138,14 @@
                             <tr>
                                 <th>Ticker</th>
                                 <th>Close (PLN)</th>
-                                <th>Breakout Tgt</th>
-                                <th>ATR %</th>
+                                <th>Runner Score</th>
+                                <th>Day Δ%</th>
+                                <th>ATR Coil</th>
+                                <th>TR / ATR</th>
+                                <th>Close Pos</th>
                                 <th>Vol Surge</th>
+                                <th>Stop / Hold</th>
+                                <th>5-Yr Backtest History</th>
                                 <th>Action</th>
                                 <th>Chart</th>
                             </tr>
@@ -95,42 +159,134 @@
             </div>
         </section>
 
-        <!-- 2. 5-YEAR BACKTEST & VISUAL GRAPHS PANEL -->
+        <!-- 2. SELF-SERVICE 5-YEAR BACKTEST & PARAMETER PLAYGROUND PANEL -->
         <section id="backtest" class="panel">
             <header class="panel-header">
                 <div>
-                    <h2>5-Year Historical Backtest & Visual Graphs</h2>
-                    <p>Simulating 20,000 PLN compounding across the last 5 Stage 1 competition seasons (Nov 15 – Jan 15).</p>
+                    <h2>Self-Service 5-Year Backtester & Parameter Playground</h2>
+                    <p>Don't trust pre-baked numbers—set your own entry/exit rules below and run the Python backtest engine directly on 6 years of GPW data.</p>
                 </div>
                 <div class="actions">
+                    <button id="presetBurstBtn" class="btn secondary" title="Loads 3-Day Hold with 1.3x TR, 1.5x Vol, 2-8% ATR">
+                        Preset: 3-Day Burst (22.7 trades/season)
+                    </button>
+                    <button id="presetStrictBtn" class="btn secondary" title="Loads exact numbers from sigg_overhauled_strategy_blueprint.md">
+                        Preset: Strict .md Blueprint
+                    </button>
                     <button id="runBacktestBtn" class="btn primary">
-                        <i data-lucide="refresh-cw" class="btn-icon"></i> Run 5-Year Backtest
+                        <i data-lucide="play" class="btn-icon"></i> Run Custom Backtest Now
                     </button>
                 </div>
             </header>
 
+            <!-- Interactive Parameter Controls Card -->
+            <div class="glass-card param-builder-card">
+                <div class="card-header-flex">
+                    <div>
+                        <h3>Interactive Backtest Parameters (Code-Level Override)</h3>
+                        <p class="chart-subtitle">Every change below is passed directly to <code>TruthfulBacktester</code> in <code>backtester.py</code>.</p>
+                    </div>
+                </div>
+                <div class="param-grid">
+                    <div class="param-field">
+                        <label for="btHoldDays">Max Hold Days (Sessions)</label>
+                        <input type="number" id="btHoldDays" value="3" min="1" max="40" step="1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btHardStop">Time Stop Mode</label>
+                        <select id="btHardStop">
+                            <option value="true" selected>Hard Exit after N Days</option>
+                            <option value="false">Stagnation Only (If No New High)</option>
+                        </select>
+                    </div>
+                    <div class="param-field">
+                        <label for="btMaxPos">Max Positions (Slots)</label>
+                        <input type="number" id="btMaxPos" value="3" min="1" max="10" step="1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btBreakoutDays">Breakout High (Days)</label>
+                        <input type="number" id="btBreakoutDays" value="10" min="3" max="50" step="1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btAtrMin">Pre-ATR Min (%)</label>
+                        <input type="number" id="btAtrMin" value="2.0" min="0.5" max="15.0" step="0.5">
+                    </div>
+                    <div class="param-field">
+                        <label for="btAtrMax">Pre-ATR Max (%)</label>
+                        <input type="number" id="btAtrMax" value="8.0" min="1.0" max="25.0" step="0.5">
+                    </div>
+                    <div class="param-field">
+                        <label for="btTrMin">Min TrueRange / ATR</label>
+                        <input type="number" id="btTrMin" value="1.3" min="0.5" max="4.0" step="0.1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btGainMin">Day Gain Min (%)</label>
+                        <input type="number" id="btGainMin" value="2.5" min="-5.0" max="15.0" step="0.5">
+                    </div>
+                    <div class="param-field">
+                        <label for="btGainMax">Day Gain Max (%)</label>
+                        <input type="number" id="btGainMax" value="12.0" min="3.0" max="40.0" step="0.5">
+                    </div>
+                    <div class="param-field">
+                        <label for="btClosePos">Min Close Position (0–1)</label>
+                        <input type="number" id="btClosePos" value="0.70" min="0.0" max="0.99" step="0.05">
+                    </div>
+                    <div class="param-field">
+                        <label for="btVolMin">Min Volume Surge (x)</label>
+                        <input type="number" id="btVolMin" value="1.5" min="0.5" max="5.0" step="0.1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btTurnoverMin">Min Turnover (PLN)</label>
+                        <input type="number" id="btTurnoverMin" value="150000" min="0" max="2000000" step="50000">
+                    </div>
+                    <div class="param-field">
+                        <label for="btStopAtr">Stop Loss (x ATR)</label>
+                        <input type="number" id="btStopAtr" value="2.0" min="0.5" max="5.0" step="0.1">
+                    </div>
+                    <div class="param-field">
+                        <label for="btExecTiming">Execution Timing</label>
+                        <select id="btExecTiming">
+                            <option value="close_auction" selected>16:35 CET Close Auction</option>
+                            <option value="next_open">Next-Day 09:00 Open</option>
+                        </select>
+                    </div>
+                    <div class="param-field">
+                        <label for="btCommPct">Broker Commission (%)</label>
+                        <input type="number" id="btCommPct" value="0.29" min="0.0" max="1.0" step="0.05">
+                    </div>
+                    <div class="param-field">
+                        <label for="btUseRegime">Layer 1 Market Kill Switch</label>
+                        <select id="btUseRegime">
+                            <option value="true" selected>Enabled (WIG &gt; SMA20)</option>
+                            <option value="false">Disabled (Always Trade)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div id="backtestLoading" class="loader hidden"></div>
+            <div id="backtestWarning" class="bt-notice-banner"></div>
 
             <!-- KPI Summary Cards -->
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-title">Initial Capital</div>
                     <div class="kpi-value">20,000 PLN</div>
-                    <div class="kpi-sub">Standard Stage 1 Allocation</div>
+                    <div id="kpiFeesPaid" class="kpi-sub">6-Yr Fees Paid: -- PLN</div>
                 </div>
                 <div class="kpi-card target">
-                    <div class="kpi-title">Top 12 Qualifier Target</div>
-                    <div class="kpi-value text-gold">30,000+ PLN</div>
-                    <div class="kpi-sub">+50.0% Net Compounded Gain</div>
+                    <div class="kpi-title">Avg Trades / Contest</div>
+                    <div id="kpiTradesPerSeason" class="kpi-value">--</div>
+                    <div id="kpiTotalTrades" class="kpi-sub">Total 6-Yr Trades: --</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-title">5-Year Avg Return</div>
-                    <div id="kpiAvgReturn" class="kpi-value text-green">--%</div>
+                    <div class="kpi-title">6-Season Avg Return</div>
+                    <div id="kpiAvgReturn" class="kpi-value">--%</div>
                     <div id="kpiWinRate" class="kpi-sub">Win Rate: --%</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-title">Best Historical Season</div>
-                    <div id="kpiBestSeason" class="kpi-value text-green">--</div>
+                    <div id="kpiBestSeason" class="kpi-value">--</div>
                     <div id="kpiBestReturn" class="kpi-sub">Return: --</div>
                 </div>
             </div>
@@ -139,8 +295,8 @@
             <div class="glass-card chart-card">
                 <div class="card-header-flex">
                     <div>
-                        <h3>5-Year Stage 1 Equity Curves (Interactive)</h3>
-                        <p class="chart-subtitle">Tracks portfolio growth from 20,000 PLN over the 40 trading days of each season</p>
+                        <h3>6-Season Stage 1 Equity Curves (Interactive)</h3>
+                        <p class="chart-subtitle">Tracks portfolio growth from 20,000 PLN over the 40 trading days of each November–January season</p>
                     </div>
                 </div>
                 <div class="chart-container-lg">
@@ -192,9 +348,12 @@
                 </div>
             </div>
 
-            <!-- Closed Trades Sample Table -->
+            <!-- All Completed Trades Audit Log Table -->
             <div class="glass-card">
-                <h3>Recent Completed Swing Trades Log</h3>
+                <div class="card-header-flex">
+                    <h3>Complete Trade-by-Trade Audit Log (Every Executed Trade)</h3>
+                    <span id="tradesLogCountBadge" class="count-badge">0 trades</span>
+                </div>
                 <div class="table-container">
                     <table id="tradesLogTable">
                         <thead>
@@ -203,11 +362,13 @@
                                 <th>Ticker</th>
                                 <th>Entry Date</th>
                                 <th>Exit Date</th>
+                                <th>Shares</th>
                                 <th>Entry (PLN)</th>
                                 <th>Exit (PLN)</th>
-                                <th>PnL (PLN)</th>
+                                <th>Fees (PLN)</th>
+                                <th>Net PnL (PLN)</th>
                                 <th>PnL (%)</th>
-                                <th>Days Held</th>
+                                <th>Sessions Held</th>
                                 <th>Exit Reason</th>
                             </tr>
                         </thead>
@@ -219,12 +380,33 @@
             </div>
         </section>
 
-        <!-- 3. OPTIMIZER PANEL -->
+        <!-- 3. STRATEGY BLUEPRINT (.MD) VIEWER PANEL -->
+        <section id="blueprint" class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>Strategy Blueprint Overview (<code>Strategy.md</code>)</h2>
+                    <p>Live rendered view of your official team strategy file located at <code>Strategy.md</code>.</p>
+                </div>
+                <div class="actions">
+                    <button id="refreshMdBtn" class="btn secondary">
+                        <i data-lucide="refresh-cw" class="btn-icon"></i> Reload Strategy.md
+                    </button>
+                </div>
+            </header>
+
+            <div class="glass-card markdown-viewer-card">
+                <div id="markdownContent" class="markdown-body">
+                    Loading Strategy.md...
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. OPTIMIZER PANEL -->
         <section id="optimizer" class="panel">
             <header class="panel-header">
                 <div>
                     <h2>5-Year Scenario Optimizer</h2>
-                    <p>Systematically test parameter combinations across all 5 historical November–January windows.</p>
+                    <p>Systematically test parameter combinations across all historical November–January windows.</p>
                 </div>
                 <div class="actions">
                     <button id="runOptBtn" class="btn primary">
@@ -260,6 +442,6 @@
         </section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=4"></script>
 </body>
 </html>

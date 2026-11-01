@@ -504,3 +504,182 @@ td strong {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Secondary Buttons */
+.btn.secondary {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+}
+.btn.secondary:hover {
+    background: #334155;
+    color: #fff;
+}
+
+/* Layer 1 Market Regime Banner */
+.regime-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--card-border);
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.regime-green {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+.regime-yellow {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+.regime-red {
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.45);
+}
+.regime-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+.regime-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.regime-desc {
+    font-size: 0.88rem;
+    color: #e2e8f0;
+}
+.regime-right {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Scanner Backtest Bar */
+.scanner-bt-bar {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+.scanner-kpi-grid {
+    margin-bottom: 0;
+    margin-top: 0.75rem;
+}
+
+/* Interactive Parameter Builder Grid */
+.param-builder-card {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+.param-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 0.9rem;
+    margin-top: 1rem;
+}
+.param-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.param-field label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.param-field input,
+.param-field select {
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+}
+.param-field input:focus,
+.param-field select:focus {
+    border-color: var(--accent);
+}
+
+.bt-notice-banner {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    margin-bottom: 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Markdown Viewer Card */
+.markdown-viewer-card {
+    margin-top: 0;
+    padding: 2rem 2.5rem;
+}
+.markdown-body {
+    line-height: 1.7;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 0.65rem;
+}
+.markdown-body h1 {
+    font-size: 1.6rem;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+}
+.markdown-body h2 {
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0.35rem;
+}
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol {
+    margin-bottom: 1rem;
+}
+.markdown-body ul,
+.markdown-body ol {
+    padding-left: 1.5rem;
+}
+.markdown-body li {
+    margin-bottom: 0.35rem;
+}
+.markdown-body code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #1e293b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #34d399;
+}
+.markdown-body hr {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 1.5rem 0;
+}
+.markdown-body table {
+    margin: 1rem 0;
+    border: 1px solid var(--card-border);
+}
+

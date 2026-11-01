@@ -1,38 +1,57 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Lucide Icons if available
     if (window.lucide) {
         window.lucide.createIcons();
     }
 
-    // Navigation
     const links = document.querySelectorAll('nav a');
     const panels = document.querySelectorAll('.panel');
     const strategySelect = document.getElementById('strategySelect');
 
+    function switchTab(targetId) {
+        links.forEach(l => {
+            if (l.getAttribute('data-target') === targetId) {
+                l.classList.add('active');
+            } else {
+                l.classList.remove('active');
+            }
+        });
+        panels.forEach(p => {
+            if (p.id === targetId) {
+                p.classList.add('active');
+            } else {
+                p.classList.remove('active');
+            }
+        });
+
+        if (targetId === 'backtest') {
+            if (equityChartInstance) equityChartInstance.resize();
+            if (seasonBarChartInstance) seasonBarChartInstance.resize();
+            if (winLossChartInstance) winLossChartInstance.resize();
+        } else if (targetId === 'blueprint') {
+            loadStrategyMarkdown();
+        }
+    }
+
     links.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            links.forEach(l => l.classList.remove('active'));
-            panels.forEach(p => p.classList.remove('active'));
-            
-            link.classList.add('active');
             const targetId = link.getAttribute('data-target');
-            const targetPanel = document.getElementById(targetId);
-            if (targetPanel) {
-                targetPanel.classList.add('active');
-            }
-
-            // Re-render / resize charts when tab opens
-            if (targetId === 'backtest') {
-                if (equityChartInstance) equityChartInstance.resize();
-                if (seasonBarChartInstance) seasonBarChartInstance.resize();
-                if (winLossChartInstance) winLossChartInstance.resize();
-            }
+            switchTab(targetId);
         });
     });
 
+    const openBlueprintBtn = document.getElementById('openBlueprintBtn');
+    if (openBlueprintBtn) {
+        openBlueprintBtn.addEventListener('click', () => switchTab('blueprint'));
+    }
+
+    const goToBacktestBtn = document.getElementById('goToBacktestBtn');
+    if (goToBacktestBtn) {
+        goToBacktestBtn.addEventListener('click', () => switchTab('backtest'));
+    }
+
     function getActiveStrategy() {
-        return strategySelect ? strategySelect.value : 'breakout';
+        return strategySelect ? strategySelect.value : 'squeeze_ignition';
     }
 
     if (strategySelect) {
@@ -44,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 1. SCANNER LOGIC
+    // 1. SCANNER + MARKET REGIME + BT SUMMARY BAR
     // ==========================================
     const runScanBtn = document.getElementById('runScanBtn');
     const scanLoading = document.getElementById('scanLoading');
@@ -69,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const json = await res.json();
                 
                 if (json.status === 'success') {
+                    if (json.market_regime) renderMarketRegime(json.market_regime);
+                    if (json.backtest_summary) renderScannerBacktestSummary(json.backtest_summary);
                     populateScanTable(json.data, json.type, getActiveStrategy());
                 } else {
                     alert('Error running scanner: ' + json.message);
@@ -82,13 +103,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderMarketRegime(regimeData) {
+        const banner = document.getElementById('marketRegimeBanner');
+        const badge = document.getElementById('regimeBadge');
+        const desc = document.getElementById('regimeActionText');
+        const metrics = document.getElementById('regimeMetrics');
+        if (!banner || !regimeData) return;
+
+        const reg = regimeData.regime || 'GREEN';
+        banner.className = 'regime-banner';
+        if (reg === 'RED') banner.classList.add('regime-red');
+        else if (reg === 'YELLOW') banner.classList.add('regime-yellow');
+        else banner.classList.add('regime-green');
+
+        if (badge) badge.textContent = `${reg} REGIME — ${regimeData.status_label || ''}`;
+        if (desc) desc.textContent = regimeData.action_msg || '';
+        if (metrics) {
+            const chg = Number(regimeData.index_change_pct || 0);
+            const brd = Number(regimeData.breadth_above_sma20_pct || 0);
+            metrics.textContent = `WIG140 Breadth > SMA20: ${brd.toFixed(1)}% | Daily Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+        }
+    }
+
+    function renderScannerBacktestSummary(summary) {
+        if (!summary) return;
+        const avgEl = document.getElementById('scanBtAvgReturn');
+        const wrEl = document.getElementById('scanBtWinRate');
+        const tpsEl = document.getElementById('scanBtTradesPerSeason');
+        const totEl = document.getElementById('scanBtTotalTrades');
+        const bestSEl = document.getElementById('scanBtBestSeason');
+        const bestREl = document.getElementById('scanBtBestReturn');
+        const worstSEl = document.getElementById('scanBtWorstSeason');
+        const worstREl = document.getElementById('scanBtWorstReturn');
+        const notesEl = document.getElementById('scannerBtNotes');
+
+        const ret = Number(summary.avg_return_pct || 0);
+        if (avgEl) {
+            avgEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
+            avgEl.className = `kpi-value ${ret >= 0 ? 'text-green' : 'text-red'}`;
+        }
+        if (wrEl) wrEl.textContent = `Win Rate: ${summary.overall_win_rate || 0}%`;
+        if (tpsEl) {
+            const tps = summary.avg_trades_per_season || ((summary.total_trades || 0) / 6).toFixed(1);
+            tpsEl.textContent = `${tps} / season`;
+        }
+        if (totEl) totEl.textContent = `Total 6-Yr Trades: ${summary.total_trades || 0}`;
+
+        if (summary.best_season && bestSEl && bestREl) {
+            bestSEl.textContent = summary.best_season.season;
+            bestREl.textContent = `Return: +${summary.best_season.return_pct}% (${Number(summary.best_season.final_capital).toLocaleString('pl-PL')} PLN)`;
+        }
+        if (summary.worst_season && worstSEl && worstREl) {
+            worstSEl.textContent = summary.worst_season.season;
+            const wRet = Number(summary.worst_season.return_pct || 0);
+            worstREl.textContent = `Return: ${wRet >= 0 ? '+' : ''}${wRet}% (${Number(summary.worst_season.final_capital).toLocaleString('pl-PL')} PLN)`;
+        }
+        if (notesEl && summary.notes) {
+            notesEl.textContent = summary.notes;
+        }
+    }
+
     function populateScanTable(data, type, strategy) {
         if (!scanTableBody) return;
         
         if (!data || data.length === 0) {
             if (scanEmpty) {
                 scanEmpty.classList.remove('hidden');
-                scanEmpty.textContent = "No scan data available.";
+                scanEmpty.textContent = "No scan data available. Click 'Run Scanner Now'.";
             }
             scanTableBody.innerHTML = '';
             if (scanCountBadge) scanCountBadge.textContent = "0 signals";
@@ -98,15 +179,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'closest') {
             if (scanEmpty) {
                 scanEmpty.classList.remove('hidden');
-                scanEmpty.textContent = "No pure buy signals today. Displaying top 5 closest candidates.";
+                scanEmpty.textContent = "No strict Ignition Buy signals today. Displaying top 10 closest candidates ranked by Runner Score.";
             }
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} closest`;
+            if (scanCountBadge) scanCountBadge.textContent = `${data.length} watchlist`;
         } else {
             if (scanEmpty) scanEmpty.classList.add('hidden');
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified`;
+            if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified buys`;
         }
 
-        if (strategy === 'breakout') {
+        if (strategy === 'squeeze_ignition') {
+            if (scanTableHeader) {
+                scanTableHeader.innerHTML = `
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Close (PLN)</th>
+                        <th>Runner Score</th>
+                        <th>Day Δ%</th>
+                        <th>Pre-ATR %</th>
+                        <th>TR / ATR</th>
+                        <th>Close Pos</th>
+                        <th>Vol Surge</th>
+                        <th>Stop / Hold</th>
+                        <th>5-Yr Backtest History</th>
+                        <th>Action</th>
+                        <th>Chart</th>
+                    </tr>
+                `;
+            }
+        } else if (strategy === 'breakout' || strategy === 'home_run') {
             if (scanTableHeader) {
                 scanTableHeader.innerHTML = `
                     <tr>
@@ -116,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <th>Vol Surge</th>
                         <th>Stop Loss</th>
                         <th>Target</th>
-                        <th>R:R</th>
+                        <th>5-Yr Backtest History</th>
                         <th>Action</th>
                         <th>Chart</th>
                     </tr>
@@ -132,8 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <th>RSI (14)</th>
                         <th>Vol Surge</th>
                         <th>Stop Loss</th>
-                        <th>Target</th>
-                        <th>R:R</th>
+                        <th>5-Yr Backtest History</th>
                         <th>Action</th>
                         <th>Chart</th>
                     </tr>
@@ -149,8 +248,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tickerClean}/`;
             const isBuy = (row.Strategy_Signal === 'Buy');
             const isUptrend = (row.Trend_SMA50 === 'Uptrend');
+            const btStats = row.BT_Stats || 'No past triggers';
 
-            if (strategy === 'breakout') {
+            if (strategy === 'squeeze_ignition') {
+                const dayGain = Number(row.Day_Gain_Pct || 0);
+                const trRatio = Number(row.TR_Ratio || 0);
+                const cPos = Number(row.Close_Pos || 0);
+                const volS = Number(row.Volume_Surge || 0);
+                const rScore = Number(row.Runner_Score || 0);
+                tr.innerHTML = `
+                    <td><strong>${ticker}</strong></td>
+                    <td class="font-mono">${Number(row.Close || 0).toFixed(2)}</td>
+                    <td class="font-mono font-bold text-green">${rScore.toFixed(2)}</td>
+                    <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
+                    <td class="font-mono">${Number(row.ATR_Pct || 0).toFixed(2)}%</td>
+                    <td class="font-mono ${trRatio >= 1.3 ? 'text-green font-bold' : ''}">${trRatio.toFixed(2)}x</td>
+                    <td class="font-mono ${cPos >= 0.70 ? 'text-green font-bold' : ''}">${(cPos * 100).toFixed(0)}%</td>
+                    <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
+                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} <span class="text-muted">/ 3D</span></td>
+                    <td class="font-mono text-xs">${btStats}</td>
+                    <td>
+                        <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                    </td>
+                    <td>
+                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
+                    </td>
+                `;
+            } else if (strategy === 'breakout' || strategy === 'home_run') {
                 tr.innerHTML = `
                     <td><strong>${ticker}</strong></td>
                     <td class="font-mono">${Number(row.Close || 0).toFixed(2)}</td>
@@ -160,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="font-mono ${Number(row.Volume_Surge || 0) >= 1.25 ? 'text-green font-bold' : ''}">${Number(row.Volume_Surge || 0).toFixed(2)}x</td>
                     <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'}</td>
                     <td class="font-mono text-green">${row.Target ? Number(row.Target).toFixed(2) : '-'}</td>
-                    <td class="font-mono font-bold ${Number(row.RR_Ratio || 0) >= 2.0 ? 'text-green' : ''}">${row.RR_Ratio ? Number(row.RR_Ratio).toFixed(1) + ':1' : '-'}</td>
+                    <td class="font-mono text-xs">${btStats}</td>
                     <td>
                         <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
                     </td>
@@ -175,11 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>
                         <span class="badge ${isUptrend ? 'badge-buy' : 'badge-loss'}">${row.Trend_SMA50 || 'Uptrend'}</span>
                     </td>
-                    <td class="font-mono ${Number(row.RSI || 0) >= 45 && Number(row.RSI || 0) <= 75 ? 'text-green font-bold' : ''}">${Number(row.RSI || 0).toFixed(1)}</td>
-                    <td class="font-mono ${Number(row.Volume_Surge || 0) >= 1.15 ? 'text-green font-bold' : ''}">${Number(row.Volume_Surge || 0).toFixed(2)}x</td>
+                    <td class="font-mono">${Number(row.RSI || 0).toFixed(1)}</td>
+                    <td class="font-mono">${Number(row.Volume_Surge || 0).toFixed(2)}x</td>
                     <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'}</td>
-                    <td class="font-mono text-green">${row.Target ? Number(row.Target).toFixed(2) : '-'}</td>
-                    <td class="font-mono font-bold ${Number(row.RR_Ratio || 0) >= 1.8 ? 'text-green' : ''}">${row.RR_Ratio ? Number(row.RR_Ratio).toFixed(1) + ':1' : '-'}</td>
+                    <td class="font-mono text-xs">${btStats}</td>
                     <td>
                         <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
                     </td>
@@ -194,8 +317,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function fetchScanResults() {
         const strategy = getActiveStrategy();
-        fetch('/api/results/scan').then(r => r.json()).then(j => {
-            if(j.status === 'success') {
+        fetch('/api/results/scan?strategy=' + strategy).then(r => r.json()).then(j => {
+            if (j.market_regime) renderMarketRegime(j.market_regime);
+            if (j.backtest_summary) renderScannerBacktestSummary(j.backtest_summary);
+            if (j.status === 'success') {
                 populateScanTable(j.data, j.type, strategy);
             } else {
                 if (scanEmpty) scanEmpty.classList.remove('hidden');
@@ -205,16 +330,126 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 2. 5-YEAR BACKTEST & CHART.JS VISUAL GRAPHS
+    // 2. SELF-SERVICE 5-YEAR BACKTEST & CHARTS
     // ==========================================
     let equityChartInstance = null;
     let seasonBarChartInstance = null;
     let winLossChartInstance = null;
 
     const runBacktestBtn = document.getElementById('runBacktestBtn');
+    const presetBurstBtn = document.getElementById('presetBurstBtn');
+    const presetStrictBtn = document.getElementById('presetStrictBtn');
     const backtestLoading = document.getElementById('backtestLoading');
     const seasonSummaryBody = document.getElementById('seasonSummaryBody');
     const tradesLogBody = document.getElementById('tradesLogBody');
+
+    function setFormParams(p) {
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && val !== undefined) el.value = String(val);
+        };
+        setVal('btHoldDays', p.max_hold_days);
+        setVal('btHardStop', p.hard_time_stop);
+        setVal('btMaxPos', p.max_positions);
+        setVal('btBreakoutDays', p.breakout_period);
+        setVal('btAtrMin', p.atr_min_pct);
+        setVal('btAtrMax', p.atr_max_pct);
+        setVal('btTrMin', p.min_tr_ratio);
+        setVal('btGainMin', p.min_day_gain_pct);
+        setVal('btGainMax', p.max_day_gain_pct);
+        setVal('btClosePos', p.min_close_pos);
+        setVal('btVolMin', p.volume_surge_multiplier);
+        setVal('btTurnoverMin', p.min_turnover_pln);
+        setVal('btStopAtr', p.trailing_stop_atr_mult);
+        setVal('btExecTiming', p.exec_timing);
+        setVal('btCommPct', p.commission_pct);
+        setVal('btUseRegime', p.use_market_regime);
+    }
+
+    function readFormParams() {
+        const num = (id, fallback) => {
+            const el = document.getElementById(id);
+            if (!el) return fallback;
+            const v = parseFloat(el.value);
+            return isNaN(v) ? fallback : v;
+        };
+        const bool = (id, fallback) => {
+            const el = document.getElementById(id);
+            return el ? (el.value === 'true') : fallback;
+        };
+        const str = (id, fallback) => {
+            const el = document.getElementById(id);
+            return el ? el.value : fallback;
+        };
+        return {
+            max_hold_days_without_new_high: Math.round(num('btHoldDays', 3)),
+            hard_time_stop: bool('btHardStop', true),
+            max_positions: Math.round(num('btMaxPos', 3)),
+            breakout_period: Math.round(num('btBreakoutDays', 10)),
+            atr_min_pct: num('btAtrMin', 2.0) / 100.0,
+            atr_max_pct: num('btAtrMax', 8.0) / 100.0,
+            min_tr_ratio: num('btTrMin', 1.3),
+            min_day_gain_pct: num('btGainMin', 2.5) / 100.0,
+            max_day_gain_pct: num('btGainMax', 12.0) / 100.0,
+            min_close_pos: num('btClosePos', 0.70),
+            volume_surge_multiplier: num('btVolMin', 1.5),
+            min_turnover_pln: num('btTurnoverMin', 150000),
+            trailing_stop_atr_mult: num('btStopAtr', 2.0),
+            exec_timing: str('btExecTiming', 'close_auction'),
+            commission_pct: num('btCommPct', 0.29) / 100.0,
+            use_market_regime: bool('btUseRegime', true)
+        };
+    }
+
+    if (presetBurstBtn) {
+        presetBurstBtn.addEventListener('click', () => {
+            if (strategySelect) strategySelect.value = 'squeeze_ignition';
+            setFormParams({
+                max_hold_days: 3,
+                hard_time_stop: true,
+                max_positions: 3,
+                breakout_period: 10,
+                atr_min_pct: 2.0,
+                atr_max_pct: 8.0,
+                min_tr_ratio: 1.3,
+                min_day_gain_pct: 2.5,
+                max_day_gain_pct: 12.0,
+                min_close_pos: 0.70,
+                volume_surge_multiplier: 1.5,
+                min_turnover_pln: 150000,
+                trailing_stop_atr_mult: 2.0,
+                exec_timing: 'close_auction',
+                commission_pct: 0.29,
+                use_market_regime: true
+            });
+            runBacktestBtn.click();
+        });
+    }
+
+    if (presetStrictBtn) {
+        presetStrictBtn.addEventListener('click', () => {
+            if (strategySelect) strategySelect.value = 'squeeze_ignition';
+            setFormParams({
+                max_hold_days: 4,
+                hard_time_stop: false,
+                max_positions: 3,
+                breakout_period: 10,
+                atr_min_pct: 1.5,
+                atr_max_pct: 4.0,
+                min_tr_ratio: 1.8,
+                min_day_gain_pct: 3.0,
+                max_day_gain_pct: 9.0,
+                min_close_pos: 0.75,
+                volume_surge_multiplier: 2.0,
+                min_turnover_pln: 400000,
+                trailing_stop_atr_mult: 2.2,
+                exec_timing: 'close_auction',
+                commission_pct: 0.29,
+                use_market_regime: true
+            });
+            runBacktestBtn.click();
+        });
+    }
 
     if (runBacktestBtn) {
         runBacktestBtn.addEventListener('click', async () => {
@@ -222,43 +457,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (backtestLoading) backtestLoading.classList.remove('hidden');
 
             try {
+                const customParams = readFormParams();
                 const res = await fetch('/api/backtest', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ strategy: getActiveStrategy() })
+                    body: JSON.stringify({
+                        strategy: getActiveStrategy(),
+                        params: customParams
+                    })
                 });
                 const json = await res.json();
                 
                 if (json.status === 'success') {
                     renderBacktestData(json);
-                    if (backtestLoading) backtestLoading.classList.add('hidden');
-                    runBacktestBtn.disabled = false;
-                } else if (json.status === 'running') {
-                    // Poll for progress updates
-                    let pollInterval = setInterval(async () => {
-                        try {
-                            const pollRes = await fetch('/api/results/backtest?strategy=' + getActiveStrategy());
-                            const pollJson = await pollRes.json();
-                            if (pollJson.status === 'success' || pollJson.status === 'partial') {
-                                renderBacktestData(pollJson);
-                            }
-                            if (pollJson.status === 'success' || pollJson.status === 'error') {
-                                clearInterval(pollInterval);
-                                if (backtestLoading) backtestLoading.classList.add('hidden');
-                                runBacktestBtn.disabled = false;
-                            }
-                        } catch(e) {}
-                    }, 2000);
+                    if (json.summary) renderScannerBacktestSummary(json.summary);
                 } else {
                     alert('Error running backtest: ' + json.message);
-                    if (backtestLoading) backtestLoading.classList.add('hidden');
-                    runBacktestBtn.disabled = false;
                 }
             } catch (e) {
                 alert('Backtest request failed: ' + e);
-                if (backtestLoading) backtestLoading.classList.add('hidden');
-                runBacktestBtn.disabled = false;
             }
+
+            if (backtestLoading) backtestLoading.classList.add('hidden');
+            runBacktestBtn.disabled = false;
+        });
     }
 
     function fetchBacktestResults() {
@@ -268,6 +490,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(json => {
                 if (json.status === 'success') {
                     renderBacktestData(json);
+                    if (json.summary) {
+                        renderScannerBacktestSummary(json.summary);
+                        if (json.summary.active_params) {
+                            setFormParams(json.summary.active_params);
+                        }
+                    }
                 }
             })
             .catch(() => {});
@@ -276,57 +504,47 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderBacktestData(data) {
         if (!data) return;
 
-        // 1. Update KPI Cards
         const summary = data.summary || {};
         const kpiAvgReturn = document.getElementById('kpiAvgReturn');
         const kpiWinRate = document.getElementById('kpiWinRate');
         const kpiBestSeason = document.getElementById('kpiBestSeason');
         const kpiBestReturn = document.getElementById('kpiBestReturn');
+        const kpiTradesPerSeason = document.getElementById('kpiTradesPerSeason');
+        const kpiTotalTrades = document.getElementById('kpiTotalTrades');
+        const kpiFeesPaid = document.getElementById('kpiFeesPaid');
 
         if (kpiAvgReturn) {
-            const ret = summary.avg_return_pct || 0;
-            kpiAvgReturn.textContent = `${ret > 0 ? '+' : ''}${ret.toFixed(2)}%`;
+            const ret = Number(summary.avg_return_pct || 0);
+            kpiAvgReturn.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
             kpiAvgReturn.className = `kpi-value ${ret >= 0 ? 'text-green' : 'text-red'}`;
         }
         if (kpiWinRate) {
-            kpiWinRate.textContent = `Win Rate: ${summary.overall_win_rate || 0}% (${summary.total_trades || 0} trades)`;
+            kpiWinRate.textContent = `Win Rate: ${summary.overall_win_rate || 0}%`;
+        }
+        if (kpiTradesPerSeason) {
+            const tps = summary.avg_trades_per_season || ((summary.total_trades || 0) / 6).toFixed(1);
+            kpiTradesPerSeason.textContent = `${tps} / season`;
+        }
+        if (kpiTotalTrades) {
+            kpiTotalTrades.textContent = `Total 6-Yr Trades: ${summary.total_trades || 0}`;
+        }
+        if (kpiFeesPaid) {
+            kpiFeesPaid.textContent = `6-Yr Fees Paid: ${Number(summary.total_fees_pln || 0).toLocaleString('pl-PL')} PLN`;
         }
         if (summary.best_season && kpiBestSeason && kpiBestReturn) {
             kpiBestSeason.textContent = summary.best_season.season;
-            kpiBestReturn.textContent = `Return: +${summary.best_season.return_pct}% (${summary.best_season.final_capital.toLocaleString('pl-PL')} PLN)`;
+            kpiBestReturn.textContent = `Return: +${summary.best_season.return_pct}% (${Number(summary.best_season.final_capital).toLocaleString('pl-PL')} PLN)`;
         }
 
-        // Display notes/warnings if present
-        let warningEl = document.getElementById('backtestWarning');
-        if (summary.notes) {
-            if (!warningEl) {
-                warningEl = document.createElement('div');
-                warningEl.id = 'backtestWarning';
-                warningEl.className = 'bg-red/10 border border-red/20 text-red px-4 py-3 rounded mb-6 text-sm flex items-start gap-3';
-                const chartsContainer = document.querySelector('.grid.grid-cols-3.gap-6.mb-8').nextElementSibling;
-                chartsContainer.parentNode.insertBefore(warningEl, chartsContainer);
-            }
-            const isPartial = (data.status === 'partial');
-            warningEl.className = isPartial 
-                ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-3 rounded mb-6 text-sm flex items-start gap-3'
-                : 'bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded mb-6 text-sm flex items-start gap-3';
-            
-            warningEl.innerHTML = `<strong>${isPartial ? 'Running:' : 'Notice:'}</strong> ${summary.notes}`;
-        } else if (warningEl) {
-            warningEl.remove();
+        const warningEl = document.getElementById('backtestWarning');
+        if (warningEl && summary.notes) {
+            warningEl.innerHTML = `<strong>Engine Configuration:</strong> ${summary.notes}`;
         }
 
-        // 2. Render Equity Curve Chart
         renderEquityCurveChart(data.equity_curves || {});
-
-        // 3. Render Season Bar Chart & Win/Loss Doughnut
         renderSeasonBarChart(data.seasons || []);
-        renderWinLossChart(data.trades || [], summary.overall_win_rate || 50);
-
-        // 4. Populate Season Breakdown Table
+        renderWinLossChart(data.trades || []);
         populateSeasonSummaryTable(data.seasons || []);
-
-        // 5. Populate Completed Trades Log Table
         populateTradesLogTable(data.trades || []);
     }
 
@@ -334,7 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = document.getElementById('equityCurveChart');
         if (!ctx) return;
 
-        // Find the maximum length of points across seasons
         let maxDays = 0;
         Object.values(curves).forEach(pts => {
             if (pts.length > maxDays) maxDays = pts.length;
@@ -343,14 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (maxDays === 0) maxDays = 40;
         const labels = Array.from({ length: maxDays }, (_, i) => `Day ${i + 1}`);
 
-        // Define distinct professional palette for each season
         const colors = {
-            "2020/2021": "#10b981", // Emerald Green
-            "2021/2022": "#a855f7", // Purple
-            "2022/2023": "#3b82f6", // Blue
-            "2023/2024": "#06b6d4", // Cyan
-            "2024/2025": "#f59e0b", // Amber
-            "2025/2026": "#22c55e"  // Vibrant Green (Latest Contest Edition)
+            "2020/2021": "#10b981",
+            "2021/2022": "#a855f7",
+            "2022/2023": "#3b82f6",
+            "2023/2024": "#06b6d4",
+            "2024/2025": "#f59e0b",
+            "2025/2026": "#22c55e"
         };
 
         const datasets = [];
@@ -368,7 +584,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Add 20,000 PLN baseline reference
         datasets.push({
             label: '20,000 PLN Baseline',
             data: Array(maxDays).fill(20000),
@@ -465,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: (ctx) => `${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y}% Return`
+                            label: (ctx) => `${ctx.parsed.y >= 0 ? '+' : ''}${ctx.parsed.y}% Return`
                         }
                     }
                 },
@@ -487,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderWinLossChart(trades, winRate) {
+    function renderWinLossChart(trades) {
         const ctx = document.getElementById('winLossChart');
         if (!ctx) return;
 
@@ -572,14 +787,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tradesLogBody) return;
         tradesLogBody.innerHTML = '';
 
+        const countBadge = document.getElementById('tradesLogCountBadge');
+        if (countBadge) countBadge.textContent = `${trades.length} executed trades`;
+
         if (trades.length === 0) {
-            tradesLogBody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">No completed trades recorded.</td></tr>';
+            tradesLogBody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-muted">No completed trades recorded for these parameters.</td></tr>';
             return;
         }
 
-        // Show newest first
         const reversed = [...trades].reverse();
-        reversed.slice(0, 20).forEach(t => {
+        reversed.forEach(t => {
             const tr = document.createElement('tr');
             const isWin = (t.PnL > 0);
             tr.innerHTML = `
@@ -587,8 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><strong>${t.Ticker}</strong></td>
                 <td class="font-mono text-xs">${t.Entry_Date}</td>
                 <td class="font-mono text-xs">${t.Exit_Date}</td>
+                <td class="font-mono">${t.Shares || '-'}</td>
                 <td class="font-mono">${Number(t.Entry_Price).toFixed(2)}</td>
                 <td class="font-mono">${Number(t.Exit_Price).toFixed(2)}</td>
+                <td class="font-mono text-muted">${t.Fees_PLN !== undefined ? Number(t.Fees_PLN).toFixed(2) : '-'}</td>
                 <td class="font-mono font-bold ${isWin ? 'text-green' : 'text-red'}">${isWin ? '+' : ''}${Number(t.PnL).toFixed(2)} PLN</td>
                 <td class="font-mono font-bold ${isWin ? 'text-green' : 'text-red'}">${isWin ? '+' : ''}${Number(t.PnL_Pct).toFixed(2)}%</td>
                 <td class="font-mono">${t.Days_Held}d</td>
@@ -599,7 +818,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. OPTIMIZER LOGIC
+    // 3. STRATEGY BLUEPRINT (.MD) VIEWER
+    // ==========================================
+    const markdownContent = document.getElementById('markdownContent');
+    const refreshMdBtn = document.getElementById('refreshMdBtn');
+
+    function loadStrategyMarkdown() {
+        if (!markdownContent) return;
+        fetch('/api/strategy_md')
+            .then(r => r.json())
+            .then(j => {
+                if (j.status === 'success') {
+                    if (window.marked) {
+                        markdownContent.innerHTML = window.marked.parse(j.content);
+                    } else {
+                        markdownContent.innerHTML = `<pre class="font-mono">${j.content}</pre>`;
+                    }
+                } else {
+                    markdownContent.textContent = 'Error loading Strategy.md: ' + j.message;
+                }
+            })
+            .catch(e => {
+                markdownContent.textContent = 'Failed to fetch Strategy.md: ' + e;
+            });
+    }
+
+    if (refreshMdBtn) {
+        refreshMdBtn.addEventListener('click', loadStrategyMarkdown);
+    }
+
+    // ==========================================
+    // 4. OPTIMIZER LOGIC
     // ==========================================
     const runOptBtn = document.getElementById('runOptBtn');
     const optLoading = document.getElementById('optLoading');
@@ -650,7 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (optEmpty) optEmpty.classList.add('hidden');
         
-        if (strategy === 'breakout') {
+        if (strategy !== 'macd_rsi') {
             if (optTableHeader) {
                 optTableHeader.innerHTML = `
                     <tr>
@@ -682,11 +931,11 @@ document.addEventListener('DOMContentLoaded', () => {
         optTableBody.innerHTML = '';
         data.slice(0, 10).forEach((row, i) => {
             const tr = document.createElement('tr');
-            if (strategy === 'breakout') {
+            if (strategy !== 'macd_rsi') {
                 tr.innerHTML = `
                     <td><strong>#${i + 1}</strong></td>
                     <td class="font-mono">${row.Breakout}</td>
-                    <td class="font-mono">${(row.ATR_Min*100).toFixed(1)}%</td>
+                    <td class="font-mono">${(row.ATR_Min * 100).toFixed(1)}%</td>
                     <td class="font-mono">${row.Vol_Surge}x</td>
                     <td class="font-mono">${row.Trailing_Stop}x ATR</td>
                     <td class="font-mono font-bold text-green">+${row.Avg_Return}%</td>
@@ -709,7 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function fetchOptResults() {
         const strategy = getActiveStrategy();
         fetch('/api/results/optimizer?strategy=' + strategy).then(r => r.json()).then(j => {
-            if(j.status === 'success') {
+            if (j.status === 'success') {
                 populateOptTable(j.data, strategy);
             } else {
                 if (optEmpty) optEmpty.classList.remove('hidden');
@@ -724,4 +973,5 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchScanResults();
     fetchBacktestResults();
     fetchOptResults();
+    loadStrategyMarkdown();
 });
