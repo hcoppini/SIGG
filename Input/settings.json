@@ -1,0 +1,6 @@
+{
+  "discord_webhook_url": "https://discord.com/api/webhooks/test/123",
+  "sound_alerts_enabled": true,
+  "auto_dispatch_1635": true,
+  "auto_dispatch_1650": true
+}

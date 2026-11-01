@@ -3,6 +3,74 @@ document.addEventListener('DOMContentLoaded', () => {
         window.lucide.createIcons();
     }
 
+    // ==========================================
+    // 0. TOAST NOTIFICATIONS & AUDIO CHIME
+    // ==========================================
+    const toastContainer = document.getElementById('toastContainer');
+    let audioCtx = null;
+
+    function playChime() {
+        try {
+            const soundEnabled = document.getElementById('soundAlertsToggle')?.checked ?? true;
+            if (!soundEnabled) return;
+
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const now = audioCtx.currentTime;
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, now); // D5
+            osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(880, now + 0.12); // A5
+            osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28); // D6
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc1.start(now);
+            osc2.start(now + 0.12);
+            osc1.stop(now + 0.12);
+            osc2.stop(now + 0.45);
+        } catch (e) {
+            // AudioContext may be blocked before first user gesture
+        }
+    }
+
+    function showToast(title, message, type = 'info', duration = 5000) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+        `;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            toast.style.transition = 'all 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    // ==========================================
+    // 0.1 NAVIGATION & TABS
+    // ==========================================
     const links = document.querySelectorAll('nav a');
     const panels = document.querySelectorAll('.panel');
     const strategySelect = document.getElementById('strategySelect');
@@ -30,13 +98,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (targetId === 'blueprint') {
             loadStrategyMarkdown();
         }
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
     }
 
     links.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const targetId = link.getAttribute('data-target');
-            switchTab(targetId);
+            if (targetId) {
+                e.preventDefault();
+                switchTab(targetId);
+            }
         });
     });
 
@@ -60,6 +134,405 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchBacktestResults();
             fetchOptResults();
         });
+    }
+
+    // ==========================================
+    // 0.2 PORTFOLIO COMMAND CENTER (3 SLOTS)
+    // ==========================================
+    const refreshPortfolioBtn = document.getElementById('refreshPortfolioBtn');
+    if (refreshPortfolioBtn) {
+        refreshPortfolioBtn.addEventListener('click', () => {
+            fetchPortfolio();
+            showToast('Refreshing Quotes', 'Updated live portfolio quotes and dynamic trailing stops.', 'info', 2500);
+        });
+    }
+
+    async function fetchPortfolio() {
+        const grid = document.getElementById('portfolioSlotsGrid');
+        const cashBadge = document.getElementById('portfolioCashBadge');
+        const sidebarEquity = document.getElementById('sidebarEquity');
+        const sidebarSlots = document.getElementById('sidebarSlots');
+
+        try {
+            const res = await fetch('/api/portfolio');
+            const json = await res.json();
+            if (json.status !== 'success' || !json.data) return;
+
+            const summary = json.data;
+            const positions = summary.positions || [];
+            const maxSlots = summary.max_positions || 3;
+            const vacantCount = summary.vacant_slots !== undefined ? summary.vacant_slots : (maxSlots - positions.length);
+            const cashPerSlot = summary.cash_per_vacant_slot || (summary.cash / (vacantCount || 1));
+
+            // Update sidebar & header badges
+            if (sidebarEquity) {
+                sidebarEquity.textContent = `${Number(summary.total_equity || 20000).toLocaleString('pl-PL')} PLN`;
+            }
+            if (sidebarSlots) {
+                sidebarSlots.textContent = `${positions.length} / ${maxSlots} Active`;
+            }
+            if (cashBadge) {
+                cashBadge.textContent = `Available Cash: ${Number(summary.cash || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
+            }
+
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let i = 0; i < maxSlots; i++) {
+                const pos = positions[i];
+                const slotNum = `SLOT ${i + 1}`;
+
+                if (pos) {
+                    const isPositive = (pos.pnl_pln >= 0);
+                    const pnlClass = isPositive ? 'text-green' : 'text-red';
+                    const pnlSign = isPositive ? '+' : '';
+                    
+                    let cardClass = 'slot-card occupied';
+                    let badgeClass = 'badge badge-buy';
+                    let badgeText = `DAY ${pos.sessions_held || 1} OF 3`;
+
+                    if (pos.exit_signal === 'STOP_TRIGGERED') {
+                        cardClass += ' stop-breached';
+                        badgeClass = 'badge badge-loss font-bold';
+                        badgeText = 'STOP BREACHED';
+                    } else if (pos.exit_signal === '3D_EXIT_TODAY') {
+                        cardClass += ' exit-warning';
+                        badgeClass = 'badge badge-loss font-bold';
+                        badgeText = '3D EXIT TODAY';
+                    } else if (pos.exit_signal === 'RUNNER_HOLD') {
+                        cardClass += ' runner-hold';
+                        badgeClass = 'badge badge-buy font-bold';
+                        badgeText = 'RUNNER EXCEPTION';
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = cardClass;
+                    card.innerHTML = `
+                        <div class="slot-header">
+                            <span class="slot-num">${slotNum}</span>
+                            <span class="${badgeClass}">${badgeText}</span>
+                        </div>
+                        <div class="slot-ticker-row">
+                            <span class="slot-ticker">${pos.ticker}</span>
+                            <span class="slot-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% (${pnlSign}${Number(pos.pnl_pln || 0).toFixed(2)} PLN)</span>
+                        </div>
+                        <div class="slot-stats-grid">
+                            <div class="slot-stat-row"><span>Shares</span><span>${pos.shares} szt.</span></div>
+                            <div class="slot-stat-row"><span>Entry Price</span><span>${Number(pos.entry_price || 0).toFixed(2)} PLN</span></div>
+                            <div class="slot-stat-row"><span>Current Price</span><span>${Number(pos.current_price || pos.entry_price || 0).toFixed(2)} PLN</span></div>
+                            <div class="slot-stat-row"><span>2.2x ATR Stop</span><span class="${pos.current_price <= pos.stop_loss_price ? 'text-red font-bold' : ''}">${Number(pos.stop_loss_price || 0).toFixed(2)} PLN</span></div>
+                        </div>
+                        <div class="slot-footer-action">
+                            <span class="text-xs text-muted" title="${pos.exit_reason || ''}">${pos.exit_reason || 'Holding position'}</span>
+                            <button class="btn btn-xs secondary close-pos-btn" data-ticker="${pos.ticker}" data-price="${pos.current_price || pos.entry_price}">
+                                <i data-lucide="x" class="icon-inline" style="width:12px;height:12px;"></i> Close Position
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                } else {
+                    const card = document.createElement('div');
+                    card.className = 'slot-card vacant';
+                    card.innerHTML = `
+                        <div class="slot-header">
+                            <span class="slot-num">${slotNum}</span>
+                            <span class="badge badge-hold">VACANT</span>
+                        </div>
+                        <div class="slot-body">
+                            <div class="slot-empty-title">Waiting for Breakout</div>
+                            <p class="slot-empty-desc">Allocated: ~${Number(cashPerSlot).toLocaleString('pl-PL', { maximumFractionDigits: 0 })} PLN</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            }
+
+            // Bind click handlers for closing positions
+            grid.querySelectorAll('.close-pos-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const ticker = btn.getAttribute('data-ticker');
+                    const price = parseFloat(btn.getAttribute('data-price'));
+                    if (confirm(`Confirm liquidation of ${ticker} at quote ~${price.toFixed(2)} PLN?`)) {
+                        try {
+                            const sRes = await fetch('/api/portfolio/sell', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ticker, exit_price: price, reason: 'Manual_Close' })
+                            });
+                            const sJson = await sRes.json();
+                            if (sJson.status === 'success') {
+                                showToast('Position Closed', sJson.message, 'warning');
+                                fetchPortfolio();
+                            } else {
+                                showToast('Error', sJson.message || 'Failed to close position', 'error');
+                            }
+                        } catch (err) {
+                            showToast('Error', 'Close request failed: ' + err, 'error');
+                        }
+                    }
+                });
+            });
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        } catch (e) {
+            console.error('Error fetching portfolio:', e);
+        }
+    }
+
+    // ==========================================
+    // 0.3 QUICK EXECUTE ORDER MODAL
+    // ==========================================
+    let pendingExecuteData = null;
+
+    function setupExecuteModal() {
+        const modal = document.getElementById('executeModal');
+        const closeBtn = document.getElementById('closeExecuteModalBtn');
+        const cancelBtn = document.getElementById('cancelExecBtn');
+        const confirmBtn = document.getElementById('confirmExecBtn');
+        const execTicker = document.getElementById('execTicker');
+        const execTicket = document.getElementById('execTicket');
+        const execPriceInput = document.getElementById('execPriceInput');
+        const execSharesInput = document.getElementById('execSharesInput');
+        const execSlotNotice = document.getElementById('execSlotNotice');
+
+        function closeModal() {
+            if (modal) modal.classList.add('hidden');
+            pendingExecuteData = null;
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', async () => {
+                if (!pendingExecuteData) return;
+                const price = parseFloat(execPriceInput?.value || pendingExecuteData.price);
+                const shares = parseInt(execSharesInput?.value || pendingExecuteData.shares, 10);
+
+                if (!price || price <= 0 || !shares || shares <= 0) {
+                    alert('Please enter valid positive numbers for price and shares.');
+                    return;
+                }
+
+                confirmBtn.disabled = true;
+                try {
+                    const res = await fetch('/api/portfolio/buy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ticker: pendingExecuteData.ticker,
+                            price: price,
+                            shares: shares,
+                            atr: pendingExecuteData.atr || (price * 0.03)
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        showToast('Position Executed', json.message, 'success');
+                        playChime();
+                        closeModal();
+                        fetchPortfolio();
+                    } else {
+                        showToast('Execution Rejected', json.message || 'Cannot execute trade', 'error');
+                    }
+                } catch (err) {
+                    showToast('Execution Error', 'Server error: ' + err, 'error');
+                }
+                confirmBtn.disabled = false;
+            });
+        }
+
+        window.openExecuteModal = function(data) {
+            pendingExecuteData = data;
+            if (!modal) return;
+            if (execTicker) execTicker.textContent = data.ticker;
+            if (execTicket) execTicket.textContent = data.ticket || `KUP ${data.shares} szt. @ LIMIT ${data.price.toFixed(2)} PLN`;
+            if (execPriceInput) execPriceInput.value = data.price;
+            if (execSharesInput) execSharesInput.value = data.shares;
+            if (execSlotNotice) execSlotNotice.textContent = `Will occupy next vacant portfolio slot. 3-Day burst countdown starts today.`;
+            modal.classList.remove('hidden');
+        };
+    }
+
+    // ==========================================
+    // 0.4 SETTINGS & DISCORD ALERTS MODAL
+    // ==========================================
+    function setupSettingsModal() {
+        const modal = document.getElementById('settingsModal');
+        const openBtn = document.getElementById('openSettingsBtn');
+        const openLink = document.getElementById('openSettingsLink');
+        const closeBtn = document.getElementById('closeSettingsBtn');
+        const saveBtn = document.getElementById('saveSettingsBtn');
+
+        const webhookInput = document.getElementById('discordWebhookInput');
+        const soundToggle = document.getElementById('soundAlertsToggle');
+        const dispatch1635Toggle = document.getElementById('autoDispatch1635Toggle');
+        const dispatch1650Toggle = document.getElementById('autoDispatch1650Toggle');
+
+        const testWebhookBtn = document.getElementById('testWebhookBtn');
+        const trigger1635Btn = document.getElementById('trigger1635Btn');
+        const trigger1650Btn = document.getElementById('trigger1650Btn');
+
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const json = await res.json();
+                if (json.status === 'success' && json.settings) {
+                    const s = json.settings;
+                    if (webhookInput && s.discord_webhook_url !== undefined) webhookInput.value = s.discord_webhook_url;
+                    if (soundToggle && s.sound_alerts !== undefined) soundToggle.checked = Boolean(s.sound_alerts);
+                    if (dispatch1635Toggle && s.auto_dispatch_1635 !== undefined) dispatch1635Toggle.checked = Boolean(s.auto_dispatch_1635);
+                    if (dispatch1650Toggle && s.auto_dispatch_1650 !== undefined) dispatch1650Toggle.checked = Boolean(s.auto_dispatch_1650);
+                }
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+
+        function openModal() {
+            if (!modal) return;
+            loadSettings();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            if (modal) modal.classList.add('hidden');
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openLink) {
+            openLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal();
+            });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', async () => {
+                saveBtn.disabled = true;
+                const payload = {
+                    discord_webhook_url: webhookInput?.value?.trim() || '',
+                    sound_alerts: soundToggle?.checked ?? true,
+                    auto_dispatch_1635: dispatch1635Toggle?.checked ?? true,
+                    auto_dispatch_1650: dispatch1650Toggle?.checked ?? true
+                };
+                try {
+                    const res = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        showToast('Settings Saved', 'Alert preferences and webhook configuration saved successfully.', 'success');
+                        closeModal();
+                    } else {
+                        showToast('Save Error', json.message || 'Could not save settings.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Save Error', 'Error saving settings: ' + err, 'error');
+                }
+                saveBtn.disabled = false;
+            });
+        }
+
+        if (testWebhookBtn) {
+            testWebhookBtn.addEventListener('click', async () => {
+                testWebhookBtn.disabled = true;
+                try {
+                    const webhookUrl = webhookInput?.value?.trim() || '';
+                    const res = await fetch('/api/notifications/test', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ webhook_url: webhookUrl })
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        showToast('Discord Test Sent', json.message, 'success');
+                        playChime();
+                    } else {
+                        showToast('Discord Test Failed', json.message, 'error');
+                    }
+                } catch (err) {
+                    showToast('Error', 'Test failed: ' + err, 'error');
+                }
+                testWebhookBtn.disabled = false;
+            });
+        }
+
+        if (trigger1635Btn) {
+            trigger1635Btn.addEventListener('click', async () => {
+                trigger1635Btn.disabled = true;
+                try {
+                    const res = await fetch('/api/notifications/dispatch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ window: '1635' })
+                    });
+                    const json = await res.json();
+                    showToast('16:35 Pre-Close Dispatched', json.message || 'Alert sent.', json.status === 'success' ? 'success' : 'warning');
+                    playChime();
+                    pollNotifications();
+                } catch (err) {
+                    showToast('Dispatch Error', '' + err, 'error');
+                }
+                trigger1635Btn.disabled = false;
+            });
+        }
+
+        if (trigger1650Btn) {
+            trigger1650Btn.addEventListener('click', async () => {
+                trigger1650Btn.disabled = true;
+                try {
+                    const res = await fetch('/api/notifications/dispatch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ window: '1650' })
+                    });
+                    const json = await res.json();
+                    showToast('16:50 Fixing Sheet Dispatched', json.message || 'Action sheet sent.', json.status === 'success' ? 'success' : 'warning');
+                    playChime();
+                    pollNotifications();
+                } catch (err) {
+                    showToast('Dispatch Error', '' + err, 'error');
+                }
+                trigger1650Btn.disabled = false;
+            });
+        }
+
+        loadSettings();
+    }
+
+    // ==========================================
+    // 0.5 IN-APP NOTIFICATION POLLER
+    // ==========================================
+    let lastSeenNotificationId = 0;
+    async function pollNotifications() {
+        try {
+            const res = await fetch('/api/notifications/active');
+            const json = await res.json();
+            if (json.status === 'success' && Array.isArray(json.data)) {
+                if (lastSeenNotificationId === 0 && json.data.length > 0) {
+                    // Seed last seen id on first poll so page load doesn't trigger historical alerts
+                    lastSeenNotificationId = Math.max(...json.data.map(n => n.id || 0));
+                    return;
+                }
+                const newNotes = json.data.filter(n => (n.id || 0) > lastSeenNotificationId);
+                if (newNotes.length > 0) {
+                    newNotes.forEach(n => {
+                        showToast(n.title || 'Market Alert', n.message || '', n.level || 'info');
+                        if ((n.id || 0) > lastSeenNotificationId) lastSeenNotificationId = n.id;
+                    });
+                    playChime();
+                }
+            }
+        } catch (e) {
+            // Ignore temporary network glitches
+        }
     }
 
     // ==========================================
@@ -91,11 +564,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (json.market_regime) renderMarketRegime(json.market_regime);
                     if (json.backtest_summary) renderScannerBacktestSummary(json.backtest_summary);
                     populateScanTable(json.data, json.type, getActiveStrategy());
+                    showToast('Scan Completed', `Scanner successfully evaluated WIG140 universe (${json.data ? json.data.length : 0} signals).`, 'success');
                 } else {
-                    alert('Error running scanner: ' + json.message);
+                    showToast('Scanner Error', json.message || 'Error running scanner', 'error');
                 }
             } catch (e) {
-                alert('Scanner request failed: ' + e);
+                showToast('Scanner Error', 'Scanner request failed: ' + e, 'error');
             }
 
             if (scanLoading) scanLoading.classList.add('hidden');
@@ -179,12 +653,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'closest') {
             if (scanEmpty) {
                 scanEmpty.classList.remove('hidden');
-                scanEmpty.textContent = "No strict Ignition Buy signals today. Displaying top 10 closest candidates ranked by Runner Score.";
+                scanEmpty.textContent = "No strict Ignition Buy signals today. Displaying top candidates ranked by Runner Score.";
             }
             if (scanCountBadge) scanCountBadge.textContent = `${data.length} watchlist`;
         } else {
             if (scanEmpty) scanEmpty.classList.add('hidden');
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified buys`;
+            if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified signals`;
         }
 
         if (strategy === 'squeeze_ignition') {
@@ -194,13 +668,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <th>Ticker</th>
                         <th>Close (PLN)</th>
                         <th>Runner Score</th>
+                        <th>Order Ticket (Whole Shares)</th>
                         <th>Day Δ%</th>
-                        <th>Pre-ATR %</th>
+                        <th>ATR Coil</th>
                         <th>TR / ATR</th>
-                        <th>Close Pos</th>
                         <th>Vol Surge</th>
                         <th>Stop / Hold</th>
-                        <th>5-Yr Backtest History</th>
+                        <th>5-Yr BT</th>
                         <th>Action</th>
                         <th>Chart</th>
                     </tr>
@@ -256,19 +730,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cPos = Number(row.Close_Pos || 0);
                 const volS = Number(row.Volume_Surge || 0);
                 const rScore = Number(row.Runner_Score || 0);
+                const closeP = Number(row.Close || 0);
+                const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
+                const ticket = row.Order_Ticket || `KUP | ${tickerClean} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
+                const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
+
                 tr.innerHTML = `
                     <td><strong>${ticker}</strong></td>
-                    <td class="font-mono">${Number(row.Close || 0).toFixed(2)}</td>
+                    <td class="font-mono">${closeP.toFixed(2)}</td>
                     <td class="font-mono font-bold text-green">${rScore.toFixed(2)}</td>
+                    <td class="font-mono text-xs">
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span>${ticket}</span>
+                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(ticket)}" title="Copy ticket to clipboard for GPW broker">
+                                Copy
+                            </button>
+                        </div>
+                    </td>
                     <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
                     <td class="font-mono">${Number(row.ATR_Pct || 0).toFixed(2)}%</td>
                     <td class="font-mono ${trRatio >= 1.3 ? 'text-green font-bold' : ''}">${trRatio.toFixed(2)}x</td>
-                    <td class="font-mono ${cPos >= 0.70 ? 'text-green font-bold' : ''}">${(cPos * 100).toFixed(0)}%</td>
                     <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
                     <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} <span class="text-muted">/ 3D</span></td>
                     <td class="font-mono text-xs">${btStats}</td>
                     <td>
-                        <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(ticket)}" data-atr="${atrVal}">
+                                Execute
+                            </button>
+                        </div>
                     </td>
                     <td>
                         <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
@@ -286,7 +777,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="font-mono text-green">${row.Target ? Number(row.Target).toFixed(2) : '-'}</td>
                     <td class="font-mono text-xs">${btStats}</td>
                     <td>
-                        <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${Number(row.Close || 0)}" data-shares="${Math.floor(6600 / (Number(row.Close) || 1))}" data-ticket="${encodeURIComponent('KUP ' + tickerClean)}" data-atr="${(Number(row.Close || 0) * 0.03).toFixed(2)}">
+                                Execute
+                            </button>
+                        </div>
                     </td>
                     <td>
                         <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
@@ -304,7 +800,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'}</td>
                     <td class="font-mono text-xs">${btStats}</td>
                     <td>
-                        <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${Number(row.Close || 0)}" data-shares="${Math.floor(6600 / (Number(row.Close) || 1))}" data-ticket="${encodeURIComponent('KUP ' + tickerClean)}" data-atr="${(Number(row.Close || 0) * 0.03).toFixed(2)}">
+                                Execute
+                            </button>
+                        </div>
                     </td>
                     <td>
                         <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
@@ -313,6 +814,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             scanTableBody.appendChild(tr);
         });
+
+        // Wire copy ticket buttons
+        scanTableBody.querySelectorAll('.copy-ticket-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const raw = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                navigator.clipboard.writeText(raw).then(() => {
+                    showToast('Ticket Copied', `"${raw}" copied to clipboard. Ready to paste in broker.`, 'info', 3000);
+                }).catch(() => {
+                    prompt('Copy order ticket manually:', raw);
+                });
+            });
+        });
+
+        // Wire execute order buttons
+        scanTableBody.querySelectorAll('.exec-order-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const ticker = btn.getAttribute('data-ticker');
+                const price = parseFloat(btn.getAttribute('data-price'));
+                const shares = parseInt(btn.getAttribute('data-shares'), 10);
+                const ticket = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                const atr = parseFloat(btn.getAttribute('data-atr'));
+
+                if (window.openExecuteModal) {
+                    window.openExecuteModal({ ticker, price, shares, ticket, atr });
+                }
+            });
+        });
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
     }
 
     function fetchScanResults() {
@@ -476,11 +1010,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (pollJson.summary) renderScannerBacktestSummary(pollJson.summary);
                     if (backtestLoading) backtestLoading.classList.add('hidden');
                     if (runBacktestBtn) runBacktestBtn.disabled = false;
+                    showToast('Backtest Complete', `Evaluated across 6 historical seasons.`, 'success');
                 } else if (pollJson.status === 'error' || attempts > 60) {
                     clearInterval(pollTimer);
                     if (backtestLoading) backtestLoading.classList.add('hidden');
                     if (runBacktestBtn) runBacktestBtn.disabled = false;
-                    if (pollJson.message) alert('Backtest error: ' + pollJson.message);
+                    if (pollJson.message) showToast('Backtest Error', pollJson.message, 'error');
                 }
             } catch (e) {
                 if (attempts > 60) {
@@ -514,15 +1049,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (json.summary) renderScannerBacktestSummary(json.summary);
                     if (backtestLoading) backtestLoading.classList.add('hidden');
                     runBacktestBtn.disabled = false;
+                    showToast('Backtest Complete', 'Custom backtest executed successfully.', 'success');
                 } else if (json.status === 'running') {
                     pollBacktestUntilDone(activeStrat);
                 } else {
-                    alert('Error running backtest: ' + (json.message || 'Unknown error'));
+                    showToast('Backtest Error', json.message || 'Unknown error', 'error');
                     if (backtestLoading) backtestLoading.classList.add('hidden');
                     runBacktestBtn.disabled = false;
                 }
             } catch (e) {
-                // If network connection dropped during Render cold boot, poll for result
                 pollBacktestUntilDone(activeStrat);
             }
         });
@@ -918,11 +1453,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (json.status === 'success') {
                     populateOptTable(json.data, getActiveStrategy());
+                    showToast('Optimizer Complete', 'Top parameter configurations evaluated across 5 years.', 'success');
                 } else {
-                    alert('Error running optimizer: ' + json.message);
+                    showToast('Optimizer Error', json.message || 'Error running optimizer', 'error');
                 }
             } catch (e) {
-                alert('Optimizer request failed: ' + e);
+                showToast('Optimizer Error', 'Optimizer request failed: ' + e, 'error');
             }
 
             if (optLoading) optLoading.classList.add('hidden');
@@ -1013,10 +1549,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // INITIAL LOAD
+    // INITIAL BOOTSTRAP
     // ==========================================
+    setupExecuteModal();
+    setupSettingsModal();
     fetchScanResults();
+    fetchPortfolio();
     fetchBacktestResults();
     fetchOptResults();
     loadStrategyMarkdown();
+    pollNotifications();
+
+    // Standby Polling Loops:
+    // Notifications every 12 seconds
+    setInterval(pollNotifications, 12000);
+    // Quotes / portfolio refresh every 30 seconds
+    setInterval(fetchPortfolio, 30000);
 });

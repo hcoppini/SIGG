@@ -182,6 +182,12 @@ def main():
     config = load_config()
     bt_ticker_stats = load_ticker_backtest_stats(args.strategy)
     
+    from portfolio import PortfolioManager
+    pm = PortfolioManager()
+    cash_for_slot = pm.calculate_slot_allocation()
+    if cash_for_slot <= 0:
+        cash_for_slot = 6600.0
+    
     results = []
     daily_returns = []
     above_sma20_list = []
@@ -251,6 +257,12 @@ def main():
             reward_amt = max(0.01, target_price - latest_close)
             rr_ratio = round(reward_amt / risk_amt, 2)
             
+            # Sizing & Execution Order Ticket
+            calc_shares = int((cash_for_slot / 1.0029) / latest_close) if latest_close > 0 else 0
+            order_limit = round(latest_close * 1.005, 2)
+            ticker_clean = ticker.replace('.WA', '')
+            order_ticket = f"KUPNO | {ticker_clean} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
+            
             if args.strategy == 'squeeze_ignition':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
                 
@@ -283,6 +295,9 @@ def main():
                     'Max_Hold': '3 Days',
                     'Target': round(target_price, 2),
                     'RR_Ratio': rr_ratio,
+                    'Order_Shares': calc_shares,
+                    'Order_Limit_Price': order_limit,
+                    'Order_Ticket': order_ticket,
                     'Tier': tier,
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
@@ -313,6 +328,9 @@ def main():
                     'Stop_Loss': round(stop_loss_price, 2),
                     'Target': round(target_price, 2),
                     'RR_Ratio': rr_ratio,
+                    'Order_Shares': calc_shares,
+                    'Order_Limit_Price': order_limit,
+                    'Order_Ticket': order_ticket,
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
                     'Chart': chart_link,

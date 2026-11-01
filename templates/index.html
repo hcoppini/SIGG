@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIGG Etap 1 Trading Hub & Interactive Backtester</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4">
+    <title>SIGG Etap 1 Trading Hub & Command Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js for Visual Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,6 +14,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <div class="sidebar">
         <div class="logo">
@@ -33,6 +36,9 @@
             <a href="#" data-target="optimizer">
                 <i data-lucide="sliders" class="icon"></i> 5-Year Optimizer
             </a>
+            <a href="#" id="openSettingsLink">
+                <i data-lucide="settings" class="icon"></i> Settings & Alerts
+            </a>
         </nav>
         
         <div class="strategy-selector">
@@ -47,12 +53,12 @@
 
         <div class="sidebar-footer">
             <div class="stat-pill">
-                <span class="label">CAPITAL</span>
-                <span class="val">20,000 PLN</span>
+                <span class="label">LIVE EQUITY</span>
+                <span id="sidebarEquity" class="val">20,000 PLN</span>
             </div>
             <div class="stat-pill">
-                <span class="label">SLOTS / HOLD</span>
-                <span class="val">3 Stocks / 3 Days</span>
+                <span class="label">ACTIVE SLOTS</span>
+                <span id="sidebarSlots" class="val">0 / 3 Active</span>
             </div>
             <div class="stat-pill target">
                 <span class="label">TARGET</span>
@@ -73,6 +79,9 @@
                     <button id="openBlueprintBtn" class="btn secondary">
                         <i data-lucide="book-open" class="btn-icon"></i> Read Strategy.md
                     </button>
+                    <button id="openSettingsBtn" class="btn secondary">
+                        <i data-lucide="bell" class="btn-icon"></i> Discord Alerts
+                    </button>
                     <button id="runScanBtn" class="btn primary">
                         <i data-lucide="play" class="btn-icon"></i> Run Scanner Now
                     </button>
@@ -87,6 +96,38 @@
                 </div>
                 <div class="regime-right font-mono">
                     <span id="regimeMetrics">WIG140 Breadth &gt; SMA20: --% | Daily Δ: --%</span>
+                </div>
+            </div>
+
+            <!-- ACTIVE 3-SLOT PORTFOLIO COMMAND CENTER -->
+            <div class="glass-card portfolio-command-card">
+                <div class="card-header-flex">
+                    <div>
+                        <h3>Active 3-Slot Portfolio Command Center</h3>
+                        <p class="chart-subtitle">Real-time position tracking, dynamic 2.2x ATR trailing stops, and mandatory 3-Day Hold countdowns</p>
+                    </div>
+                    <div class="actions">
+                        <span id="portfolioCashBadge" class="count-badge">Available Cash: 20,000 PLN</span>
+                        <button id="refreshPortfolioBtn" class="btn secondary btn-sm" title="Refresh live quotes and PnL">
+                            <i data-lucide="refresh-cw" class="btn-icon"></i> Refresh Quotes
+                        </button>
+                    </div>
+                </div>
+
+                <div id="portfolioSlotsGrid" class="portfolio-slots-grid">
+                    <!-- Populated via JS: Slot 1, Slot 2, Slot 3 -->
+                    <div class="slot-card vacant">
+                        <div class="slot-header"><span class="slot-num">SLOT 1</span><span class="badge badge-hold">VACANT</span></div>
+                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
+                    </div>
+                    <div class="slot-card vacant">
+                        <div class="slot-header"><span class="slot-num">SLOT 2</span><span class="badge badge-hold">VACANT</span></div>
+                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
+                    </div>
+                    <div class="slot-card vacant">
+                        <div class="slot-header"><span class="slot-num">SLOT 3</span><span class="badge badge-hold">VACANT</span></div>
+                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
+                    </div>
                 </div>
             </div>
 
@@ -139,13 +180,13 @@
                                 <th>Ticker</th>
                                 <th>Close (PLN)</th>
                                 <th>Runner Score</th>
+                                <th>Order Ticket (Whole Shares)</th>
                                 <th>Day Δ%</th>
                                 <th>ATR Coil</th>
                                 <th>TR / ATR</th>
-                                <th>Close Pos</th>
                                 <th>Vol Surge</th>
                                 <th>Stop / Hold</th>
-                                <th>5-Yr Backtest History</th>
+                                <th>5-Yr BT</th>
                                 <th>Action</th>
                                 <th>Chart</th>
                             </tr>
@@ -442,6 +483,93 @@
         </section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=4"></script>
+    <!-- SETTINGS & DISCORD ALERTS MODAL -->
+    <div id="settingsModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i data-lucide="settings" class="icon-inline"></i> Team Settings & Alert Dispatcher</h3>
+                <button id="closeSettingsBtn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="discordWebhookInput">Discord Webhook URL</label>
+                    <input type="text" id="discordWebhookInput" placeholder="https://discord.com/api/webhooks/..." class="font-mono">
+                    <span class="setting-hint">Paste your team Discord channel webhook URL to receive automated rich embed alerts.</span>
+                </div>
+
+                <div class="setting-row">
+                    <label class="switch-label">
+                        <input type="checkbox" id="soundAlertsToggle" checked>
+                        <span>In-Browser Audio Chime</span>
+                    </label>
+                    <span class="setting-hint">Plays a sound when new alerts arrive while this tab is open.</span>
+                </div>
+
+                <div class="setting-row">
+                    <label class="switch-label">
+                        <input type="checkbox" id="autoDispatch1635Toggle" checked>
+                        <span>16:35 CET Pre-Close Alert</span>
+                    </label>
+                    <span class="setting-hint">Automated scan 15m before continuous trading ends.</span>
+                </div>
+
+                <div class="setting-row">
+                    <label class="switch-label">
+                        <input type="checkbox" id="autoDispatch1650Toggle" checked>
+                        <span>16:50 CET Fixing Action Sheet</span>
+                    </label>
+                    <span class="setting-hint">Exact whole-share order tickets for the closing auction.</span>
+                </div>
+
+                <div class="modal-test-actions">
+                    <button id="testWebhookBtn" class="btn secondary btn-sm">
+                        <i data-lucide="send" class="btn-icon"></i> Test Discord Webhook
+                    </button>
+                    <button id="trigger1635Btn" class="btn secondary btn-sm">
+                        <i data-lucide="zap" class="btn-icon"></i> Test 16:35 Dispatch
+                    </button>
+                    <button id="trigger1650Btn" class="btn secondary btn-sm">
+                        <i data-lucide="zap" class="btn-icon"></i> Test 16:50 Dispatch
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveSettingsBtn" class="btn primary">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK EXECUTE ORDER CONFIRMATION MODAL -->
+    <div id="executeModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i data-lucide="check-circle" class="icon-inline text-green"></i> Confirm Order Execution</h3>
+                <button id="closeExecuteModalBtn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-confirm-box">
+                    <div id="execTicker" class="exec-ticker font-mono font-bold">---</div>
+                    <div id="execTicket" class="exec-ticket font-mono">---</div>
+                </div>
+                <div class="param-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                    <div class="param-field">
+                        <label for="execPriceInput">Fill Price (PLN)</label>
+                        <input type="number" id="execPriceInput" step="0.01">
+                    </div>
+                    <div class="param-field">
+                        <label for="execSharesInput">Whole Shares</label>
+                        <input type="number" id="execSharesInput" step="1">
+                    </div>
+                </div>
+                <p id="execSlotNotice" class="slot-empty-desc" style="margin-top: 0.75rem;">Will occupy next vacant portfolio slot.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelExecBtn" class="btn secondary">Cancel</button>
+                <button id="confirmExecBtn" class="btn primary">Confirm Execution to Slot</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=5"></script>
 </body>
 </html>
