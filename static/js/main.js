@@ -718,8 +718,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data.forEach(row => {
             const tr = document.createElement('tr');
             const ticker = row.Ticker || '';
-            const tickerClean = ticker.replace('.WA', '').replace('.W', '');
-            const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tickerClean}/`;
+            const tvSymbol = (row.Yahoo_Ticker || row.Ticker || '').replace('.WA', '').replace('.W', '');
+            const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
             const isBuy = (row.Strategy_Signal === 'Buy');
             const isUptrend = (row.Trend_SMA50 === 'Uptrend');
             const btStats = row.BT_Stats || 'No past triggers';
@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rScore = Number(row.Runner_Score || 0);
                 const closeP = Number(row.Close || 0);
                 const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
-                const ticket = row.Order_Ticket || `KUP | ${tickerClean} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
+                const ticket = row.Order_Ticket || `KUPNO | ${ticker} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
                 const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
 
                 tr.innerHTML = `

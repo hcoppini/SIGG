@@ -18,33 +18,9 @@ from typing import Dict, List, Optional, Tuple
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', message='.*auto_adjust.*')
 
-DEFAULT_STOCKS = [
-    # GPW BETA ETFs
-    "ETFBW20ST.WA", "ETFBW20LV.WA", "ETFBM40TR.WA", "ETFBS80TR.WA",
-    # WIG20
-    "PKN.WA", "PKO.WA", "PZU.WA", "PEO.WA", "DNP.WA", "ALE.WA", "LPP.WA", "KGH.WA",
-    "SPL.WA", "CDR.WA", "KRU.WA", "MBK.WA", "ALR.WA", "BHW.WA", "PGE.WA", "OPL.WA",
-    "CPS.WA", "KTY.WA", "JSW.WA", "PEP.WA",
-    # mWIG40 & sWIG80 (120+ top liquid components)
-    "TPE.WA", "CCC.WA", "MIL.WA", "EAT.WA", "XTB.WA", "BOS.WA", "ASB.WA", "11B.WA",
-    "GPW.WA", "TEN.WA", "DOM.WA", "CIE.WA", "BFT.WA", "LWB.WA", "FMF.WA", "MAB.WA",
-    "NEU.WA", "R22.WA", "RVU.WA", "SLV.WA", "TOA.WA", "WPL.WA", "AST.WA", "CRJ.WA",
-    "PXM.WA", "MRB.WA", "VGO.WA", "MNC.WA", "SNT.WA", "DAT.WA", "BKM.WA", "SNK.WA",
-    "VOX.WA", "WLT.WA", "APR.WA", "CLE.WA", "OAT.WA", "OEX.WA", "1AT.WA", "ABE.WA",
-    "ACG.WA", "ACT.WA", "AGO.WA", "AGP.WA", "AMC.WA", "AML.WA", "AMB.WA", "APA.WA",
-    "APH.WA", "ATC.WA", "ATD.WA", "ATG.WA", "BBA.WA", "BCA.WA", "BDX.WA", "BIP.WA",
-    "BMX.WA", "BOW.WA", "BRS.WA", "BSC.WA", "CAR.WA", "CAV.WA", "CBF.WA", "CFI.WA",
-    "CIG.WA", "CLC.WA", "CLN.WA", "CMR.WA", "COG.WA", "CMP.WA", "CPG.WA", "CRI.WA",
-    "CRM.WA", "CTP.WA", "CTX.WA", "DAD.WA", "DBC.WA", "DCR.WA", "DEL.WA", "DGA.WA",
-    "DIG.WA", "DLA.WA", "DVL.WA", "EBP.WA", "ECH.WA", "EDI.WA", "EEX.WA", "ELT.WA",
-    "EMA.WA", "EMC.WA", "ENP.WA", "ENT.WA", "ERB.WA", "EUR.WA", "FEE.WA", "FER.WA",
-    "FOR.WA", "FRO.WA", "FSG.WA", "GTC.WA", "GTN.WA", "HRE.WA", "HRS.WA", "HUU.WA",
-    "I2D.WA", "IAG.WA", "IDA.WA", "IFC.WA", "IFI.WA", "IGB.WA", "IKS.WA", "IMP.WA",
-    "INC.WA", "INP.WA", "INT.WA", "INV.WA", "IPX.WA", "ISG.WA", "K2I.WA", "KGN.WA",
-    "KRS.WA", "LBD.WA", "LBW.WA", "LEN.WA", "LKD.WA", "LSI.WA", "LTS.WA", "LVC.WA",
-    "MAK.WA", "MBR.WA", "MCI.WA", "MDG.WA", "MDV.WA", "MEG.WA", "MFO.WA", "MGT.WA",
-    "MOJ.WA", "MOL.WA", "MRO.WA", "MSP.WA", "MSW.WA", "MZA.WA", "NTC.WA", "NTT.WA"
-]
+from sigg_universe import get_sigg_symbol, get_sigg_name, get_contest_tickers
+
+DEFAULT_STOCKS = get_contest_tickers()
 
 def load_config(config_file: str = "Input/config.csv") -> Dict:
     config = {
@@ -105,11 +81,11 @@ def fetch_stock_data(ticker: str, period_days: int, polygon_api_key: Optional[st
     return None, "failed"
 
 def get_stock_name(ticker: str) -> str:
-    return ticker.replace('.WA', '')
+    return get_sigg_name(ticker)
 
 def get_tradingview_chart_link(ticker: str) -> str:
-    ticker_without_suffix = ticker.replace('.WA', '').replace('.W', '')
-    return f"https://pl.tradingview.com/symbols/GPW-{ticker_without_suffix}/"
+    from sigg_universe import get_tradingview_link
+    return get_tradingview_link(ticker)
 
 def calculate_true_range(high: pd.Series, low: pd.Series, close: pd.Series) -> pd.Series:
     tr1 = high - low
@@ -257,11 +233,11 @@ def main():
             reward_amt = max(0.01, target_price - latest_close)
             rr_ratio = round(reward_amt / risk_amt, 2)
             
-            # Sizing & Execution Order Ticket
+            # Sizing & Execution Order Ticket using official SIGG symbol
+            sigg_symbol = get_sigg_symbol(ticker)
             calc_shares = int((cash_for_slot / 1.0029) / latest_close) if latest_close > 0 else 0
             order_limit = round(latest_close * 1.005, 2)
-            ticker_clean = ticker.replace('.WA', '')
-            order_ticket = f"KUPNO | {ticker_clean} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
+            order_ticket = f"KUPNO | {sigg_symbol} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
             
             if args.strategy == 'squeeze_ignition':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
@@ -279,7 +255,8 @@ def main():
                 tier = "TIER 1 (STRICT)" if strict_pass else ("TIER 2 (3D BURST)" if burst_pass else "WATCH")
                 
                 results.append({
-                    'Ticker': ticker,
+                    'Ticker': sigg_symbol,
+                    'Yahoo_Ticker': ticker,
                     'Name': stock_name,
                     'Close': round(latest_close, 2),
                     'Day_Gain_Pct': round(day_gain_pct * 100.0, 2),
@@ -317,7 +294,8 @@ def main():
                 signal = "Buy" if (is_breakout and has_atr and has_vol and is_uptrend) else "Hold"
                 
                 results.append({
-                    'Ticker': ticker,
+                    'Ticker': sigg_symbol,
+                    'Yahoo_Ticker': ticker,
                     'Name': stock_name,
                     'Close': round(latest_close, 2),
                     'Breakout_Target': round(prev_donchian_high, 2),
@@ -353,7 +331,8 @@ def main():
                 momentum_score = (abs(hist_pct) * 10.0 + (rsi_val / 10.0)) * vol_surge * (1.3 if is_uptrend else 0.7)
                 
                 results.append({
-                    'Ticker': ticker,
+                    'Ticker': sigg_symbol,
+                    'Yahoo_Ticker': ticker,
                     'Name': stock_name,
                     'Close': round(latest_close, 2),
                     'MACD_Hist': round(hist_val, 3),

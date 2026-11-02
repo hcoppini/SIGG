@@ -13,6 +13,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+from sigg_universe import get_sigg_symbol, get_tradingview_link
 
 SETTINGS_FILE = os.path.join("Input", "settings.json")
 NOTIFICATION_QUEUE_FILE = os.path.join("Output", "recent_notifications.json")
@@ -168,17 +169,19 @@ def dispatch_1635_preclose_alert(regime_data: Dict[str, Any], portfolio_summary:
     if candidates and vacant_slots > 0 and regime != "RED":
         for i, c in enumerate(candidates[:vacant_slots]):
             ticker = c.get("Ticker", "")
+            sigg_sym = get_sigg_symbol(ticker)
             price = float(c.get("Close", 0))
             shares = int(c.get("Order_Shares", 0))
             limit_p = float(c.get("Order_Limit_Price", price))
-            order_ticket = f"KUPNO | {ticker.replace('.WA','')} | {shares} szt. | LIMIT {limit_p:.2f} PLN"
+            order_ticket = f"KUPNO | {sigg_sym} | {shares} szt. | LIMIT {limit_p:.2f} PLN"
+            tv_link = get_tradingview_link(ticker)
             
             embed_candidates["fields"].append({
-                "name": f"#{i+1} {ticker} (Runner Score: {c.get('Runner_Score', 0)})",
+                "name": f"#{i+1} {sigg_sym} (Runner Score: {c.get('Runner_Score', 0)})",
                 "value": (
                     f"Price: `{price:.2f} PLN` | Day Δ: `{c.get('Day_Gain_Pct', 0):+.2f}%` | Vol Surge: `{c.get('Volume_Surge', 0)}x`\n"
                     f"**Recommended Order:** `{order_ticket}`\n"
-                    f"[TradingView Chart](https://pl.tradingview.com/symbols/GPW-{ticker.replace('.WA','')}/)"
+                    f"[TradingView Chart]({tv_link})"
                 ),
                 "inline": False
             })
@@ -210,7 +213,8 @@ def dispatch_1650_fixing_action_sheet(portfolio_summary: Dict[str, Any], execute
     if execute_sells:
         sells_txt = []
         for s in execute_sells:
-            sells_txt.append(f"🔴 **SPRZEDAŻ | {s['ticker'].replace('.WA','')} | {s['shares']} szt. | PKC (lub LIMIT {s['current_price']:.2f})**\n*Reason:* {s['exit_reason']}")
+            sigg_sym = get_sigg_symbol(s.get("ticker", ""))
+            sells_txt.append(f"🔴 **SPRZEDAŻ | {sigg_sym} | {s['shares']} szt. | PKC (lub LIMIT {s['current_price']:.2f})**\n*Reason:* {s['exit_reason']}")
         embed["fields"].append({
             "name": "📤 MANDATORY SELLS (Close at Fixing)",
             "value": "\n\n".join(sells_txt),
@@ -226,10 +230,11 @@ def dispatch_1650_fixing_action_sheet(portfolio_summary: Dict[str, Any], execute
     if execute_buys:
         buys_txt = []
         for b in execute_buys:
-            ticker = b.get("Ticker", "").replace('.WA','')
+            sigg_sym = get_sigg_symbol(b.get("Ticker", ""))
             shares = b.get("Order_Shares", 0)
             limit_p = b.get("Order_Limit_Price", b.get("Close", 0))
-            buys_txt.append(f"🟢 **KUPNO | {ticker} | {shares} szt. | LIMIT {limit_p:.2f} PLN**\nEst. Cost: `~{shares * limit_p * 1.0029:.2f} PLN` | [Chart](https://pl.tradingview.com/symbols/GPW-{ticker}/)")
+            tv_link = get_tradingview_link(b.get("Ticker", ""))
+            buys_txt.append(f"🟢 **KUPNO | {sigg_sym} | {shares} szt. | LIMIT {limit_p:.2f} PLN**\nEst. Cost: `~{shares * limit_p * 1.0029:.2f} PLN` | [Chart]({tv_link})")
         embed["fields"].append({
             "name": "📥 MANDATORY BUYS (Enter at Fixing)",
             "value": "\n\n".join(buys_txt),

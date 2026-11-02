@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach(row => {
             const ticker = row.Ticker || '';
-            const tickerClean = ticker.replace('.WA', '').replace('.W', '');
-            const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tickerClean}/`;
+            const tvSymbol = (row.Yahoo_Ticker || row.Ticker || '').replace('.WA', '').replace('.W', '');
+            const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
             const isBuy = (row.Strategy_Signal === 'Buy');
             const dayGain = Number(row.Day_Gain_Pct || 0);
             const rScore = Number(row.Runner_Score || 0);
             const closeP = Number(row.Close || 0);
             const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
-            const ticket = row.Order_Ticket || `KUP | ${tickerClean} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
+            const ticket = row.Order_Ticket || `KUPNO | ${ticker} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
             const trRatio = Number(row.TR_Ratio || 0);
             const volS = Number(row.Volume_Surge || 0);
             const atrPct = Number(row.ATR_Pct || 0);

@@ -15,6 +15,7 @@ from datetime import datetime, date
 from typing import Dict, List, Optional, Any
 import pandas as pd
 import yfinance as yf
+from sigg_universe import SIGG_TO_TICKER, get_sigg_symbol, get_sigg_name
 
 PORTFOLIO_FILE = os.path.join("Output", "portfolio_state.json")
 
@@ -88,13 +89,15 @@ class PortfolioManager:
 
     def buy_position(self, ticker: str, price: float, atr: float, shares: Optional[int] = None, entry_date: Optional[str] = None) -> Dict[str, Any]:
         ticker = ticker.upper().strip()
+        sigg_sym = get_sigg_symbol(ticker)
+        company_name = get_sigg_name(ticker)
         positions = self.state.get("positions", [])
         
         if len(positions) >= self.max_positions:
             return {"status": "error", "message": f"Maximum of {self.max_positions} positions already open."}
         
-        if any(p["ticker"] == ticker for p in positions):
-            return {"status": "error", "message": f"Position for {ticker} is already open."}
+        if any(p["ticker"] == sigg_sym or p["ticker"] == ticker for p in positions):
+            return {"status": "error", "message": f"Position for {sigg_sym} is already open."}
         
         if shares is None or shares <= 0:
             calc = self.calculate_shares_and_cost(price)
@@ -114,7 +117,8 @@ class PortfolioManager:
         stop_price = round(price - (2.2 * atr), 2) if atr > 0 else round(price * 0.93, 2)
         
         pos = {
-            "ticker": ticker,
+            "ticker": sigg_sym,
+            "name": company_name,
             "entry_date": today_str,
             "entry_price": round(price, 2),
             "shares": int(shares),
@@ -140,8 +144,9 @@ class PortfolioManager:
 
     def sell_position(self, ticker: str, exit_price: float, reason: str = "Manual_Exit", exit_date: Optional[str] = None) -> Dict[str, Any]:
         ticker = ticker.upper().strip()
+        sigg_sym = get_sigg_symbol(ticker)
         positions = self.state.get("positions", [])
-        pos_idx = next((i for i, p in enumerate(positions) if p["ticker"] == ticker), None)
+        pos_idx = next((i for i, p in enumerate(positions) if p["ticker"] == ticker or p["ticker"] == sigg_sym), None)
         
         if pos_idx is None:
             return {"status": "error", "message": f"No active position found for {ticker}."}
@@ -194,7 +199,10 @@ class PortfolioManager:
                 price = custom_quotes[t]
             else:
                 try:
-                    ticker_obj = yf.Ticker(t)
+                    yahoo_t = SIGG_TO_TICKER.get(t, t)
+                    if not yahoo_t.endswith('.WA'):
+                        yahoo_t = f"{yahoo_t}.WA"
+                    ticker_obj = yf.Ticker(yahoo_t)
                     fast_info = getattr(ticker_obj, 'fast_info', None)
                     if fast_info and hasattr(fast_info, 'last_price'):
                         price = float(fast_info.last_price)
