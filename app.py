@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 import subprocess
 import threading
 import glob
@@ -143,7 +143,16 @@ scheduler_thread.start()
 # -------------------------------------------------------------
 @app.route('/')
 def index():
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(m in user_agent for m in ['mobile', 'iphone', 'android', 'ipod', 'phone'])
+    if is_mobile and request.args.get('desktop') != '1':
+        return redirect(url_for('mobile_page'))
     return render_template('index.html')
+
+@app.route('/mobile')
+@app.route('/m')
+def mobile_page():
+    return render_template('mobile.html')
 
 @app.route('/api/strategy_md', methods=['GET'])
 def get_strategy_md():

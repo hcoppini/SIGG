@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SIGG Mobile">
+    <meta name="theme-color" content="#090d16">
+    <title>SIGG Hub Mobile</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- TOP FIXED APP BAR -->
+    <header class="mobile-top-bar">
+        <div class="top-bar-left">
+            <span class="status-dot"></span>
+            <div class="app-logo">SIGG <span>MOBILE</span></div>
+        </div>
+        <div class="top-bar-right">
+            <div id="mobileEquityPill" class="equity-pill">
+                <i data-lucide="wallet" style="width: 13px; height: 13px;"></i>
+                <span id="topBarEquityVal">20,000 PLN</span>
+            </div>
+            <a href="/?desktop=1" class="desktop-switch-btn" title="Switch to Full Desktop Hub">
+                <i data-lucide="monitor" style="width: 18px; height: 18px;"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- MARKET REGIME STATUS STRIP -->
+    <div id="mobileRegimeStrip" class="regime-strip">
+        <span id="mobileRegimeTag" class="regime-tag">GREEN REGIME</span>
+        <span id="mobileRegimeText" class="regime-text">WIG140 Breadth &gt; SMA20: --% | Max 3 Slots</span>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="mobileToastContainer" class="mobile-toast-container"></div>
+
+    <!-- ==========================================
+         TAB 1: SIGNALS (FEED OF TOUCH CARDS)
+         ========================================== -->
+    <main id="signalsView" class="mobile-view active">
+        <div class="feed-header-card">
+            <div class="feed-header-row">
+                <div class="feed-title">
+                    <i data-lucide="radar" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                    <span>Squeeze-Ignition Signals</span>
+                </div>
+                <span id="mobileSignalCount" class="feed-badge">0 signals</span>
+            </div>
+            
+            <button id="mobileRunScanBtn" class="scan-action-btn">
+                <i data-lucide="play" style="width: 18px; height: 18px;"></i>
+                <span>Run Scanner Now (16:35 CET)</span>
+            </button>
+        </div>
+
+        <div id="mobileSignalsLoading" class="feed-header-card hidden" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+            <i data-lucide="loader" class="icon-inline" style="animation: spin 1s linear infinite;"></i>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Evaluating WIG140 universe on server...</p>
+        </div>
+
+        <div id="mobileSignalsFeed">
+            <!-- Populated via JS: Native Signal Cards -->
+        </div>
+
+        <div id="mobileSignalsEmpty" class="feed-header-card" style="text-align: center; padding: 2rem 1rem;">
+            <i data-lucide="radar" style="width: 36px; height: 36px; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+            <div style="font-weight: 700; color: #fff;">No Signals Loaded</div>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Tap "Run Scanner Now" or wait for the automated 16:35 CET pre-close scan.
+            </p>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         TAB 2: PORTFOLIO (3-SLOT COMMAND)
+         ========================================== -->
+    <main id="portfolioView" class="mobile-view">
+        <div class="portfolio-summary-card">
+            <div class="port-summary-row">
+                <div>
+                    <div class="port-summary-equity-label">Live Contest Equity</div>
+                    <div id="portLiveEquity" class="port-summary-equity-val">20,000.00 PLN</div>
+                </div>
+                <div id="portTotalPnlPill" class="port-pnl-pill positive">+0.00%</div>
+            </div>
+            <div class="port-cash-grid">
+                <div class="port-cash-item">
+                    <span class="slot-detail-label">Available Cash</span>
+                    <span id="portCashVal" class="port-cash-val">20,000 PLN</span>
+                </div>
+                <div class="port-cash-item">
+                    <span class="slot-detail-label">Cash / Vacant Slot</span>
+                    <span id="portSlotAllocVal" class="port-cash-val">~6,666 PLN</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding: 0 0.25rem;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                Active Slots (<span id="portActiveCount">0</span>/3)
+            </span>
+            <button id="mobileRefreshPortBtn" class="btn-card-copy" style="padding: 4px 10px; font-size: 0.75rem;">
+                <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Refresh
+            </button>
+        </div>
+
+        <div id="mobileSlotsFeed">
+            <!-- 3 Slot Cards Populated via JS -->
+        </div>
+    </main>
+
+    <!-- ==========================================
+         TAB 3: ALERTS & NOTIFICATIONS
+         ========================================== -->
+    <main id="alertsView" class="mobile-view">
+        <div class="alert-card">
+            <div class="alert-card-title">
+                <i data-lucide="bell" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                <span>Discord Webhook Alerts</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">
+                Receive 16:35 CET pre-close alerts and 16:50 CET fixing auction orders directly in Discord.
+            </p>
+            <input type="text" id="mobileDiscordWebhook" class="mobile-input" placeholder="https://discord.com/api/webhooks/...">
+            
+            <button id="mobileSaveWebhookBtn" class="scan-action-btn" style="padding: 0.65rem; font-size: 0.82rem;">
+                Save Webhook Settings
+            </button>
+        </div>
+
+        <div class="alert-card">
+            <div class="alert-card-title">
+                <i data-lucide="volume-2" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                <span>Sound & Automation Toggles</span>
+            </div>
+            
+            <div class="mobile-toggle-row">
+                <div>
+                    <div class="mobile-toggle-label">In-Browser Audio Chime</div>
+                    <div class="mobile-toggle-sub">Plays a synthesized bell chime on incoming alerts</div>
+                </div>
+                <input type="checkbox" id="mobileSoundToggle" class="mobile-toggle-input" checked>
+            </div>
+
+            <div class="mobile-toggle-row">
+                <div>
+                    <div class="mobile-toggle-label">16:35 CET Pre-Close Alert</div>
+                    <div class="mobile-toggle-sub">Automated scan 15m before continuous trading closes</div>
+                </div>
+                <input type="checkbox" id="mobileAuto1635Toggle" class="mobile-toggle-input" checked>
+            </div>
+
+            <div class="mobile-toggle-row">
+                <div>
+                    <div class="mobile-toggle-label">16:50 CET Fixing Action Sheet</div>
+                    <div class="mobile-toggle-sub">Exact whole-share order tickets for closing auction</div>
+                </div>
+                <input type="checkbox" id="mobileAuto1650Toggle" class="mobile-toggle-input" checked>
+            </div>
+        </div>
+
+        <div class="alert-card">
+            <div class="alert-card-title">
+                <i data-lucide="send" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                <span>Test Alert Dispatches</span>
+            </div>
+            <div class="test-triggers-grid">
+                <button id="mobileTestWebhookBtn" class="btn-test-trigger">
+                    <i data-lucide="send" style="width: 14px; height: 14px;"></i> Test Discord Webhook
+                </button>
+                <button id="mobileTest1635Btn" class="btn-test-trigger">
+                    <i data-lucide="zap" style="width: 14px; height: 14px;"></i> Test 16:35 CET Pre-Close
+                </button>
+                <button id="mobileTest1650Btn" class="btn-test-trigger">
+                    <i data-lucide="zap" style="width: 14px; height: 14px;"></i> Test 16:50 CET Action Sheet
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         TAB 4: BLUEPRINT & EXECUTION RULES
+         ========================================== -->
+    <main id="blueprintView" class="mobile-view">
+        <div class="feed-header-card">
+            <div class="feed-title">
+                <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--positive);"></i>
+                <span>SIGG Etap 1 Execution Rules</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary);">
+                Microstructure principles verified across 6 historical SIGG seasons (2020–2026).
+            </p>
+        </div>
+
+        <div class="rule-card">
+            <div class="rule-num">RULE 1</div>
+            <div class="rule-title">Max 3 Slots (~6,666 PLN Each)</div>
+            <div class="rule-desc">Never put all capital in one stock. 3 positions eliminate single-stock blowups while capturing 100% of portfolio upside.</div>
+        </div>
+
+        <div class="rule-card">
+            <div class="rule-num">RULE 2</div>
+            <div class="rule-title">Whole Shares at 16:50 CET Fixing Auction</div>
+            <div class="rule-desc">Never market order at 09:00. Enter during the 16:50–17:00 CET closing auction with a whole-share limit price (+0.5% above close).</div>
+        </div>
+
+        <div class="rule-card">
+            <div class="rule-num">RULE 3</div>
+            <div class="rule-title">3-Day Maximum Burst Holding Window</div>
+            <div class="rule-desc">95% of momentum velocity on GPW occurs in Days 1 to 3 (+1.04% D1 → +1.37% D2 → +1.70% D3). By Day 4 it stalls. Harvest and recycle capital.</div>
+        </div>
+
+        <div class="rule-card">
+            <div class="rule-num">RULE 4</div>
+            <div class="rule-title">Dynamic 2.2x ATR Trailing Stop</div>
+            <div class="rule-desc">Stop loss trails behind the highest price reached since entry. If price breaches the stop, liquidate at the next auction.</div>
+        </div>
+
+        <div class="rule-card">
+            <div class="rule-num">RULE 5</div>
+            <div class="rule-title">Day-3 Runner Exception</div>
+            <div class="rule-desc">Hold past Day 3 ONLY if trade gain is $\ge$ +8.0% and stock closes in the top 25% of its daily range. Move stop to prior day low.</div>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         ORDER EXECUTION BOTTOM SHEET
+         ========================================== -->
+    <div id="mobileExecSheet" class="bottom-sheet-backdrop">
+        <div class="bottom-sheet-card">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <div class="sheet-title">Execute Order to Slot</div>
+                <button id="closeExecSheetBtn" class="sheet-close-btn">&times;</button>
+            </div>
+            
+            <div class="card-ticket-box">
+                <div class="ticket-headline">
+                    <span id="sheetTicker">CDR</span>
+                    <span>Broker Limit Order</span>
+                </div>
+                <div id="sheetTicketText" class="ticket-text">KUPNO | CDR | 42 szt. | LIMIT 158.40 PLN</div>
+            </div>
+
+            <div class="sheet-input-grid">
+                <div class="sheet-field">
+                    <label for="sheetPriceInput">Price (PLN)</label>
+                    <input type="number" id="sheetPriceInput" step="0.01" inputmode="decimal" class="sheet-input">
+                </div>
+                <div class="sheet-field">
+                    <label for="sheetSharesInput">Whole Shares</label>
+                    <input type="number" id="sheetSharesInput" step="1" inputmode="numeric" class="sheet-input">
+                </div>
+            </div>
+
+            <p id="sheetSlotHint" style="font-size: 0.74rem; color: var(--text-muted); text-align: center;">
+                Will occupy next vacant portfolio slot (Day 1 of 3 starts today).
+            </p>
+
+            <button id="sheetConfirmBtn" class="btn-confirm-exec">
+                Confirm Execution to Slot
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         FIXED BOTTOM TAB NAVIGATION
+         ========================================== -->
+    <nav class="mobile-tab-bar">
+        <button class="mobile-tab-btn active" data-target="signalsView">
+            <i data-lucide="zap"></i>
+            <span class="mobile-tab-label">Signals</span>
+        </button>
+        <button class="mobile-tab-btn" data-target="portfolioView">
+            <i data-lucide="briefcase"></i>
+            <span class="mobile-tab-label">Portfolio</span>
+        </button>
+        <button class="mobile-tab-btn" data-target="alertsView">
+            <i data-lucide="bell"></i>
+            <span class="mobile-tab-label">Alerts</span>
+        </button>
+        <button class="mobile-tab-btn" data-target="blueprintView">
+            <i data-lucide="book-open"></i>
+            <span class="mobile-tab-label">Blueprint</span>
+        </button>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/mobile.js') }}?v=1"></script>
+</body>
+</html>

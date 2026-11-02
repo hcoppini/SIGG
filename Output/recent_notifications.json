@@ -1,18 +1,1 @@
-[
-  {
-    "id": "notif_20261101_233552_389214",
-    "timestamp": "23:35:52",
-    "title": "16:35 CET Pre-Close Alert Dispatched",
-    "message": "Market Regime: GREEN. Evaluated 1 candidates.",
-    "level": "success",
-    "details": {}
-  },
-  {
-    "id": "notif_20261101_233552_382075",
-    "timestamp": "23:35:52",
-    "title": "Test Alert",
-    "message": "Testing in-app queue",
-    "level": "info",
-    "details": {}
-  }
-]
+[]
