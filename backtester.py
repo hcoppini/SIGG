@@ -50,10 +50,14 @@ def calculate_sharpe_ratio(equity_curve: List[Tuple[pd.Timestamp, float]], risk_
     daily_rf = (1.0 + risk_free_rate) ** (1.0 / 252.0) - 1.0 if risk_free_rate > 0 else 0.0
     excess_returns = daily_returns - daily_rf
     std = float(excess_returns.std())
-    if std <= 1e-9:
+    if np.isnan(std) or std <= 1e-9:
         return 0.0
     mean = float(excess_returns.mean())
+    if np.isnan(mean):
+        return 0.0
     sharpe = (mean / std) * np.sqrt(252.0)
+    if np.isnan(sharpe):
+        return 0.0
     return round(float(sharpe), 2)
 
 DEFAULTS = { 
@@ -275,7 +279,7 @@ class TruthfulBacktester:
             exposure_value += pos.shares * price
         
         portfolio_value = self.capital + exposure_value
-        if portfolio_value <= 0: return True
+        if portfolio_value <= 0 or self.capital <= 0: return False
         return (exposure_value / portfolio_value) < self.max_total_exposure
     
     def _current_portfolio_value(self, date: pd.Timestamp) -> float:
@@ -284,8 +288,9 @@ class TruthfulBacktester:
             total += pos.shares * self._current_price_on_date(pos.ticker, date)
         return total
     
-    def _open_position(self, ticker: str, date: pd.Timestamp, raw_price: float, atr: float, day_high: float, day_low: float):
+    def _open_position(self, ticker: str, date: pd.Timestamp, raw_price: float, atr: float, day_high: float, day_low: float, exec_type: str = "close_auction"):
         exec_price = raw_price * (1 + self.slippage_pct)
+        if exec_price <= 0: return
         
         portfolio_value = self._current_portfolio_value(date)
         target_value = portfolio_value * self.target_position_pct
@@ -299,59 +304,100 @@ class TruthfulBacktester:
             target_value = max_possible_value
             
         shares = int(target_value / exec_price)
+        while shares > 0 and (shares * exec_price * (1 + self.commission_pct)) > self.capital:
+            shares -= 1
+            
         if shares <= 0: return
         
         position_value = shares * exec_price
         commission = position_value * self.commission_pct
+        
+        # Zero lookahead bias: At entry, the position's highest price is strictly
+        # the execution price, and max gain is 0.0.
+        # Future intraday highs are tracked exclusively during subsequent price action.
+        highest_p = exec_price
+        max_g = 0.0
+        entry_high = max(exec_price, day_high) if exec_type == 'close_auction' else exec_price
         
         pos = Position(
             ticker=ticker,
             entry_date=date,
             entry_price=exec_price, 
             shares=shares,
-            highest_price=max(exec_price, day_high),
+            highest_price=highest_p,
             highest_price_date=date,
-            entry_day_high=max(exec_price, day_high),
+            entry_day_high=entry_high,
             entry_atr=atr,
             sessions_held=0,
             last_high_session=0,
-            max_gain_pct=0.0,
+            max_gain_pct=max_g,
             prev_low=day_low,
-            entry_commission=commission
+            entry_commission=commission,
+            exec_type=exec_type
         )
         self.open_positions[ticker] = pos
         self.capital -= (position_value + commission)
     
-    def _close_position(self, ticker: str, date: pd.Timestamp, raw_price: float, reason: str):
+    def _close_position(self, ticker: str, date: pd.Timestamp, raw_price: float, reason: str, exit_time: str = "16:50 CET"):
         if ticker not in self.open_positions: return
         pos = self.open_positions[ticker]
         
-        exec_price = raw_price * (1 - self.slippage_pct)
+        exec_price = max(0.01, raw_price * (1 - self.slippage_pct))
         
         gross_value = pos.shares * exec_price
         exit_commission = gross_value * self.commission_pct
         net_value = gross_value - exit_commission
         
-        total_entry_cost = (pos.shares * pos.entry_price) + pos.entry_commission
+        pos_entry_value = pos.shares * pos.entry_price
+        total_entry_cost = pos_entry_value + pos.entry_commission
         net_pnl = net_value - total_entry_cost
-        pnl_pct = (net_pnl / total_entry_cost) * 100.0
+        pnl_pct = (net_pnl / total_entry_cost) * 100.0 if total_entry_cost > 0 else 0.0
         
         self.capital += net_value
         
-        self.closed_positions.append({
+        company_name = get_sigg_name(ticker)
+        sigg_symbol = get_sigg_symbol(ticker)
+        
+        entry_time_str = "16:50 CET" if pos.exec_type == 'close_auction' else "09:00 CET"
+        entry_ts_str = f"{pos.entry_date.strftime('%Y-%m-%d')} {entry_time_str}"
+        exit_ts_str = f"{date.strftime('%Y-%m-%d')} {exit_time}"
+        
+        cal_days = (date - pos.entry_date).days
+        sessions = pos.sessions_held if pos.sessions_held > 0 else 1
+        
+        trade_record = {
             'Ticker': ticker,
-            'Entry_Date': pos.entry_date.date(),
-            'Exit_Date': date.date(),
-            'Entry_Price': round(pos.entry_price, 2),
-            'Exit_Price': round(exec_price, 2),
+            'Company_Name': company_name,
+            'SIGG_Symbol': sigg_symbol,
+            'Year': int(date.year),
+            'Edition': f"SIGG {date.year - 2002}" if date.year >= 2003 else "SIGG",
+            'Entry_Date': str(pos.entry_date.date()),
+            'Entry_Time': entry_time_str,
+            'Entry_Timestamp': entry_ts_str,
+            'Exec_Type': 'Close Auction' if pos.exec_type == 'close_auction' else 'Next Open',
             'Shares': pos.shares,
+            'Entry_Price': round(pos.entry_price, 4),
+            'Position_Value_PLN': round(pos_entry_value, 2),
+            'Entry_Commission_PLN': round(pos.entry_commission, 2),
+            'Exit_Date': str(date.date()),
+            'Exit_Time': exit_time,
+            'Exit_Timestamp': exit_ts_str,
+            'Exit_Price': round(exec_price, 4),
+            'Exit_Commission_PLN': round(exit_commission, 2),
+            'Total_Fees_PLN': round(pos.entry_commission + exit_commission, 2),
             'Fees_PLN': round(pos.entry_commission + exit_commission, 2),
+            'Net_PnL': round(net_pnl, 2),
             'PnL': round(net_pnl, 2),
             'PnL_Pct': round(pnl_pct, 2),
-            'Days_Held': pos.sessions_held if pos.sessions_held > 0 else max(1, (date - pos.entry_date).days),
-            'Calendar_Days': (date - pos.entry_date).days,
+            'Sessions_Held': sessions,
+            'Days_Held': sessions,
+            'Calendar_Days': cal_days,
+            'Peak_Price': round(pos.highest_price, 4),
+            'Max_Potential_Gain_Pct': round(pos.max_gain_pct * 100.0, 2),
             'Exit_Reason': reason
-        })
+        }
+        
+        self.closed_positions.append(trade_record)
         del self.open_positions[ticker]
     
     def run(self, start_date: Optional[pd.Timestamp] = None, end_date: Optional[pd.Timestamp] = None):
@@ -378,7 +424,8 @@ class TruthfulBacktester:
                             row_open = df.loc[date]
                             self._open_position(
                                 ticker, date, float(row_open['open']), atr,
-                                float(row_open['high']), float(row_open['low'])
+                                float(row_open['high']), float(row_open['low']),
+                                exec_type='next_open'
                             )
                 pending_orders = []
             
@@ -387,8 +434,8 @@ class TruthfulBacktester:
                 df = self.indicators.get(ticker)
                 if df is None or date not in df.index: continue
                 
-                # Don't exit on the exact same bar if entered at close auction
-                if pos.entry_date == date and self.exec_timing == 'close_auction':
+                # Close auction entries occur at the close of the session, so no intraday exits on entry date
+                if pos.entry_date == date and pos.exec_type == 'close_auction':
                     continue
                 
                 pos.sessions_held += 1
@@ -400,6 +447,7 @@ class TruthfulBacktester:
                 atr = float(row['atr'])
                 
                 should_exit, reason = False, None
+                exit_time = "16:50 CET"
                 
                 mult = self.trailing_stop_atr_mult
                 if self.use_profit_ratchet and pos.max_gain_pct >= 0.16:
@@ -413,14 +461,23 @@ class TruthfulBacktester:
                 
                 exit_exec_price = c
                 
-                # Check for gap downs below our stop loss
-                if o <= stop_price:
+                # Check for gap downs below our stop loss (only applicable for positions held overnight)
+                if pos.entry_date < date and o <= stop_price:
                     should_exit, reason = True, "ATR_Stop_Gap_Down"
                     exit_exec_price = o
+                    exit_time = "09:00 CET"
                 # Check for intraday trigger
                 elif l <= stop_price:
+                    if o > pos.highest_price:
+                        pos.highest_price = o
+                        pos.highest_price_date = date
+                        pos.last_high_session = pos.sessions_held
+                    gain = (pos.highest_price - pos.entry_price) / pos.entry_price
+                    pos.max_gain_pct = max(pos.max_gain_pct, gain)
+                    
                     should_exit, reason = True, "ATR_Trailing_Stop_Intraday"
-                    exit_exec_price = stop_price
+                    exit_exec_price = max(0.01, stop_price)
+                    exit_time = "Intraday"
                 else:
                     if h > pos.highest_price:
                         pos.highest_price = h
@@ -436,23 +493,28 @@ class TruthfulBacktester:
                         if self.hard_time_stop and pos.sessions_held >= self.max_hold_days:
                             should_exit, reason = True, f"Max_Hold_{self.max_hold_days}D_Exit"
                             exit_exec_price = c
+                            exit_time = "16:50 CET"
                         elif not self.hard_time_stop:
                             if pos.sessions_held >= self.max_hold_days and pos.highest_price <= pos.entry_day_high and curr_gain < 0.03:
                                 should_exit, reason = True, f"Time_Stop_{self.max_hold_days}D_Stagnant"
                                 exit_exec_price = c
+                                exit_time = "16:50 CET"
                             elif (pos.sessions_held - pos.last_high_session) >= max(4, self.max_hold_days):
                                 should_exit, reason = True, "Time_Stop_Stagnation"
                                 exit_exec_price = c
+                                exit_time = "16:50 CET"
                     else:
                         if self.hard_time_stop and pos.sessions_held >= self.max_hold_days:
                             should_exit, reason = True, f"Max_Hold_{self.max_hold_days}D_Exit"
                             exit_exec_price = c
+                            exit_time = "16:50 CET"
                         elif (date - pos.highest_price_date).days >= self.max_hold_days:
                             should_exit, reason = True, "Time_Stop_Stagnation"
                             exit_exec_price = c
+                            exit_time = "16:50 CET"
                 
                 if should_exit:
-                    self._close_position(ticker, date, exit_exec_price, reason)
+                    self._close_position(ticker, date, exit_exec_price, reason, exit_time=exit_time)
             
             # 3) Generate Signals (Evaluated at 16:35 CET / Close)
             if self._can_open_more(date) and i < len(dates) - 1:
@@ -538,7 +600,8 @@ class TruthfulBacktester:
                         if self.exec_timing == 'close_auction':
                             self._open_position(
                                 ticker, date, float(row['close']), atr,
-                                float(row['high']), float(row['low'])
+                                float(row['high']), float(row['low']),
+                                exec_type='close_auction'
                             )
                         else:
                             pending_orders.append((ticker, atr))
@@ -547,18 +610,120 @@ class TruthfulBacktester:
         
         final_date = dates[-1]
         for ticker, pos in list(self.open_positions.items()):
-            self._close_position(ticker, final_date, self._current_price_on_date(ticker, final_date), 'Backtest_end')
+            df = self.indicators.get(ticker)
+            if df is not None and final_date in df.index:
+                row_final = df.loc[final_date]
+                h_final = float(row_final['high'])
+                if h_final > pos.highest_price:
+                    pos.highest_price = h_final
+                pos.max_gain_pct = max(pos.max_gain_pct, (pos.highest_price - pos.entry_price) / pos.entry_price)
+            self._close_position(
+                ticker, final_date,
+                self._current_price_on_date(ticker, final_date),
+                'Contest_End',
+                exit_time="16:50 CET"
+            )
         self.equity_curve[-1] = (final_date, self._current_portfolio_value(final_date))
         
         self._write_outputs()
     
+    def get_annual_breakdown(self) -> List[Dict]:
+        """
+        Computes yearly performance metrics across all calendar years present in the equity curve.
+        """
+        if not self.equity_curve:
+            return []
+            
+        df_eq = pd.DataFrame(self.equity_curve, columns=['Date', 'Portfolio_Value'])
+        df_eq['Year'] = pd.to_datetime(df_eq['Date']).dt.year
+        years = sorted(df_eq['Year'].unique())
+        
+        trades_by_year = {}
+        for t in self.closed_positions:
+            try:
+                y = pd.to_datetime(t.get('Exit_Date', t.get('Entry_Date'))).year
+            except Exception:
+                y = years[0] if years else 0
+            trades_by_year.setdefault(y, []).append(t)
+            
+        annual_metrics = []
+        for i, y in enumerate(years):
+            sub_eq = df_eq[df_eq['Year'] == y]
+            if sub_eq.empty: continue
+            
+            if i == 0:
+                start_val = float(self.initial_capital)
+            else:
+                prev_eq = df_eq[df_eq['Year'] < y]['Portfolio_Value']
+                start_val = float(prev_eq.iloc[-1]) if not prev_eq.empty else float(self.initial_capital)
+
+            final_val = float(sub_eq['Portfolio_Value'].iloc[-1])
+            net_prof = final_val - start_val
+            ret_pct = (net_prof / start_val * 100.0) if start_val > 0 else 0.0
+            
+            eq_vals = [start_val] + sub_eq['Portfolio_Value'].tolist()
+            eq_s = pd.Series(eq_vals)
+            peak_s = eq_s.cummax()
+            dd_s = (eq_s - peak_s) / peak_s * 100.0
+            max_dd = abs(float(dd_s.min())) if not dd_s.empty else 0.0
+            
+            curve_pts = list(zip(pd.to_datetime(sub_eq['Date']), sub_eq['Portfolio_Value']))
+            sharpe = calculate_sharpe_ratio(curve_pts)
+            
+            y_trades = trades_by_year.get(y, [])
+            trades_cnt = len(y_trades)
+            if trades_cnt > 0:
+                wins = [t for t in y_trades if float(t.get('Net_PnL', t.get('PnL', 0.0))) > 0]
+                losses = [t for t in y_trades if float(t.get('Net_PnL', t.get('PnL', 0.0))) <= 0]
+                win_rate = (len(wins) / trades_cnt) * 100.0
+                gross_win = sum(float(t.get('Net_PnL', t.get('PnL', 0.0))) for t in wins)
+                gross_loss = abs(sum(float(t.get('Net_PnL', t.get('PnL', 0.0))) for t in losses))
+                profit_factor = (gross_win / gross_loss) if gross_loss > 0 else (99.9 if gross_win > 0 else 0.0)
+                tot_fees = sum(float(t.get('Total_Fees_PLN', t.get('Fees_PLN', 0.0))) for t in y_trades)
+            else:
+                win_rate = 0.0
+                profit_factor = 0.0
+                tot_fees = 0.0
+                
+            start_date_str = str(sub_eq['Date'].iloc[0].strftime('%Y-%m-%d')) if hasattr(sub_eq['Date'].iloc[0], 'strftime') else str(sub_eq['Date'].iloc[0])
+            end_date_str = str(sub_eq['Date'].iloc[-1].strftime('%Y-%m-%d')) if hasattr(sub_eq['Date'].iloc[-1], 'strftime') else str(sub_eq['Date'].iloc[-1])
+            edition = f"SIGG {y - 2002}" if y >= 2003 else "SIGG"
+            
+            annual_metrics.append({
+                'year': int(y),
+                'edition': edition,
+                'start_date': start_date_str,
+                'end_date': end_date_str,
+                'initial_capital': round(start_val, 2),
+                'final_capital': round(final_val, 2),
+                'net_profit': round(net_prof, 2),
+                'return_pct': round(ret_pct, 2),
+                'trades_count': trades_cnt,
+                'win_rate': round(win_rate, 1),
+                'profit_factor': round(profit_factor, 2),
+                'max_drawdown': round(max_dd, 1),
+                'sharpe_ratio': sharpe,
+                'total_fees_pln': round(tot_fees, 2)
+            })
+            
+        return annual_metrics
+
     def _write_outputs(self):
         os.makedirs('Output', exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         pd.DataFrame(self.equity_curve, columns=['Date', 'Portfolio_Value']).to_csv(f'Output/equity_curve_{timestamp}.csv', index=False)
+        pd.DataFrame(self.equity_curve, columns=['Date', 'Portfolio_Value']).to_csv('Output/equity_curve_latest.csv', index=False)
+        
+        annual = self.get_annual_breakdown()
+        if annual:
+            df_ann = pd.DataFrame(annual)
+            df_ann.to_csv(f'Output/annual_breakdown_{timestamp}.csv', index=False)
+            df_ann.to_csv('Output/annual_breakdown_latest.csv', index=False)
+
         if self.closed_positions:
             df = pd.DataFrame(self.closed_positions)
             df.to_csv(f'Output/closed_positions_{timestamp}.csv', index=False)
+            df.to_csv('Output/closed_positions_latest.csv', index=False)
 
 def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict] = None) -> Dict:
     base_config = load_config() if config is None else config
@@ -566,7 +731,24 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
     b_cfg['strategy'] = strategy
     b_cfg['data_period_days'] = 1825
     
-    if strategy == 'squeeze_ignition':
+    if strategy == 'breakout_trend':
+        b_cfg.update({
+            'breakout_period': 10,
+            'atr_min_pct': 0.02,
+            'volume_surge_multiplier': 1.5,
+            'min_turnover_pln': 400000.0,
+            'max_positions': 2,
+            'target_position_pct': 0.49,
+            'min_position_pct': 0.40,
+            'trailing_stop_atr_mult': 2.0,
+            'max_hold_days_without_new_high': 7,
+            'hard_time_stop': False,
+            'use_market_regime': True,
+            'exec_timing': 'close_auction',
+            'commission_pct': 0.0029,
+            'slippage_pct': 0.0010
+        })
+    elif strategy == 'squeeze_ignition':
         # Default 3-Day Squeeze-Ignition Burst settings (can be overridden by user custom_params)
         b_cfg.update({
             'breakout_period': 10,
@@ -601,7 +783,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             'hard_time_stop': False,
             'use_market_regime': False,
             'exec_timing': 'next_open',
-            'commission_pct': 0.0039
+            'commission_pct': 0.0029
         })
     elif strategy == 'home_run':
         b_cfg.update({
@@ -616,7 +798,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             'hard_time_stop': False,
             'use_market_regime': False,
             'exec_timing': 'next_open',
-            'commission_pct': 0.0039
+            'commission_pct': 0.0029
         })
     elif strategy == 'macd_rsi':
         b_cfg.update({
@@ -627,7 +809,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             'hard_time_stop': False,
             'use_market_regime': False,
             'exec_timing': 'next_open',
-            'commission_pct': 0.0039
+            'commission_pct': 0.0029
         })
 
     # Apply any explicit user overrides from the UI or config dict
@@ -640,12 +822,12 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             b_cfg['min_position_pct'] = min(0.25, b_cfg['target_position_pct'])
         
     seasons = [
-        ("2020/2021", "2020-11-16", "2021-01-15"),
-        ("2021/2022", "2021-11-15", "2022-01-14"),
-        ("2022/2023", "2022-11-14", "2023-01-13"),
-        ("2023/2024", "2023-11-13", "2024-01-12"),
-        ("2024/2025", "2024-11-18", "2025-01-17"),
-        ("2025/2026", "2025-11-17", "2026-01-16")
+        ("2020/2021", "2020-11-16", "2021-01-15", "SIGG 19", 2021),
+        ("2021/2022", "2021-11-15", "2022-01-14", "SIGG 20", 2022),
+        ("2022/2023", "2022-11-14", "2023-01-13", "SIGG 21", 2023),
+        ("2023/2024", "2023-11-13", "2024-01-12", "SIGG 22", 2024),
+        ("2024/2025", "2024-11-18", "2025-01-17", "SIGG 23", 2025),
+        ("2025/2026", "2025-11-17", "2026-01-16", "SIGG 24", 2026)
     ]
     
     season_results = []
@@ -655,7 +837,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
     bt = TruthfulBacktester(b_cfg)
     bt.prepare_data()
     
-    for label, s_start, s_end in seasons:
+    for label, s_start, s_end, edition, year in seasons:
         bt.capital = bt.initial_capital
         bt.open_positions = {}
         bt.closed_positions = []
@@ -677,17 +859,21 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
                 profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (99.9 if gross_profit > 0 else 0.0)
                 avg_win = wins['PnL_Pct'].mean() if len(wins) > 0 else 0.0
                 avg_loss = losses['PnL_Pct'].mean() if len(losses) > 0 else 0.0
+                total_season_fees = float(df_trades['Total_Fees_PLN'].sum()) if 'Total_Fees_PLN' in df_trades else float(df_trades['Fees_PLN'].sum())
             else:
                 win_rate = 0.0
                 profit_factor = 0.0
                 avg_win = 0.0
                 avg_loss = 0.0
+                total_season_fees = 0.0
                 
             eq_vals = [pt[1] for pt in bt.equity_curve]
             eq_s = pd.Series(eq_vals)
             peak_s = eq_s.cummax()
             dd_s = (eq_s - peak_s) / peak_s * 100.0
             max_dd = abs(dd_s.min()) if not dd_s.empty else 0.0
+            
+            sharpe = calculate_sharpe_ratio(bt.equity_curve, b_cfg.get('risk_free_rate', 0.0))
             
             curve_points = [
                 {"date": pt[0].strftime("%Y-%m-%d"), "value": round(pt[1], 2), "day": i}
@@ -702,6 +888,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
                 worst_t = df_trades.sort_values(by='PnL_Pct', ascending=True).iloc[0]
                 biggest_winner = {
                     "ticker": str(best_t['Ticker']),
+                    "company_name": str(best_t.get('Company_Name', get_sigg_name(best_t['Ticker']))),
                     "pnl_pct": round(float(best_t['PnL_Pct']), 2),
                     "pnl_pln": round(float(best_t['PnL']), 2),
                     "days_held": int(best_t['Days_Held']),
@@ -709,6 +896,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
                 }
                 biggest_loser = {
                     "ticker": str(worst_t['Ticker']),
+                    "company_name": str(worst_t.get('Company_Name', get_sigg_name(worst_t['Ticker']))),
                     "pnl_pct": round(float(worst_t['PnL_Pct']), 2),
                     "pnl_pln": round(float(worst_t['PnL']), 2),
                     "days_held": int(worst_t['Days_Held']),
@@ -718,12 +906,16 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             for t in bt.closed_positions:
                 t_copy = t.copy()
                 t_copy['Season'] = label
+                t_copy['Edition'] = edition
+                t_copy['Year'] = year
                 t_copy['Entry_Date'] = str(t_copy['Entry_Date'])
                 t_copy['Exit_Date'] = str(t_copy['Exit_Date'])
                 all_trades.append(t_copy)
                 
             season_results.append({
                 "season": label,
+                "edition": edition,
+                "year": year,
                 "start_date": s_start,
                 "end_date": s_end,
                 "initial_capital": bt.initial_capital,
@@ -736,6 +928,8 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
                 "avg_win_pct": round(avg_win, 2),
                 "avg_loss_pct": round(avg_loss, 2),
                 "max_drawdown": round(max_dd, 1),
+                "sharpe_ratio": sharpe,
+                "total_fees_pln": round(total_season_fees, 2),
                 "biggest_winner": biggest_winner,
                 "biggest_loser": biggest_loser
             })
@@ -743,6 +937,8 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
             print(f"Error backtesting season {label}: {e}")
             season_results.append({
                 "season": label,
+                "edition": edition,
+                "year": year,
                 "start_date": s_start,
                 "end_date": s_end,
                 "initial_capital": bt.initial_capital,
@@ -755,6 +951,8 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
                 "avg_win_pct": 0.0,
                 "avg_loss_pct": 0.0,
                 "max_drawdown": 0.0,
+                "sharpe_ratio": 0.0,
+                "total_fees_pln": 0.0,
                 "biggest_winner": None,
                 "biggest_loser": None
             })
@@ -764,7 +962,9 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
     total_trades_all = len(all_trades)
     winning_trades_all = len([t for t in all_trades if t.get('PnL', 0) > 0])
     overall_win_rate = (winning_trades_all / total_trades_all * 100.0) if total_trades_all > 0 else 0.0
-    total_fees_all = round(sum(float(t.get('Fees_PLN', 0.0)) for t in all_trades), 2)
+    total_fees_all = round(sum(float(t.get('Total_Fees_PLN', t.get('Fees_PLN', 0.0))) for t in all_trades), 2)
+    valid_sharpes = [s['sharpe_ratio'] for s in season_results if s['trades_count'] > 0]
+    overall_sharpe = round(float(np.mean(valid_sharpes)), 2) if valid_sharpes else 0.0
     
     active_params = {
         "max_hold_days": b_cfg['max_hold_days_without_new_high'],
@@ -793,6 +993,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
         "target_return_pct": 50.0,
         "avg_return_pct": round(avg_return, 2),
         "overall_win_rate": round(overall_win_rate, 1),
+        "overall_sharpe_ratio": overall_sharpe,
         "total_trades": total_trades_all,
         "avg_trades_per_season": round(total_trades_all / max(1, len(seasons)), 1),
         "total_fees_pln": total_fees_all,
@@ -812,6 +1013,7 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
         "strategy": strategy,
         "summary": summary,
         "seasons": season_results,
+        "annual_breakdown": season_results,
         "equity_curves": equity_curves,
         "trades": all_trades
     }
@@ -820,13 +1022,25 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
     out_file = f'Output/backtest_5year_{strategy}.json'
     with open(out_file, 'w', encoding='utf-8') as f:
         json.dump(payload, f, indent=2)
+    
+    # Save CSV files for direct inspection
+    if all_trades:
+        df_all_trades = pd.DataFrame(all_trades)
+        df_all_trades.to_csv(f'Output/trades_5year_{strategy}.csv', index=False)
+    if season_results:
+        df_seasons = pd.DataFrame(season_results)
+        df_seasons.to_csv(f'Output/seasons_5year_{strategy}.csv', index=False)
+        df_seasons.to_csv(f'Output/annual_breakdown_5year_{strategy}.csv', index=False)
         
-    print(f"5-Year truth-tested backtest complete for {strategy}. Saved to {out_file}")
+    print(f"5-Year truth-tested backtest complete for {strategy}.")
+    print(f"Saved JSON payload to {out_file}")
+    print(f"Saved all {len(all_trades)} trades to Output/trades_5year_{strategy}.csv")
+    print(f"Saved 6-season performance breakdown to Output/seasons_5year_{strategy}.csv")
     return payload
 
 def main():
     parser = argparse.ArgumentParser(description="Truthful GPW Backtester")
-    parser.add_argument('--strategy', type=str, default='squeeze_ignition', choices=['squeeze_ignition', 'breakout', 'macd_rsi', 'home_run'])
+    parser.add_argument('--strategy', type=str, default='squeeze_ignition', choices=['squeeze_ignition', 'breakout', 'macd_rsi', 'home_run', 'breakout_trend'])
     parser.add_argument('--5year', dest='five_year', action='store_true', help='Run 5-year historical Stage 1 backtest')
     parser.add_argument('--hold-days', type=int, default=None, help='Override max hold days (e.g. 3)')
     parser.add_argument('--max-positions', type=int, default=None, help='Override max concurrent positions (e.g. 3)')
@@ -849,7 +1063,19 @@ def main():
     if args.exec_timing is not None: custom_overrides['exec_timing'] = args.exec_timing
 
     if args.five_year:
-        run_5year_backtest(args.strategy, custom_overrides if custom_overrides else None)
+        res = run_5year_backtest(args.strategy, custom_overrides if custom_overrides else None)
+        print("\n=== MULTI-YEAR SEASON PERFORMANCE BREAKDOWN ===")
+        df_s = pd.DataFrame(res['seasons'])
+        cols_show = ['season', 'edition', 'initial_capital', 'final_capital', 'return_pct', 'trades_count', 'win_rate', 'profit_factor', 'max_drawdown', 'sharpe_ratio', 'total_fees_pln']
+        print(df_s[cols_show].to_string(index=False))
+        
+        trades = res.get('trades', [])
+        if trades:
+            print(f"\n--- RECENT OPERATIONS (LAST 10 OF {len(trades)}) ---")
+            df_ops = pd.DataFrame(trades)
+            cols = ['Season', 'Ticker', 'Company_Name', 'Entry_Timestamp', 'Exec_Type', 'Shares', 'Entry_Price', 'Exit_Timestamp', 'Exit_Price', 'Total_Fees_PLN', 'Net_PnL', 'PnL_Pct', 'Sessions_Held', 'Exit_Reason']
+            avail_cols = [c for c in cols if c in df_ops.columns]
+            print(df_ops[avail_cols].tail(10).to_string(index=False))
         return
         
     config = load_config()
@@ -858,6 +1084,26 @@ def main():
     
     backtester = TruthfulBacktester(b_cfg)
     backtester.run()
+    
+    print(f"\n=== BACKTEST RESULTS FOR {args.strategy.upper()} ===")
+    final_eq = backtester.equity_curve[-1][1] if backtester.equity_curve else backtester.initial_capital
+    ret_pct = ((final_eq - backtester.initial_capital) / backtester.initial_capital) * 100.0
+    print(f"Initial Capital: {backtester.initial_capital:,.2f} PLN | Final Equity: {final_eq:,.2f} PLN")
+    print(f"Total Return: {ret_pct:+.2f}% | Total Operations: {len(backtester.closed_positions)}")
+    
+    annual = backtester.get_annual_breakdown()
+    if annual:
+        print("\n--- ANNUAL PERFORMANCE BREAKDOWN ---")
+        df_ann = pd.DataFrame(annual)
+        cols_show = ['year', 'initial_capital', 'final_capital', 'return_pct', 'trades_count', 'win_rate', 'profit_factor', 'max_drawdown', 'sharpe_ratio', 'total_fees_pln']
+        print(df_ann[cols_show].to_string(index=False))
+        
+    if backtester.closed_positions:
+        print("\n--- RECENT OPERATIONS (LAST 10) ---")
+        df_ops = pd.DataFrame(backtester.closed_positions)
+        cols = ['Ticker', 'Company_Name', 'Entry_Timestamp', 'Exec_Type', 'Shares', 'Entry_Price', 'Exit_Timestamp', 'Exit_Price', 'Total_Fees_PLN', 'Net_PnL', 'PnL_Pct', 'Sessions_Held', 'Exit_Reason']
+        avail_cols = [c for c in cols if c in df_ops.columns]
+        print(df_ops[avail_cols].tail(10).to_string(index=False))
 
 if __name__ == "__main__":
     main()

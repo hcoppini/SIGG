@@ -134,7 +134,7 @@ def load_ticker_backtest_stats(strategy: str) -> Dict[str, Dict]:
 
 def main():
     parser = argparse.ArgumentParser(description="Stock Scanner")
-    parser.add_argument('--strategy', type=str, default='squeeze_ignition', choices=['squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
+    parser.add_argument('--strategy', type=str, default='breakout_trend', choices=['breakout_trend', 'squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
     args = parser.parse_args()
     
     print("=" * 60)
@@ -277,7 +277,53 @@ def main():
             order_limit = round(latest_close * 1.005, 2)
             order_ticket = f"KUPNO | {sigg_symbol} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
             
-            if args.strategy == 'squeeze_ignition':
+            if args.strategy == 'breakout_trend':
+                high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
+                c1_coil = (atr_pct_prev >= 0.020)
+                c2_breakout = (latest_close > high_10_prev) and is_uptrend
+                c3_structure = (close_pos >= 0.70)
+                min_vol = 3.0 if regime == "YELLOW" else 1.5
+                c4_liquidity = (vol_surge >= min_vol) and (turnover_pln >= 400000.0)
+                
+                is_champion = c1_coil and c2_breakout and c3_structure and c4_liquidity
+                
+                if regime == "RED":
+                    signal = "Hold"
+                    tier = "WATCH (KILL SWITCH ACTIVE)"
+                else:
+                    signal = "Buy" if is_champion else "Hold"
+                    tier = "CHAMPION BREAKOUT" if is_champion else "WATCH"
+                
+                stop_loss_price = latest_close - (2.0 * atr_prev)
+                
+                results.append({
+                    'Ticker': sigg_symbol,
+                    'Yahoo_Ticker': ticker,
+                    'Name': stock_name,
+                    'Close': round(latest_close, 2),
+                    'Day_Gain_Pct': round(day_gain_pct * 100.0, 2),
+                    'Breakout_Target': round(high_10_prev, 2),
+                    'ATR_Pct': round(atr_pct_prev * 100.0, 2),
+                    'TR_Ratio': round(tr_ratio, 2),
+                    'Close_Pos': round(close_pos, 2),
+                    'Volume_Surge': round(vol_surge, 2),
+                    'Turnover_PLN': int(turnover_pln),
+                    'Runner_Score': runner_score,
+                    'Trend_SMA50': 'Uptrend' if is_uptrend else 'Downtrend',
+                    'Stop_Loss': round(stop_loss_price, 2),
+                    'Max_Hold': 'Chandelier Trailing (2.0x ATR)',
+                    'Target': round(target_price, 2),
+                    'RR_Ratio': rr_ratio,
+                    'Order_Shares': calc_shares,
+                    'Order_Limit_Price': order_limit,
+                    'Order_Ticket': order_ticket,
+                    'Tier': tier,
+                    'BT_Stats': bt_summary_str,
+                    'Strategy_Signal': signal,
+                    'Chart': chart_link,
+                })
+                
+            elif args.strategy == 'squeeze_ignition':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
                 
                 c1_coil = (0.015 <= atr_pct_prev <= 0.080)
@@ -417,7 +463,7 @@ def main():
     df = pd.DataFrame(results)
     df['_sort_priority'] = df['Strategy_Signal'].apply(lambda x: 0 if x == 'Buy' else 1)
     
-    if args.strategy in ('squeeze_ignition', 'breakout', 'home_run'):
+    if args.strategy in ('breakout_trend', 'squeeze_ignition', 'breakout', 'home_run'):
         sort_col = 'Runner_Score' if 'Runner_Score' in df.columns else 'Volume_Surge'
         df = df.sort_values(['_sort_priority', sort_col], ascending=[True, False])
     else:

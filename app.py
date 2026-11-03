@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file
 import subprocess
 import threading
 import glob
@@ -261,7 +261,7 @@ def manual_dispatch_alert():
 def run_scan():
     try:
         data = request.get_json(silent=True) or {}
-        strategy = data.get('strategy', 'squeeze_ignition')
+        strategy = data.get('strategy', 'breakout_trend')
         
         subprocess.run([sys.executable, "stock_scanner.py", "--strategy", strategy], check=True)
         latest_csv = get_latest_csv("scan_results")
@@ -288,7 +288,7 @@ def run_scan():
 
 @app.route('/api/results/scan', methods=['GET'])
 def get_scan_results():
-    strategy = request.args.get('strategy', 'squeeze_ignition')
+    strategy = request.args.get('strategy', 'breakout_trend')
     latest_csv = get_latest_csv("scan_results")
     if latest_csv:
         df = pd.read_csv(latest_csv).fillna('')
@@ -327,7 +327,7 @@ def _bg_backtest_worker(strategy, custom_params):
 def run_backtest():
     try:
         data = request.get_json(silent=True) or {}
-        strategy = data.get('strategy', 'squeeze_ignition')
+        strategy = data.get('strategy', 'breakout_trend')
         custom_params = data.get('params', None)
         
         if len(_RAW_DATA_CACHE) >= 50:
@@ -345,7 +345,7 @@ def run_backtest():
 
 @app.route('/api/results/backtest', methods=['GET'])
 def get_backtest_results():
-    strategy = request.args.get('strategy', 'squeeze_ignition')
+    strategy = request.args.get('strategy', 'breakout_trend')
     if strategy in _RUNNING_BACKTESTS:
         return jsonify({"status": "running", "message": "Computing 6-season simulation..."})
         
@@ -359,6 +359,88 @@ def get_backtest_results():
             return jsonify({"status": "running", "message": "Writing backtest results..."})
         
     return jsonify({"status": "error", "message": "No backtest data found yet."})
+
+@app.route('/api/backtest/trades/export', methods=['GET'])
+def export_backtest_trades():
+    strategy = request.args.get('strategy', 'breakout_trend')
+    season = request.args.get('season', 'ALL')
+    csv_path = f"Output/trades_5year_{strategy}.csv"
+    if not os.path.exists(csv_path):
+        results_file = f"Output/backtest_5year_{strategy}.json"
+        if os.path.exists(results_file):
+            try:
+                with open(results_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                trades = data.get("trades", [])
+                if trades:
+                    df = pd.DataFrame(trades)
+                    os.makedirs('Output', exist_ok=True)
+                    df.to_csv(csv_path, index=False, encoding='utf-8')
+            except Exception:
+                pass
+        elif os.path.exists("Output/closed_positions_latest.csv"):
+            csv_path = "Output/closed_positions_latest.csv"
+    
+    if os.path.exists(csv_path):
+        if season and season != 'ALL':
+            try:
+                df = pd.read_csv(csv_path)
+                mask = pd.Series(False, index=df.index)
+                if 'Season' in df.columns:
+                    mask = mask | (df['Season'].astype(str) == season) | (df['Season'].astype(str).str.contains(season, regex=False))
+                if 'Year' in df.columns:
+                    mask = mask | (df['Year'].astype(str) == season)
+                if 'Edition' in df.columns:
+                    mask = mask | (df['Edition'].astype(str) == season)
+                filtered_df = df[mask] if mask.any() else df
+                clean_season = season.replace('/', '_').replace(' ', '_')
+                filtered_csv_path = f"Output/trades_filtered_{strategy}_{clean_season}.csv"
+                filtered_df.to_csv(filtered_csv_path, index=False, encoding='utf-8')
+                return send_file(
+                    filtered_csv_path,
+                    mimetype='text/csv',
+                    as_attachment=True,
+                    download_name=f"sigg_trades_{strategy}_{clean_season}.csv"
+                )
+            except Exception:
+                pass
+
+        return send_file(
+            csv_path,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f"sigg_trades_{strategy}.csv"
+        )
+    return jsonify({"status": "error", "message": f"No trade history found for strategy '{strategy}'."}), 404
+
+@app.route('/api/backtest/seasons/export', methods=['GET'])
+def export_backtest_seasons():
+    strategy = request.args.get('strategy', 'breakout_trend')
+    csv_path = f"Output/seasons_5year_{strategy}.csv"
+    if not os.path.exists(csv_path):
+        if os.path.exists("Output/annual_breakdown_latest.csv"):
+            csv_path = "Output/annual_breakdown_latest.csv"
+        else:
+            results_file = f"Output/backtest_5year_{strategy}.json"
+            if os.path.exists(results_file):
+                try:
+                    with open(results_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    seasons = data.get("seasons", [])
+                    if seasons:
+                        df = pd.DataFrame(seasons)
+                        os.makedirs('Output', exist_ok=True)
+                        df.to_csv(csv_path, index=False, encoding='utf-8')
+                except Exception:
+                    pass
+    if os.path.exists(csv_path):
+        return send_file(
+            csv_path,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f"sigg_seasons_{strategy}.csv"
+        )
+    return jsonify({"status": "error", "message": f"No season performance breakdown found for strategy '{strategy}'."}), 404
 
 @app.route('/api/optimize', methods=['POST'])
 def run_optimize():

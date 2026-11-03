@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getActiveStrategy() {
-        return strategySelect ? strategySelect.value : 'squeeze_ignition';
+        return strategySelect ? strategySelect.value : 'breakout_trend';
     }
 
     if (strategySelect) {
@@ -871,6 +871,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let winLossChartInstance = null;
 
     const runBacktestBtn = document.getElementById('runBacktestBtn');
+    const presetChampionBtn = document.getElementById('presetChampionBtn');
     const presetBurstBtn = document.getElementById('presetBurstBtn');
     const presetStrictBtn = document.getElementById('presetStrictBtn');
     const backtestLoading = document.getElementById('backtestLoading');
@@ -933,6 +934,31 @@ document.addEventListener('DOMContentLoaded', () => {
             commission_pct: num('btCommPct', 0.29) / 100.0,
             use_market_regime: bool('btUseRegime', true)
         };
+    }
+
+    if (presetChampionBtn) {
+        presetChampionBtn.addEventListener('click', () => {
+            if (strategySelect) strategySelect.value = 'breakout_trend';
+            setFormParams({
+                max_hold_days: 7,
+                hard_time_stop: false,
+                max_positions: 2,
+                breakout_period: 10,
+                atr_min_pct: 2.0,
+                atr_max_pct: 15.0,
+                min_tr_ratio: 1.0,
+                min_day_gain_pct: 1.0,
+                max_day_gain_pct: 35.0,
+                min_close_pos: 0.70,
+                volume_surge_multiplier: 1.5,
+                min_turnover_pln: 400000,
+                trailing_stop_atr_mult: 2.0,
+                exec_timing: 'close_auction',
+                commission_pct: 0.29,
+                use_market_regime: true
+            });
+            runBacktestBtn.click();
+        });
     }
 
     if (presetBurstBtn) {
@@ -1324,29 +1350,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let currentBacktestTrades = [];
+
     function populateSeasonSummaryTable(seasons) {
         if (!seasonSummaryBody) return;
         seasonSummaryBody.innerHTML = '';
 
-        if (seasons.length === 0) {
-            seasonSummaryBody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-muted">No season results available.</td></tr>';
+        if (!seasons || seasons.length === 0) {
+            seasonSummaryBody.innerHTML = '<tr><td colspan="14" class="text-center py-4 text-muted">No season results available.</td></tr>';
             return;
+        }
+
+        // Dynamically synchronize the Season / Year filter dropdown
+        const seasonSelect = document.getElementById('tradeFilterSeason');
+        if (seasonSelect && seasons && seasons.length > 0) {
+            const currentSelected = seasonSelect.value;
+            seasonSelect.innerHTML = '<option value="ALL">All Seasons (2020–2026)</option>';
+            seasons.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.season;
+                opt.textContent = `${s.season} (${s.edition || ('SIGG ' + s.year)})`;
+                seasonSelect.appendChild(opt);
+            });
+            if (currentSelected && Array.from(seasonSelect.options).some(o => o.value === currentSelected)) {
+                seasonSelect.value = currentSelected;
+            }
         }
 
         seasons.forEach(s => {
             const tr = document.createElement('tr');
             const isPositive = (s.return_pct >= 0);
             
+            const seasonLabel = s.edition ? 
+                `<strong>${s.season}</strong><span class="cell-sub font-mono">${s.edition}</span>` : 
+                `<strong>${s.season}</strong>`;
+
             const winTxt = s.biggest_winner ? 
-                `<span class="badge badge-buy font-bold">${s.biggest_winner.ticker} (+${s.biggest_winner.pnl_pct}%)</span>` : 
+                `<span class="badge badge-buy font-bold" title="${s.biggest_winner.company_name || s.biggest_winner.ticker}">${s.biggest_winner.ticker} (+${s.biggest_winner.pnl_pct}%)</span>` : 
                 '<span class="text-muted text-xs">-</span>';
                 
             const lossTxt = s.biggest_loser ? 
-                `<span class="badge badge-loss font-bold">${s.biggest_loser.ticker} (${s.biggest_loser.pnl_pct}%)</span>` : 
+                `<span class="badge badge-loss font-bold" title="${s.biggest_loser.company_name || s.biggest_loser.ticker}">${s.biggest_loser.ticker} (${s.biggest_loser.pnl_pct}%)</span>` : 
                 '<span class="text-muted text-xs">-</span>';
 
+            const sharpeVal = s.sharpe_ratio !== undefined ? Number(s.sharpe_ratio).toFixed(2) : '0.00';
+            const sharpeClass = Number(sharpeVal) >= 1.0 ? 'text-green font-bold' : (Number(sharpeVal) < 0 ? 'text-red' : '');
+            const feesVal = Number(s.total_fees_pln || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
             tr.innerHTML = `
-                <td><strong>${s.season}</strong></td>
+                <td>${seasonLabel}</td>
                 <td class="font-mono text-muted text-xs">${s.start_date} &rarr; ${s.end_date}</td>
                 <td class="font-mono">${Number(s.initial_capital).toLocaleString('pl-PL')} PLN</td>
                 <td class="font-mono font-bold ${isPositive ? 'text-green' : 'text-red'}">${Number(s.final_capital).toLocaleString('pl-PL')} PLN</td>
@@ -1355,6 +1407,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="font-mono">${s.win_rate}%</td>
                 <td class="font-mono">${s.profit_factor}</td>
                 <td class="font-mono text-red">-${s.max_drawdown}%</td>
+                <td class="font-mono ${sharpeClass}">${sharpeVal}</td>
+                <td class="font-mono text-muted text-xs">${feesVal} PLN</td>
                 <td>${winTxt}</td>
                 <td>${lossTxt}</td>
                 <td class="font-mono">${s.trades_count}</td>
@@ -1363,38 +1417,124 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function populateTradesLogTable(trades) {
+    const normalizeQueryStr = (str) => {
+        return String(str || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    };
+
+    function applyTradesFiltersAndRender() {
         if (!tradesLogBody) return;
         tradesLogBody.innerHTML = '';
 
-        const countBadge = document.getElementById('tradesLogCountBadge');
-        if (countBadge) countBadge.textContent = `${trades.length} executed trades`;
+        const seasonFilter = document.getElementById('tradeFilterSeason')?.value || 'ALL';
+        const rawSearchInput = (document.getElementById('tradeSearchInput')?.value || '').trim();
+        const searchInput = normalizeQueryStr(rawSearchInput);
+        const outcomeFilter = document.getElementById('tradeFilterOutcome')?.value || 'ALL';
 
-        if (trades.length === 0) {
-            tradesLogBody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-muted">No completed trades recorded for these parameters.</td></tr>';
+        const filtered = currentBacktestTrades.filter(t => {
+            // Season filter
+            if (seasonFilter !== 'ALL') {
+                const seasonStr = String(t.Season || '');
+                const yearStr = String(t.Year || '');
+                const editionStr = String(t.Edition || '');
+                if (seasonStr !== seasonFilter && yearStr !== seasonFilter && editionStr !== seasonFilter && !seasonStr.includes(seasonFilter)) {
+                    return false;
+                }
+            }
+
+            // Search input (ticker, company name, sigg symbol, exit reason) with Polish diacritic insensitivity
+            if (searchInput) {
+                const tickerMatch = normalizeQueryStr(t.Ticker).includes(searchInput);
+                const nameMatch = normalizeQueryStr(t.Company_Name).includes(searchInput);
+                const symMatch = normalizeQueryStr(t.SIGG_Symbol).includes(searchInput);
+                const reasonMatch = normalizeQueryStr(t.Exit_Reason).includes(searchInput);
+                if (!tickerMatch && !nameMatch && !symMatch && !reasonMatch) {
+                    return false;
+                }
+            }
+
+            // Outcome filter
+            if (outcomeFilter === 'WIN') {
+                const pnl = Number(t.Net_PnL !== undefined ? t.Net_PnL : t.PnL || 0);
+                if (pnl <= 0) return false;
+            } else if (outcomeFilter === 'LOSS') {
+                const pnl = Number(t.Net_PnL !== undefined ? t.Net_PnL : t.PnL || 0);
+                if (pnl > 0) return false;
+            }
+
+            return true;
+        });
+
+        const countBadge = document.getElementById('tradesLogCountBadge');
+        if (countBadge) {
+            countBadge.textContent = `${filtered.length} of ${currentBacktestTrades.length} operations`;
+        }
+
+        if (filtered.length === 0) {
+            tradesLogBody.innerHTML = '<tr><td colspan="15" class="text-center py-4 text-muted">No operations matching the selected filter criteria.</td></tr>';
             return;
         }
 
-        const reversed = [...trades].reverse();
+        const reversed = [...filtered].reverse();
         reversed.forEach(t => {
             const tr = document.createElement('tr');
-            const isWin = (t.PnL > 0);
+            const netPnl = Number(t.Net_PnL !== undefined ? t.Net_PnL : t.PnL || 0);
+            const isWin = (netPnl > 0);
+            const pnlSign = isWin ? '+' : '';
+            const pnlClass = isWin ? 'text-green font-bold' : 'text-red font-bold';
+
+            const seasonBadge = t.Edition ? 
+                `<span class="badge badge-season">${t.Season || '-'}</span><span class="cell-sub">${t.Edition}</span>` : 
+                `<span class="badge badge-season">${t.Season || '-'}</span>`;
+
+            const companyName = t.Company_Name || t.SIGG_Symbol || '';
+            const tickerCell = `<strong>${t.Ticker}</strong>` + (companyName ? `<span class="cell-sub">${companyName}</span>` : '');
+
+            const entryTime = t.Entry_Timestamp || (t.Entry_Date + (t.Entry_Time ? ' ' + t.Entry_Time : ''));
+            const exitTime = t.Exit_Timestamp || (t.Exit_Date + (t.Exit_Time ? ' ' + t.Exit_Time : ''));
+
+            const posVal = Number(t.Position_Value_PLN !== undefined ? t.Position_Value_PLN : ((t.Shares || 0) * (t.Entry_Price || 0))).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const feesVal = Number(t.Total_Fees_PLN !== undefined ? t.Total_Fees_PLN : (t.Fees_PLN || 0)).toFixed(2);
+            const entryCommVal = t.Entry_Commission_PLN !== undefined ? ` (entry: ${Number(t.Entry_Commission_PLN).toFixed(2)})` : '';
+
+            const sessionsHeld = t.Sessions_Held !== undefined ? t.Sessions_Held : (t.Days_Held || 1);
+            const calDays = t.Calendar_Days !== undefined ? t.Calendar_Days : '-';
+
+            const peakPrice = t.Peak_Price !== undefined ? Number(t.Peak_Price).toFixed(2) : null;
+            const maxGainPct = t.Max_Potential_Gain_Pct !== undefined ? Number(t.Max_Potential_Gain_Pct).toFixed(2) : null;
+            const peakCell = peakPrice ? 
+                `<span class="font-mono">${peakPrice} PLN</span><span class="cell-sub text-green">+${maxGainPct}% peak</span>` : 
+                `<span class="text-muted">-</span>`;
+
+            const execType = t.Exec_Type || 'Close Auction';
+            const execBadgeClass = execType.toLowerCase().includes('open') ? 'badge-hold' : 'badge-buy';
+
             tr.innerHTML = `
-                <td><span class="badge badge-season">${t.Season || '-'}</span></td>
-                <td><strong>${t.Ticker}</strong></td>
-                <td class="font-mono text-xs">${t.Entry_Date}</td>
-                <td class="font-mono text-xs">${t.Exit_Date}</td>
-                <td class="font-mono">${t.Shares || '-'}</td>
-                <td class="font-mono">${Number(t.Entry_Price).toFixed(2)}</td>
-                <td class="font-mono">${Number(t.Exit_Price).toFixed(2)}</td>
-                <td class="font-mono text-muted">${t.Fees_PLN !== undefined ? Number(t.Fees_PLN).toFixed(2) : '-'}</td>
-                <td class="font-mono font-bold ${isWin ? 'text-green' : 'text-red'}">${isWin ? '+' : ''}${Number(t.PnL).toFixed(2)} PLN</td>
-                <td class="font-mono font-bold ${isWin ? 'text-green' : 'text-red'}">${isWin ? '+' : ''}${Number(t.PnL_Pct).toFixed(2)}%</td>
-                <td class="font-mono">${t.Days_Held}d</td>
-                <td class="font-mono text-xs text-muted">${t.Exit_Reason || 'Strategy_Exit'}</td>
+                <td>${seasonBadge}</td>
+                <td>${tickerCell}</td>
+                <td class="font-mono text-xs">${entryTime}</td>
+                <td><span class="badge ${execBadgeClass} text-xs">${execType}</span></td>
+                <td class="font-mono font-bold">${t.Shares || '-'}</td>
+                <td class="font-mono">${Number(t.Entry_Price || 0).toFixed(2)}</td>
+                <td class="font-mono text-xs">${posVal} PLN</td>
+                <td class="font-mono text-xs">${exitTime}</td>
+                <td class="font-mono">${Number(t.Exit_Price || 0).toFixed(2)}</td>
+                <td class="font-mono text-muted text-xs" title="Total commissions${entryCommVal}">${feesVal} PLN</td>
+                <td class="font-mono ${pnlClass}">${pnlSign}${netPnl.toFixed(2)} PLN</td>
+                <td class="font-mono ${pnlClass}">${pnlSign}${Number(t.PnL_Pct || 0).toFixed(2)}%</td>
+                <td class="font-mono text-xs">${sessionsHeld} sessions <span class="cell-sub">${calDays} cal days</span></td>
+                <td>${peakCell}</td>
+                <td class="font-mono text-xs text-muted"><span class="badge ${isWin ? 'badge-buy' : 'badge-loss'}">${t.Exit_Reason || 'Strategy_Exit'}</span></td>
             `;
             tradesLogBody.appendChild(tr);
         });
+    }
+
+    function populateTradesLogTable(trades) {
+        currentBacktestTrades = trades || [];
+        applyTradesFiltersAndRender();
     }
 
     // ==========================================
@@ -1551,6 +1691,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // INITIAL BOOTSTRAP
     // ==========================================
+    // Trade Audit Log Filter & Export Listeners
+    const tradeFilterSeason = document.getElementById('tradeFilterSeason');
+    if (tradeFilterSeason) tradeFilterSeason.addEventListener('change', applyTradesFiltersAndRender);
+
+    const tradeSearchInput = document.getElementById('tradeSearchInput');
+    if (tradeSearchInput) tradeSearchInput.addEventListener('input', applyTradesFiltersAndRender);
+
+    const tradeFilterOutcome = document.getElementById('tradeFilterOutcome');
+    if (tradeFilterOutcome) tradeFilterOutcome.addEventListener('change', applyTradesFiltersAndRender);
+
+    const exportTradesCsvBtn = document.getElementById('exportTradesCsvBtn');
+    if (exportTradesCsvBtn) {
+        exportTradesCsvBtn.addEventListener('click', () => {
+            const strat = getActiveStrategy();
+            const seasonVal = document.getElementById('tradeFilterSeason')?.value || 'ALL';
+            window.location.href = `/api/backtest/trades/export?strategy=${strat}&season=${encodeURIComponent(seasonVal)}`;
+        });
+    }
+
+    const exportSeasonsCsvBtn = document.getElementById('exportSeasonsCsvBtn');
+    if (exportSeasonsCsvBtn) {
+        exportSeasonsCsvBtn.addEventListener('click', () => {
+            const strat = getActiveStrategy();
+            window.location.href = `/api/backtest/seasons/export?strategy=${strat}`;
+        });
+    }
+
     setupExecuteModal();
     setupSettingsModal();
     fetchScanResults();

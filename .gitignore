@@ -28,6 +28,9 @@ Thumbs.db
 Output/equity_curve_*.csv
 Output/closed_positions_*.csv
 Output/scan_results_*.csv
+Output/annual_breakdown_*.csv
+Output/*_latest.csv
+Output/recent_notifications.json
 cache/
 scratch/
 Staging/*.log

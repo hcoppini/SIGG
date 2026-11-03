@@ -47,7 +47,8 @@
         <div class="strategy-selector">
             <label for="strategySelect">Active Strategy:</label>
             <select id="strategySelect">
-                <option value="squeeze_ignition" selected>Squeeze-Ignition (3-Day Burst)</option>
+                <option value="breakout_trend" selected>Breakout Trend-Rider (SIGG Champion +82.9%)</option>
+                <option value="squeeze_ignition">Squeeze-Ignition (3-Day Burst)</option>
                 <option value="breakout">High-Velocity Breakout</option>
                 <option value="home_run">Home Run Chaser (All-In Risk)</option>
                 <option value="macd_rsi">RSI-Filtered MACD Momentum</option>
@@ -214,6 +215,9 @@
                     <p>Don't trust pre-baked numbers—set your own entry/exit rules below and run the Python backtest engine directly on 6 years of GPW data.</p>
                 </div>
                 <div class="actions">
+                    <button id="presetChampionBtn" class="btn secondary" title="Loads SIGG Champion 2-Slot Breakout Trend-Rider (+82.9% return)">
+                        Preset: Champion Trend-Rider (+82.9%)
+                    </button>
                     <button id="presetBurstBtn" class="btn secondary" title="Loads 3-Day Hold with 1.3x TR, 1.5x Vol, 2-8% ATR">
                         Preset: 3-Day Burst (22.7 trades/season)
                     </button>
@@ -369,12 +373,22 @@
 
             <!-- Season Performance Breakdown Table -->
             <div class="glass-card">
-                <h3>Historical Season Performance Breakdown</h3>
+                <div class="card-header-flex">
+                    <div>
+                        <h3>Historical Season & Edition Performance Breakdown</h3>
+                        <p class="chart-subtitle">Year-by-year audited metrics across all 6 contest editions (2020–2026)</p>
+                    </div>
+                    <div class="filter-actions">
+                        <button id="exportSeasonsCsvBtn" class="btn secondary btn-sm" title="Download annual performance breakdown as CSV">
+                            <i data-lucide="download" class="btn-icon"></i> Export Annual CSV
+                        </button>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table id="seasonSummaryTable">
                         <thead>
                             <tr>
-                                <th>Season</th>
+                                <th>Season / Edition</th>
                                 <th>Period Window</th>
                                 <th>Start Capital</th>
                                 <th>Final Equity</th>
@@ -383,6 +397,8 @@
                                 <th>Win Rate</th>
                                 <th>Profit Factor</th>
                                 <th>Max Drawdown</th>
+                                <th>Sharpe Ratio</th>
+                                <th>Total Fees</th>
                                 <th>Biggest Winner</th>
                                 <th>Biggest Loser</th>
                                 <th>Trades</th>
@@ -398,24 +414,64 @@
             <!-- All Completed Trades Audit Log Table -->
             <div class="glass-card">
                 <div class="card-header-flex">
-                    <h3>Complete Trade-by-Trade Audit Log (Every Executed Trade)</h3>
+                    <div>
+                        <h3>Complete Trade-by-Trade Audit Log (Every Executed Operation)</h3>
+                        <p class="chart-subtitle">100% transparent and verifiable: filter by year/edition, search company, or download as CSV.</p>
+                    </div>
                     <span id="tradesLogCountBadge" class="count-badge">0 trades</span>
                 </div>
+
+                <!-- Table Filter & Search Toolbar -->
+                <div class="table-filter-bar">
+                    <div class="filter-group">
+                        <label for="tradeFilterSeason">Season / Year:</label>
+                        <select id="tradeFilterSeason">
+                            <option value="ALL">All Seasons (2020–2026)</option>
+                            <option value="2025/2026">2025/2026 (SIGG 24)</option>
+                            <option value="2024/2025">2024/2025 (SIGG 23)</option>
+                            <option value="2023/2024">2023/2024 (SIGG 22)</option>
+                            <option value="2022/2023">2022/2023 (SIGG 21)</option>
+                            <option value="2021/2022">2021/2022 (SIGG 20)</option>
+                            <option value="2020/2021">2020/2021 (SIGG 19)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="tradeSearchInput">Search Ticker / Company:</label>
+                        <input type="text" id="tradeSearchInput" placeholder="e.g. KGH, Dino, Allegro, CDR..." class="filter-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="tradeFilterOutcome">Outcome:</label>
+                        <select id="tradeFilterOutcome">
+                            <option value="ALL">All Operations</option>
+                            <option value="WIN">Winners (+PnL)</option>
+                            <option value="LOSS">Losers (&le; 0 PnL)</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button id="exportTradesCsvBtn" class="btn secondary btn-sm" title="Download all executed trades as CSV">
+                            <i data-lucide="download" class="btn-icon"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <table id="tradesLogTable">
                         <thead>
                             <tr>
                                 <th>Season</th>
-                                <th>Ticker</th>
-                                <th>Entry Date</th>
-                                <th>Exit Date</th>
+                                <th>Ticker & Company</th>
+                                <th>Entry Session</th>
+                                <th>Type</th>
                                 <th>Shares</th>
-                                <th>Entry (PLN)</th>
-                                <th>Exit (PLN)</th>
-                                <th>Fees (PLN)</th>
-                                <th>Net PnL (PLN)</th>
+                                <th>Entry Price</th>
+                                <th>Position Value</th>
+                                <th>Exit Session</th>
+                                <th>Exit Price</th>
+                                <th>Total Fees</th>
+                                <th>Net PnL</th>
                                 <th>PnL (%)</th>
-                                <th>Sessions Held</th>
+                                <th>Hold Time</th>
+                                <th>Peak / Max Gain</th>
                                 <th>Exit Reason</th>
                             </tr>
                         </thead>
