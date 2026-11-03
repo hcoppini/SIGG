@@ -166,7 +166,7 @@ def get_strategy_md():
 @app.route('/api/settings', methods=['GET', 'POST'])
 def handle_settings():
     if request.method == 'POST':
-        new_s = request.json or {}
+        new_s = request.get_json(silent=True) or {}
         saved = save_settings(new_s)
         return jsonify({"status": "success", "settings": saved})
     return jsonify({"status": "success", "settings": load_settings()})
@@ -182,7 +182,7 @@ def get_portfolio():
 
 @app.route('/api/portfolio/buy', methods=['POST'])
 def portfolio_buy():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     ticker = data.get("ticker", "").strip()
     price = float(data.get("price", 0))
     atr = float(data.get("atr", price * 0.03))
@@ -198,7 +198,7 @@ def portfolio_buy():
 
 @app.route('/api/portfolio/sell', methods=['POST'])
 def portfolio_sell():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     ticker = data.get("ticker", "").strip()
     exit_price = float(data.get("exit_price", 0))
     reason = data.get("reason", "Manual_Exit")
@@ -217,7 +217,7 @@ def get_active_notifications():
 
 @app.route('/api/notifications/test', methods=['POST'])
 def test_discord_webhook():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     webhook_url = data.get("webhook_url", None)
     embed = {
         "title": "✅ [SIGG HUB TEST] Webhook Connection Verified",
@@ -236,7 +236,7 @@ def test_discord_webhook():
 
 @app.route('/api/notifications/dispatch', methods=['POST'])
 def manual_dispatch_alert():
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     window = data.get("window", "1635")
     
     portfolio_mgr.update_live_quotes()
@@ -260,7 +260,7 @@ def manual_dispatch_alert():
 @app.route('/api/scan', methods=['POST'])
 def run_scan():
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         strategy = data.get('strategy', 'squeeze_ignition')
         
         subprocess.run([sys.executable, "stock_scanner.py", "--strategy", strategy], check=True)
@@ -326,7 +326,7 @@ def _bg_backtest_worker(strategy, custom_params):
 @app.route('/api/backtest', methods=['POST'])
 def run_backtest():
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         strategy = data.get('strategy', 'squeeze_ignition')
         custom_params = data.get('params', None)
         
@@ -363,7 +363,7 @@ def get_backtest_results():
 @app.route('/api/optimize', methods=['POST'])
 def run_optimize():
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         strategy = data.get('strategy', 'breakout')
         opt_strategy = 'breakout' if strategy in ('squeeze_ignition', 'home_run') else strategy
         

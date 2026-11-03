@@ -1,7 +1,22 @@
 {
   "initial_capital": 20000.0,
-  "cash": 20000.0,
+  "cash": 19850.0,
   "positions": [],
-  "closed_trades": [],
-  "last_updated": "2026-11-01 23:35:38"
+  "closed_trades": [
+    {
+      "ticker": "ETFBW20ST",
+      "name": "Beta ETF WIG20 Short",
+      "entry_date": "2026-11-03",
+      "exit_date": "2026-11-03",
+      "entry_price": 162.20,
+      "exit_price": 162.00,
+      "shares": 123,
+      "entry_commission": 58.00,
+      "exit_commission": 57.56,
+      "pnl_gross": -24.60,
+      "pnl_net": -140.16,
+      "exit_reason": "Rule Violation / Fee Drag Reset"
+    }
+  ],
+  "last_updated": "2026-11-03 21:12:00"
 }
