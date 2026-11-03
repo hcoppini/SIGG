@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "notif_20261103_220821_994474",
+    "timestamp": "22:08:21",
+    "title": "16:35 CET Pre-Close Alert Dispatched",
+    "message": "Market Regime: RED. Evaluated 5 candidates.",
+    "level": "warning",
+    "details": {}
+  }
+]

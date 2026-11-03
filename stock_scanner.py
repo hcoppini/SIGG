@@ -42,20 +42,6 @@ def load_config(config_file: str = "Input/config.csv") -> Dict:
     return config
 
 def fetch_data_yfinance(ticker: str, period_days: int) -> Optional[pd.DataFrame]:
-    missing_marker = os.path.join("cache", f"{ticker}_1825.missing")
-    cache_path = os.path.join("cache", f"{ticker}_1825.csv")
-    if os.path.exists(missing_marker) and not os.path.exists(cache_path):
-        return None
-
-    # Use cached data if available for instant scanning, or live yfinance
-    if os.path.exists(cache_path):
-        try:
-            df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
-            if len(df) >= 30:
-                return df[['Open', 'High', 'Low', 'Close', 'Volume']].dropna().tail(120)
-        except Exception:
-            pass
-
     if period_days <= 30: period = '1mo'
     elif period_days <= 90: period = '3mo'
     elif period_days <= 180: period = '6mo'
@@ -66,9 +52,9 @@ def fetch_data_yfinance(ticker: str, period_days: int) -> Optional[pd.DataFrame]
         warnings.filterwarnings('ignore')
         try:
             ticker_obj = yf.Ticker(ticker)
-            hist = ticker_obj.history(period=period)
+            hist = ticker_obj.history(period=period, auto_adjust=True)
             if not hist.empty and 'Close' in hist.columns and 'Volume' in hist.columns:
-                if len(hist) >= 30:
+                if len(hist) >= 20:
                     return hist[['Open', 'High', 'Low', 'Close', 'Volume']].dropna()
         except Exception:
             pass

@@ -11,6 +11,7 @@ import json
 import os
 import urllib.request
 import urllib.error
+import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sigg_universe import get_sigg_symbol, get_tradingview_link
@@ -254,3 +255,55 @@ def dispatch_1650_fixing_action_sheet(portfolio_summary: Dict[str, Any], execute
     )
 
     return send_discord_webhook([embed], webhook_url=webhook_url)
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="SIGG Notification Dispatcher")
+    parser.add_argument("--type", choices=["preclose", "fixing", "test"], default="preclose", help="Alert type to dispatch")
+    args = parser.parse_args()
+    
+    from portfolio import PortfolioManager
+    pm = PortfolioManager()
+    summary = pm.get_summary()
+    
+    regime_file = os.path.join("Output", "market_regime.json")
+    regime_data = {"regime": "GREEN", "breadth_above_sma20_pct": 50, "index_change_pct": 0.0}
+    if os.path.exists(regime_file):
+        try:
+            with open(regime_file, "r", encoding="utf-8") as f:
+                regime_data = json.load(f)
+        except Exception:
+            pass
+            
+    if args.type == "preclose":
+        import glob
+        scan_files = glob.glob("Output/scan_results_*.csv")
+        candidates = []
+        if scan_files:
+            latest_csv = max(scan_files, key=os.path.getctime)
+            df = pd.read_csv(latest_csv).fillna("")
+            buys = df[df["Strategy_Signal"] == "Buy"]
+            candidates = buys.to_dict("records") if len(buys) > 0 else df.head(5).to_dict("records")
+        res = dispatch_1635_preclose_alert(regime_data, summary, candidates)
+        print("Preclose alert result:", res)
+    elif args.type == "fixing":
+        sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
+        vacant = summary.get("vacant_slots", 3) + len(sells)
+        candidates = []
+        import glob
+        scan_files = glob.glob("Output/scan_results_*.csv")
+        if scan_files:
+            latest_csv = max(scan_files, key=os.path.getctime)
+            df = pd.read_csv(latest_csv).fillna("")
+            buys = df[df["Strategy_Signal"] == "Buy"]
+            candidates = buys.to_dict("records")[:vacant] if len(buys) > 0 else []
+        res = dispatch_1650_fixing_action_sheet(summary, candidates, sells)
+        print("Fixing action sheet result:", res)
+    elif args.type == "test":
+        embed = {
+            "title": "✅ [SIGG DISPATCH TEST] Webhook Connection Verified",
+            "description": "Discord notifications are properly configured and operational for Stage 1 automated alerts.",
+            "color": 0x10b981
+        }
+        res = send_discord_webhook([embed])
+        print("Test alert result:", res)

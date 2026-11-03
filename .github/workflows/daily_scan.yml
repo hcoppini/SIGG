@@ -1,0 +1,66 @@
+name: Daily SIGG Cloud Scanner & Alert Dispatcher
+
+on:
+  schedule:
+    # 15:35 UTC = 16:35 CET (Monday to Friday) -> Pre-Close Scan & Evaluation
+    - cron: '35 15 * * 1-5'
+    # 15:50 UTC = 16:50 CET (Monday to Friday) -> Fixing Auction Action Sheet
+    - cron: '50 15 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      alert_type:
+        description: 'Alert Type (preclose or fixing)'
+        required: true
+        default: 'preclose'
+        type: choice
+        options:
+          - preclose
+          - fixing
+
+permissions:
+  contents: write
+
+jobs:
+  run-cloud-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Live Stock Scanner (Squeeze-Ignition)
+        run: |
+          python stock_scanner.py --strategy squeeze_ignition
+
+      - name: Dispatch Discord Alert
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          ALERT_TYPE="${{ github.event.inputs.alert_type }}"
+          if [ -z "$ALERT_TYPE" ]; then
+            MINUTE=$(date -u +%M)
+            if [ "$MINUTE" -ge 45 ]; then
+              ALERT_TYPE="fixing"
+            else
+              ALERT_TYPE="preclose"
+            fi
+          fi
+          echo "Dispatching alert type: $ALERT_TYPE"
+          python notifications.py --type "$ALERT_TYPE"
+
+      - name: Commit and Push Fresh Scan Results
+        run: |
+          git config --global user.name "SIGG Cloud Bot"
+          git config --global user.email "bot@sigg.local"
+          git add Output/scan_results_*.csv Output/market_regime.json Output/recent_notifications.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update daily scan results & market regime [skip ci]" && git push origin HEAD:master && git push origin HEAD:main)
