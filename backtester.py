@@ -29,10 +29,32 @@ warnings.filterwarnings('ignore', message='.*auto_adjust.*')
 from stock_scanner import (
     load_config, DEFAULT_STOCKS, calculate_atr, calculate_true_range, calculate_macd, calculate_rsi
 )
+from sigg_universe import get_sigg_name, get_sigg_symbol
 from data_cache import get_cached_data
 
 # In-memory cache to make interactive UI backtest runs near-instant
 _RAW_DATA_CACHE: Dict[str, pd.DataFrame] = {}
+
+def calculate_sharpe_ratio(equity_curve: List[Tuple[pd.Timestamp, float]], risk_free_rate: float = 0.0) -> float:
+    """
+    Computes annualized Sharpe ratio from daily equity curve.
+    Assumes 252 trading sessions per year.
+    """
+    if not equity_curve or len(equity_curve) < 2:
+        return 0.0
+    vals = [pt[1] for pt in equity_curve]
+    s = pd.Series(vals, dtype=float)
+    daily_returns = s.pct_change().dropna()
+    if len(daily_returns) < 2:
+        return 0.0
+    daily_rf = (1.0 + risk_free_rate) ** (1.0 / 252.0) - 1.0 if risk_free_rate > 0 else 0.0
+    excess_returns = daily_returns - daily_rf
+    std = float(excess_returns.std())
+    if std <= 1e-9:
+        return 0.0
+    mean = float(excess_returns.mean())
+    sharpe = (mean / std) * np.sqrt(252.0)
+    return round(float(sharpe), 2)
 
 DEFAULTS = { 
     'stocks': DEFAULT_STOCKS,
@@ -90,6 +112,7 @@ class Position:
     max_gain_pct: float = 0.0
     prev_low: float = 0.0
     entry_commission: float = 0.0
+    exec_type: str = "close_auction"
 
 class TruthfulBacktester:
     def __init__(self, cfg: Dict):
@@ -113,6 +136,19 @@ class TruthfulBacktester:
         self.hard_time_stop = bool(cfg.get('hard_time_stop', DEFAULTS['hard_time_stop']))
         self.exec_timing = str(cfg.get('exec_timing', DEFAULTS['exec_timing']))
         
+        # Strategy-specific defaults
+        if self.strategy == 'breakout_trend':
+            if 'hard_time_stop' not in cfg:
+                self.hard_time_stop = False
+            if 'max_hold_days_without_new_high' not in cfg:
+                self.max_hold_days = 7
+            if 'min_turnover_pln' not in cfg:
+                self.min_turnover_pln = 400000.0
+            if 'max_positions' not in cfg:
+                cfg['max_positions'] = 2
+                cfg['target_position_pct'] = 0.49
+                cfg['min_position_pct'] = 0.40
+        
         self.macd_cfg = cfg.get('macd', DEFAULTS['macd'])
         self.rsi_cfg = cfg.get('rsi', DEFAULTS['rsi'])
         
@@ -124,10 +160,19 @@ class TruthfulBacktester:
         
         self.max_positions = int(cfg.get('max_positions', DEFAULTS['max_positions']))
         self.max_total_exposure = float(cfg.get('max_total_exposure', DEFAULTS['max_total_exposure']))
-        self.target_position_pct = float(cfg.get('target_position_pct', round(0.99 / max(1, self.max_positions), 3)))
-        self.min_position_pct = float(cfg.get('min_position_pct', min(0.25, self.target_position_pct)))
+        
+        auto_target_pct = round(0.99 / max(1, self.max_positions), 3)
+        if 'target_position_pct' in cfg:
+            self.target_position_pct = float(cfg['target_position_pct'])
+        elif 'max_positions' in cfg and cfg['max_positions'] != 3:
+            self.target_position_pct = auto_target_pct
+        else:
+            self.target_position_pct = float(cfg.get('target_position_pct', DEFAULTS['target_position_pct']))
+            
+        self.min_position_pct = float(cfg.get('min_position_pct', min(0.25, self.target_position_pct * 0.8)))
         self.trailing_stop_atr_mult = float(cfg.get('trailing_stop_atr_mult', DEFAULTS['trailing_stop_atr_mult']))
-        self.max_hold_days = int(cfg.get('max_hold_days_without_new_high', DEFAULTS['max_hold_days_without_new_high']))
+        if self.strategy != 'breakout_trend' or 'max_hold_days_without_new_high' in cfg:
+            self.max_hold_days = int(cfg.get('max_hold_days_without_new_high', DEFAULTS['max_hold_days_without_new_high']))
         
         self.indicators: Dict[str, pd.DataFrame] = {}
         self.open_positions: Dict[str, Position] = {}
@@ -184,9 +229,9 @@ class TruthfulBacktester:
             df['sma50'] = close_prices.rolling(window=50).mean()
             df['turnover'] = close_prices * volumes
             
-            if self.strategy in ('squeeze_ignition', 'breakout', 'home_run'):
+            if self.strategy in ('squeeze_ignition', 'breakout', 'home_run', 'breakout_trend'):
                 df['donchian_high'] = high_prices.rolling(window=self.breakout_period).max().shift(1)
-                vol_window = 20 if self.strategy == 'squeeze_ignition' else self.breakout_period
+                vol_window = 20 if self.strategy in ('squeeze_ignition', 'breakout_trend') else self.breakout_period
                 df['sma_volume'] = volumes.rolling(window=vol_window).mean().shift(1)
             elif self.strategy == 'macd_rsi':
                 macd_df = calculate_macd(close_prices, **self.macd_cfg)
@@ -459,10 +504,11 @@ class TruthfulBacktester:
                                 runner_score = 0.4 * vol_surge + 0.4 * tr_rat + 0.2 * c_pos
                                 candidates.append((ticker, runner_score, atr, row))
                                 
-                        elif self.strategy in ('breakout', 'home_run'):
+                        elif self.strategy in ('breakout', 'home_run', 'breakout_trend'):
                             dh = float(row['donchian_high'])
                             v = float(row['volume'])
                             sv = float(row['sma_volume'])
+                            turn = float(row['turnover'])
                             
                             atr_pct = atr / c if c > 0 else 0
                             vol_surge = v / sv if sv > 0 else 0
@@ -470,8 +516,9 @@ class TruthfulBacktester:
                             is_breakout = c > dh
                             has_atr = atr_pct > self.atr_min_pct
                             has_vol = vol_surge > self.vol_surge_mult
+                            has_turnover = turn >= self.min_turnover_pln
                             
-                            if is_breakout and has_atr and has_vol:
+                            if is_breakout and has_atr and has_vol and has_turnover:
                                 candidates.append((ticker, vol_surge, atr, row))
                         elif self.strategy == 'macd_rsi':
                             hist_val = float(row['macd_hist'])

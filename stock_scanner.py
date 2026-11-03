@@ -178,6 +178,37 @@ def main():
     except Exception as e:
         print(f"Batch download warning: {e}")
 
+    # Layer 1: Top-Down Market Regime Filter (Evaluated before stock scanning)
+    for t, df_sub in batch_data.items():
+        try:
+            c = df_sub['Close']
+            if len(c) >= 20:
+                cur_c = float(c.iloc[-1])
+                prev_c = float(c.iloc[-2]) if len(c) >= 2 else cur_c
+                if prev_c > 0:
+                    daily_returns.append((cur_c - prev_c) / prev_c)
+                sma20 = float(c.rolling(20).mean().iloc[-1])
+                above_sma20_list.append(1 if cur_c > sma20 else 0)
+        except Exception:
+            pass
+
+    avg_mkt_ret = float(np.mean(daily_returns) * 100.0) if daily_returns else 0.0
+    breadth_sma20 = float(np.mean(above_sma20_list) * 100.0) if above_sma20_list else 50.0
+    index_above_sma20 = breadth_sma20 >= 45.0
+    
+    if not index_above_sma20 or avg_mkt_ret <= -1.2:
+        regime = "RED"
+        status_label = "LOCKED (Kill Switch Active)"
+        action_msg = "Zero new stock purchases. Hold 100% CASH (0 fee drag, 100% capital preserved). Wait for green ignition."
+    elif -1.2 < avg_mkt_ret <= -0.5:
+        regime = "YELLOW"
+        status_label = "RESTRICTED (Caution)"
+        action_msg = "Hold active winners; new entries require RelVol >= 3.0x."
+    else:
+        regime = "GREEN"
+        status_label = "UNLOCKED (Risk-On)"
+        action_msg = "Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold)."
+
     for ticker in valid_stocks:
         try:
             if ticker in batch_data:
@@ -199,10 +230,6 @@ def main():
                 continue
             
             day_gain_pct = ((latest_close - prev_close) / prev_close) if prev_close > 0 else 0.0
-            sma20_val = float(close_prices.rolling(20).mean().iloc[-1])
-            daily_returns.append(day_gain_pct)
-            above_sma20_list.append(1 if latest_close > sma20_val else 0)
-            
             stock_name = get_stock_name(ticker)
             chart_link = get_tradingview_chart_link(ticker)
             
@@ -257,13 +284,22 @@ def main():
                 c2_breakout = (latest_close > high_10_prev) and is_uptrend
                 c3_ignition = (tr_ratio >= 1.3) and (0.025 <= day_gain_pct <= 0.12)
                 c4_structure = (close_pos >= 0.70)
-                c5_liquidity = (vol_surge >= 1.5) and (turnover_pln >= 150000)
                 
-                strict_pass = (0.015 <= atr_pct_prev <= 0.040) and c2_breakout and (tr_ratio >= 1.8) and (0.03 <= day_gain_pct <= 0.09) and (close_pos >= 0.75) and (vol_surge >= 2.0) and (turnover_pln >= 400000)
+                # Layer 1 Caution Rule: on YELLOW days, new entries strictly require RelVol >= 3.0x
+                min_vol_t2 = 3.0 if regime == "YELLOW" else 1.5
+                min_vol_t1 = 3.0 if regime == "YELLOW" else 2.0
+                c5_liquidity = (vol_surge >= min_vol_t2) and (turnover_pln >= 150000)
+                
+                strict_pass = (0.015 <= atr_pct_prev <= 0.040) and c2_breakout and (tr_ratio >= 1.8) and (0.03 <= day_gain_pct <= 0.09) and (close_pos >= 0.75) and (vol_surge >= min_vol_t1) and (turnover_pln >= 400000)
                 burst_pass = c1_coil and c2_breakout and c3_ignition and c4_structure and c5_liquidity
                 
-                signal = "Buy" if (strict_pass or burst_pass) else "Hold"
-                tier = "TIER 1 (STRICT)" if strict_pass else ("TIER 2 (3D BURST)" if burst_pass else "WATCH")
+                # Layer 1 Kill Switch Rule: on RED days, ZERO new stock purchases allowed!
+                if regime == "RED":
+                    signal = "Hold"
+                    tier = "WATCH (KILL SWITCH ACTIVE)"
+                else:
+                    signal = "Buy" if (strict_pass or burst_pass) else "Hold"
+                    tier = "TIER 1 (STRICT)" if strict_pass else ("TIER 2 (3D BURST)" if burst_pass else "WATCH")
                 
                 results.append({
                     'Ticker': sigg_symbol,
@@ -364,23 +400,6 @@ def main():
     
     # Save Layer 1 Market Regime status
     os.makedirs('Output', exist_ok=True)
-    avg_mkt_ret = float(np.mean(daily_returns) * 100.0) if daily_returns else 0.0
-    breadth_sma20 = float(np.mean(above_sma20_list) * 100.0) if above_sma20_list else 50.0
-    index_above_sma20 = breadth_sma20 >= 45.0
-    
-    if not index_above_sma20 or avg_mkt_ret <= -1.2:
-        regime = "RED"
-        status_label = "LOCKED (Kill Switch Active)"
-        action_msg = "Zero new stock purchases. Hold 100% CASH (0 fee drag, 100% capital preserved). Wait for green ignition."
-    elif -1.2 < avg_mkt_ret <= -0.5:
-        regime = "YELLOW"
-        status_label = "RESTRICTED (Caution)"
-        action_msg = "Hold active winners; new entries require RelVol >= 3.0x."
-    else:
-        regime = "GREEN"
-        status_label = "UNLOCKED (Risk-On)"
-        action_msg = "Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold)."
-        
     with open("Output/market_regime.json", "w", encoding="utf-8") as f:
         json.dump({
             "regime": regime,
