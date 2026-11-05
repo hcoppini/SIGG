@@ -723,44 +723,88 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 1. SCANNER + MARKET REGIME + BT SUMMARY BAR
+    // 0.8 CONTEST SYNC BUTTON LISTENER
+    // ==========================================
+    const syncContestBtn = document.getElementById('syncContestBtn');
+    if (syncContestBtn) {
+        syncContestBtn.addEventListener('click', async () => {
+            const btnText = document.getElementById('syncContestBtnText');
+            syncContestBtn.disabled = true;
+            if (btnText) btnText.textContent = 'Syncing...';
+            try {
+                const res = await fetch('/api/contest/sync', { method: 'POST' });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showToast('Contest Synced', json.message || 'Holding positions and equity synchronized.', 'success');
+                    playChime();
+                    fetchPortfolio();
+                } else {
+                    showToast('Sync Failed', json.message || 'Could not connect to contest. Verify cURL.', 'error');
+                    fetchPortfolio();
+                }
+            } catch (err) {
+                showToast('Sync Error', 'Network error connecting to local hub API: ' + err, 'error');
+            } finally {
+                syncContestBtn.disabled = false;
+                if (btnText) btnText.textContent = 'Sync Contest';
+            }
+        });
+    }
+
+    // ==========================================
+    // 1. LIVE SCANNER & PODIUM ENGINE
     // ==========================================
     const runScanBtn = document.getElementById('runScanBtn');
-    const scanLoading = document.getElementById('scanLoading');
-    const scanTableBody = document.querySelector('#scanTable tbody');
+    const runScanBtnText = document.getElementById('runScanBtnText');
+    const scanTableBody = document.getElementById('scanTableBody') || document.querySelector('#scanTable tbody');
     const scanEmpty = document.getElementById('scanEmpty');
     const scanTableHeader = document.getElementById('scanTableHeader');
-    const scanCountBadge = document.getElementById('scanCountBadge');
+    const scanProgressCard = document.getElementById('scanProgressCard');
+    const scanProgressBar = document.getElementById('scanProgressBar');
+    const scanProgressStatus = document.getElementById('scanProgressStatus');
+    const scanProgressCount = document.getElementById('scanProgressCount');
+    const podiumCardsGrid = document.getElementById('podiumCardsGrid');
+    const podiumStatusBadge = document.getElementById('podiumStatusBadge');
+    const podiumSubtitle = document.getElementById('podiumSubtitle');
+    const filterAllBtn = document.getElementById('filterAllBtn');
+    const filterBuysBtn = document.getElementById('filterBuysBtn');
+    const ledgerSearchInput = document.getElementById('ledgerSearchInput');
+    const ledgerTotalCount = document.getElementById('ledgerTotalCount');
+    const ledgerBuysCount = document.getElementById('ledgerBuysCount');
+
+    let _allScannedStocks = [];
+    let _activeLedgerFilter = 'all';
+    let _ledgerSearchTerm = '';
+    let _activeScanSource = null;
 
     if (runScanBtn) {
-        runScanBtn.addEventListener('click', async () => {
-            runScanBtn.disabled = true;
-            if (scanLoading) scanLoading.classList.remove('hidden');
-            if (scanEmpty) scanEmpty.classList.add('hidden');
-            if (scanTableBody) scanTableBody.innerHTML = '';
+        runScanBtn.addEventListener('click', () => {
+            runLiveScanner();
+        });
+    }
 
-            try {
-                const res = await fetch('/api/scan', { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ strategy: getActiveStrategy() })
-                });
-                const json = await res.json();
-                
-                if (json.status === 'success') {
-                    if (json.market_regime) renderMarketRegime(json.market_regime);
-                    if (json.backtest_summary) renderScannerBacktestSummary(json.backtest_summary);
-                    populateScanTable(json.data, json.type, getActiveStrategy());
-                    showToast('Scan Completed', `Scanner successfully evaluated WIG140 universe (${json.data ? json.data.length : 0} signals).`, 'success');
-                } else {
-                    showToast('Scanner Error', json.message || 'Error running scanner', 'error');
-                }
-            } catch (e) {
-                showToast('Scanner Error', 'Scanner request failed: ' + e, 'error');
-            }
+    if (filterAllBtn) {
+        filterAllBtn.addEventListener('click', () => {
+            _activeLedgerFilter = 'all';
+            filterAllBtn.classList.add('active');
+            if (filterBuysBtn) filterBuysBtn.classList.remove('active');
+            renderLedgerTable();
+        });
+    }
 
-            if (scanLoading) scanLoading.classList.add('hidden');
-            runScanBtn.disabled = false;
+    if (filterBuysBtn) {
+        filterBuysBtn.addEventListener('click', () => {
+            _activeLedgerFilter = 'buys';
+            filterBuysBtn.classList.add('active');
+            if (filterAllBtn) filterAllBtn.classList.remove('active');
+            renderLedgerTable();
+        });
+    }
+
+    if (ledgerSearchInput) {
+        ledgerSearchInput.addEventListener('input', (e) => {
+            _ledgerSearchTerm = e.target.value || '';
+            renderLedgerTable();
         });
     }
 

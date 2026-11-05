@@ -391,6 +391,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 portActiveCount.textContent = String(positions.length);
             }
 
+            // Update Mobile Contest Status
+            const mobileDot = document.getElementById('mobileContestDot');
+            const mobileStatusText = document.getElementById('mobileContestStatusText');
+            const mobileRankPill = document.getElementById('mobileContestRankPill');
+            const cs = summary.contest_sync || {};
+
+            if (mobileDot && mobileStatusText) {
+                if (cs.status === 'synced') {
+                    mobileDot.style.background = '#34d399';
+                    mobileDot.style.boxShadow = '0 0 6px rgba(52, 211, 153, 0.8)';
+                    const timePart = cs.last_synced ? cs.last_synced.split(' ')[1] : '';
+                    mobileStatusText.textContent = `Contest: Synced ${timePart}`;
+                    mobileStatusText.style.color = '#34d399';
+                } else if (cs.status === 'expired') {
+                    mobileDot.style.background = '#fb7185';
+                    mobileDot.style.boxShadow = 'none';
+                    mobileStatusText.textContent = 'Contest: Expired';
+                    mobileStatusText.style.color = '#fb7185';
+                } else if (cs.status === 'error') {
+                    mobileDot.style.background = '#fbbf24';
+                    mobileDot.style.boxShadow = 'none';
+                    mobileStatusText.textContent = 'Contest: Error';
+                    mobileStatusText.style.color = '#fbbf24';
+                } else {
+                    mobileDot.style.background = '#94a3b8';
+                    mobileDot.style.boxShadow = 'none';
+                    mobileStatusText.textContent = 'Contest: Offline';
+                    mobileStatusText.style.color = '#94a3b8';
+                }
+            }
+
+            if (mobileRankPill) {
+                if (cs.rank) {
+                    mobileRankPill.classList.remove('hidden');
+                    mobileRankPill.textContent = `#${cs.rank}${cs.total_teams ? ' / ' + cs.total_teams : ''}`;
+                } else {
+                    mobileRankPill.classList.add('hidden');
+                }
+            }
+
             if (!mobileSlotsFeed) return;
             mobileSlotsFeed.innerHTML = '';
 
@@ -526,6 +566,33 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerHaptic(20);
             fetchMobilePortfolio();
             showMobileToast('Quotes Refreshed', 'Live quotes and stops updated.', 'info', 2000);
+        });
+    }
+
+    const mobileSyncContestBtn = document.getElementById('mobileSyncContestBtn');
+    if (mobileSyncContestBtn) {
+        mobileSyncContestBtn.addEventListener('click', async () => {
+            triggerHaptic(25);
+            const syncTxt = document.getElementById('mobileSyncContestText');
+            mobileSyncContestBtn.disabled = true;
+            if (syncTxt) syncTxt.textContent = '...';
+            try {
+                const res = await fetch('/api/contest/sync', { method: 'POST' });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showMobileToast('Contest Synced', json.message || 'Holding positions and equity synchronized.', 'success');
+                    playMobileChime();
+                    fetchMobilePortfolio();
+                } else {
+                    showMobileToast('Sync Failed', json.message || 'Could not connect to contest. Verify cURL in Desktop settings.', 'error');
+                    fetchMobilePortfolio();
+                }
+            } catch (err) {
+                showMobileToast('Sync Error', 'Network error connecting to local hub API: ' + err, 'error');
+            } finally {
+                mobileSyncContestBtn.disabled = false;
+                if (syncTxt) syncTxt.textContent = 'Sync';
+            }
         });
     }
 

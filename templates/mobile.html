@@ -144,6 +144,19 @@
                     <span id="portSlotAllocVal" class="port-cash-val">~6,666 PLN</span>
                 </div>
             </div>
+
+            <!-- CONTEST SYNC STATUS BAR -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span id="mobileContestDot" class="contest-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+                    <span id="mobileContestStatusText" style="font-size: 0.75rem; font-family: var(--font-mono); color: #cbd5e1;">Contest: Offline</span>
+                    <span id="mobileContestRankPill" class="contest-rank-badge hidden" style="padding: 2px 6px; font-size: 0.7rem;">#--</span>
+                </div>
+                <button id="mobileSyncContestBtn" class="btn-card-copy" style="padding: 3px 8px; font-size: 0.72rem; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="cloud-lightning" style="width: 12px; height: 12px; color: #facc15;"></i>
+                    <span id="mobileSyncContestText">Sync</span>
+                </button>
+            </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding: 0 0.25rem;">
