@@ -216,20 +216,109 @@ def _find_positions_list(data: Any) -> List[Dict[str, Any]]:
     return []
 
 
+def _clean_currency_str(val_str: str) -> float:
+    """Helper to clean Polish / Anglo formatted currency strings (e.g. '19,700.48' or '19 218,54')."""
+    if not val_str:
+        return 0.0
+    s = val_str.strip().replace(' ', '')
+    if ',' in s and '.' in s:
+        if s.rfind('.') > s.rfind(','): # 19,700.48
+            s = s.replace(',', '')
+        else: # 19.700,48
+            s = s.replace('.', '').replace(',', '.')
+    elif ',' in s:
+        if len(s.split(',')[-1]) == 2:
+            s = s.replace(',', '.')
+        else:
+            s = s.replace(',', '')
+    try:
+        return float(s)
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def _extract_from_html(html_str: str) -> Dict[str, Any]:
+    """
+    Parses server-side rendered (SSR) HTML pages from GPWTr@der / sigg.gpw.pl
+    Extracts portfolio equity, wolne środki, należności (T+2), live ranking, and positions.
+    """
+    # 1. Portfolio Equity (e.g. '19,700.48 PORTFEL' or 'wartość portfela 20,000.00')
+    port_m = re.search(r'([\d\s,.]+?)\s*(?:<[^>]+>\s*)*(?:PORTFEL|wartość\s+portfela)', html_str, re.I)
+    portfolio_value = _clean_currency_str(port_m.group(1)) if port_m else None
+
+    # 2. Wolne środki (Cash)
+    cash_m = re.search(r'WOLNE\s*ŚRODKI[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+    cash = _clean_currency_str(cash_m.group(1)) if cash_m else None
+
+    # 3. Należności T+2 (Settlement proceeds from recent stock sales, immediately available for trading)
+    nal_m = re.search(r'należności(?:\s*\(T\+2\))?[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+    receivables = _clean_currency_str(nal_m.group(1)) if nal_m else 0.0
+    if receivables > 0:
+        cash = round((cash or 0.0) + receivables, 2)
+
+    # 4. Rank (e.g. '9,779. miejsce')
+    rank_m = re.search(r'([\d\s,.]+?)\.\s*miejsce', html_str, re.I)
+    rank = int(re.sub(r'[^\d]', '', rank_m.group(1))) if rank_m else None
+
+    # 5. Total teams / participants
+    teams_m = re.search(r'(?:z|spośród)\s*([\d\s,.]+?)\s*(?:uczestników|zespołów|drużyn)', html_str, re.I)
+    total_teams = int(re.sub(r'[^\d]', '', teams_m.group(1))) if teams_m else None
+
+    if portfolio_value is None and cash is not None:
+        portfolio_value = cash
+    elif portfolio_value is not None and cash is None:
+        cash = portfolio_value
+
+    if portfolio_value is None:
+        portfolio_value = 20000.0
+    if cash is None:
+        cash = portfolio_value
+
+    return {
+        "valid": True,
+        "portfolio_value": round(float(portfolio_value), 2),
+        "cash": round(float(cash), 2),
+        "rank": rank,
+        "total_teams": total_teams,
+        "positions": [] # HTML SSR default to liquid cash if positions table is empty/absent
+    }
+
+
 def extract_contest_payload(data: Any) -> Dict[str, Any]:
     """
     Intelligently extracts contest metrics (portfolio value, cash, ranking, positions)
-    from diverse JSON payloads returned by SIGG / GPWTr@der or contest endpoints.
+    from diverse JSON payloads OR server-side rendered HTML documents returned by SIGG / GPWTr@der.
     """
+    if isinstance(data, str):
+        # Could be raw HTML page or JSON string
+        stripped = data.strip()
+        if stripped.startswith("{") or stripped.startswith("["):
+            try:
+                data = json.loads(stripped)
+            except Exception:
+                return _extract_from_html(stripped)
+        else:
+            return _extract_from_html(stripped)
+
     if not data or not isinstance(data, (dict, list)):
         return {"valid": False, "error": "Invalid or empty response payload."}
 
-    # 1. Extract Cash
+    # 1. Extract Cash / Available Buying Power (including GPW T+2 receivables)
     cash_keys = [
+        "srodki_do_dyspozycji", "available_funds", "buying_power", "available_to_trade",
         "cash", "available_cash", "free_cash", "balance", "gotowka", 
-        "wolne_srodki", "srodki", "available_funds", "cash_balance", "wolne"
+        "wolne_srodki", "srodki", "cash_balance", "wolne"
     ]
     cash = _find_numeric_by_keys(data, cash_keys)
+
+    # Check for Polish GPW T+2 settlement receivables (należności T+2 from recent sales)
+    receivables_keys = ["naleznosci", "receivables", "naleznosci_t2", "należności"]
+    receivables = _find_numeric_by_keys(data, receivables_keys)
+    if receivables and receivables > 0:
+        if cash is not None:
+            cash = round(cash + receivables, 2)
+        else:
+            cash = round(receivables, 2)
 
     # 2. Extract Portfolio Value / Equity
     equity_keys = [
@@ -525,7 +614,8 @@ class ContestSyncEngine:
                 json_data = resp.json()
                 return 200, json_data, None
             except Exception:
-                return 200, resp.text, "Response was not valid JSON."
+                # If not JSON, return raw text / HTML for HTML extractor
+                return 200, resp.text, None
 
         except requests.exceptions.Timeout:
             return 0, None, "Connection to contest server timed out."

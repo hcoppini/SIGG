@@ -117,6 +117,22 @@ class TestContestPayloadExtractor(unittest.TestCase):
         self.assertEqual(res["cash"], 19850.0)
         self.assertEqual(len(res["positions"]), 0)
 
+    def test_extract_html_gpwtrader_format(self):
+        sample_html = (
+            "<html><body>"
+            "<div class='donut-chart'>19,700.48 PORTFEL</div>"
+            "<div>WOLNE ŚRODKI 481.94 PLN</div>"
+            "<div>należności (T+2) 19,218.54 PLN</div>"
+            "<div class='ranking-box'>9,779. miejsce</div>"
+            "<div>początkowa wartość portfela 20,000.00 PLN</div>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertAlmostEqual(res["portfolio_value"], 19700.48)
+        self.assertAlmostEqual(res["cash"], 19700.48)  # 481.94 + 19,218.54 T+2 buying power
+        self.assertEqual(res["rank"], 9779)
+
 
 class TestPortfolioReconciliation(unittest.TestCase):
     def setUp(self):
