@@ -222,8 +222,9 @@ class PortfolioManager:
             gross_val = pos["shares"] * curr_p
             est_exit_comm = gross_val * self.commission_pct
             net_val = gross_val - est_exit_comm
-            pnl_pln = round(net_val - pos["total_entry_cost"], 2)
-            pnl_pct = round((pnl_pln / pos["total_entry_cost"]) * 100.0, 2)
+            cost_basis = pos.get("total_entry_cost", 0.0)
+            pnl_pln = round(net_val - cost_basis, 2)
+            pnl_pct = round((pnl_pln / cost_basis) * 100.0, 2) if cost_basis > 0 else 0.0
             
             pos["pnl_pln"] = pnl_pln
             pos["pnl_pct"] = pnl_pct

@@ -242,27 +242,83 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     Parses server-side rendered (SSR) HTML pages from GPWTr@der / sigg.gpw.pl
     Extracts portfolio equity, wolne środki, należności (T+2), live ranking, and positions.
     """
-    # 1. Portfolio Equity (e.g. '19,700.48 PORTFEL' or 'wartość portfela 20,000.00')
-    port_m = re.search(r'([\d\s,.]+?)\s*(?:<[^>]+>\s*)*(?:PORTFEL|wartość\s+portfela)', html_str, re.I)
+    # 1. Portfolio Equity (e.g. '19,700.48' in wallet-chart__title or 'PORTFEL')
+    port_m = re.search(r'class="wallet-chart__title"[^>]*>\s*<span[^>]*>([\d\s,.]+)</span>', html_str, re.I)
+    if not port_m:
+        port_m = re.search(r'([\d\s,.]+?)\s*(?:<[^>]+>\s*)*(?:PORTFEL|warto[sś][cć]\s+portfela)', html_str, re.I)
     portfolio_value = _clean_currency_str(port_m.group(1)) if port_m else None
 
     # 2. Wolne środki (Cash)
-    cash_m = re.search(r'WOLNE\s*ŚRODKI[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
-    cash = _clean_currency_str(cash_m.group(1)) if cash_m else None
+    cash_m = re.search(r'data-item-label="WOLNE[^"]*"[^>]*data-item-value="([\d.]+)"', html_str, re.I)
+    if not cash_m:
+        cash_m = re.search(r'WOLNE\s*ŚRODKI[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+        cash = _clean_currency_str(cash_m.group(1)) if cash_m else None
+    else:
+        cash = float(cash_m.group(1))
 
     # 3. Należności T+2 (Settlement proceeds from recent stock sales, immediately available for trading)
-    nal_m = re.search(r'należności(?:\s*\(T\+2\))?[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
-    receivables = _clean_currency_str(nal_m.group(1)) if nal_m else 0.0
+    nal_m = re.search(r'data-item-label="NALE[ŻZ]NO[^"]*"[^>]*data-item-value="([\d.]+)"', html_str, re.I)
+    if not nal_m:
+        nal_m = re.search(r'nale[żz]no(?:[sś]ci)?(?:\s*\(T\+2\))?[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+        receivables = _clean_currency_str(nal_m.group(1)) if nal_m else 0.0
+    else:
+        receivables = float(nal_m.group(1))
+
     if receivables > 0:
         cash = round((cash or 0.0) + receivables, 2)
 
     # 4. Rank (e.g. '9,779. miejsce')
-    rank_m = re.search(r'([\d\s,.]+?)\.\s*miejsce', html_str, re.I)
+    rank_m = re.search(r'<b>([\d\s,.]+?)\.\s*miejsce</b>', html_str, re.I)
+    if not rank_m:
+        rank_m = re.search(r'([\d\s,.]+?)\.\s*miejsce', html_str, re.I)
     rank = int(re.sub(r'[^\d]', '', rank_m.group(1))) if rank_m else None
 
     # 5. Total teams / participants
     teams_m = re.search(r'(?:z|spośród)\s*([\d\s,.]+?)\s*(?:uczestników|zespołów|drużyn)', html_str, re.I)
     total_teams = int(re.sub(r'[^\d]', '', teams_m.group(1))) if teams_m else None
+
+    # 6. Positions table (Table containing open positions, distinguishing from 'ostatnie zlecenia')
+    positions = []
+    all_tables = re.findall(r'<table[^>]*>(.*?)</table>', html_str, re.DOTALL | re.I)
+    for tbl in all_tables:
+        headers_text = " ".join(re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)).lower()
+        # Must be positions table: has 'otw' (kurs otwarcia pozycji) and not 'typ zlecenia'
+        if 'otw' in headers_text and 'typ zlecenia' not in headers_text and 'data z' not in headers_text:
+            tbody_m = re.search(r'<tbody>(.*?)</tbody>', tbl, re.DOTALL | re.I)
+            if tbody_m:
+                row_matches = re.findall(r'<tr[^>]*>(.*?)</tr>', tbody_m.group(1), re.DOTALL | re.I)
+                for r_html in row_matches:
+                    cols = re.findall(r'<td[^>]*>(.*?)</td>', r_html, re.DOTALL | re.I)
+                    if len(cols) >= 5:
+                        raw_sym = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[0]).strip()
+                        raw_vol = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[1]).strip()
+                        raw_price = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[2]).strip()
+                        raw_open_price = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[4]).strip() if len(cols) > 4 else raw_price
+                        
+                        sym = get_sigg_symbol(raw_sym)
+                        vol = int(_clean_currency_str(raw_vol)) if raw_vol else 0
+                        c_price = _clean_currency_str(raw_price)
+                        o_price = _clean_currency_str(raw_open_price)
+                        if sym and vol > 0 and (o_price > 0 or c_price > 0):
+                            positions.append({
+                                "symbol": sym,
+                                "ticker": SIGG_TO_TICKER.get(sym, f"{sym}.WA"),
+                                "name": get_sigg_name(sym),
+                                "shares": vol,
+                                "entry_price": o_price or c_price,
+                                "current_price": c_price or o_price
+                            })
+            break
+
+    # Check if page is unauthenticated login/landing page
+    if portfolio_value is None and cash is None and rank is None:
+        lower_html = html_str.lower()
+        if "zaloguj" in lower_html or "login" in lower_html or "logowanie" in lower_html:
+            return {
+                "valid": False,
+                "error": "Contest session expired or redirected to login (sigg.gpw.pl). Please refresh your contest tab and copy a fresh cURL."
+            }
+        return {"valid": False, "error": "Could not identify contest wallet metrics in page HTML."}
 
     if portfolio_value is None and cash is not None:
         portfolio_value = cash
@@ -280,7 +336,7 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
         "cash": round(float(cash), 2),
         "rank": rank,
         "total_teams": total_teams,
-        "positions": [] # HTML SSR default to liquid cash if positions table is empty/absent
+        "positions": positions
     }
 
 
@@ -646,6 +702,17 @@ class ContestSyncEngine:
             return {"status": "error", "message": err, "http_status": status_code}
 
         extracted = extract_contest_payload(raw_port_data)
+        if not extracted.get("valid"):
+            err_msg = extracted.get("error", "Unable to extract contest metrics.")
+            is_expired = "expired" in err_msg.lower() or "login" in err_msg.lower()
+            portfolio_mgr.state["contest_sync"] = {
+                "status": "expired" if is_expired else "error",
+                "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "error_message": err_msg
+            }
+            portfolio_mgr.save_state()
+            push_in_app_notification("Contest Sync Failed", err_msg, level="error")
+            return {"status": "error", "message": err_msg}
 
         # Check for optional ranking cURL if rank was not found in portfolio payload
         rank_curl = cfg.get("ranking_curl", "")

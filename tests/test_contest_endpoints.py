@@ -16,6 +16,10 @@ from contest_sync import contest_sync_engine
 class TestContestEndpoints(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
+        self._saved_state = json.loads(json.dumps(portfolio_mgr.state))
+
+    def tearDown(self):
+        portfolio_mgr.save_state(self._saved_state)
 
     def test_parse_curl_endpoint_valid(self):
         payload = {
