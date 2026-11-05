@@ -99,5 +99,37 @@ class TestAppEndpoints(unittest.TestCase):
         if os.path.exists(dummy_file):
             os.remove(dummy_file)
 
+    def test_get_scan_results_endpoint(self):
+        res = self.client.get('/api/results/scan?strategy=breakout_trend')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertIn('status', data)
+        self.assertIn('market_regime', data)
+
+    def test_get_scan_results_endpoint_squeeze_ignition(self):
+        res = self.client.get('/api/results/scan?strategy=squeeze_ignition')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertIn('status', data)
+        self.assertIn('market_regime', data)
+
+    def test_scan_endpoint_breakout_trend(self):
+        res = self.client.post('/api/scan', json={'strategy': 'breakout_trend'})
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data.get('status'), 'success', f"Scan API failed: {data}")
+        self.assertIn('data', data)
+        self.assertGreater(len(data['data']), 0)
+        self.assertIn('market_regime', data)
+
+    def test_scan_endpoint_squeeze_ignition(self):
+        res = self.client.post('/api/scan', json={'strategy': 'squeeze_ignition'})
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data.get('status'), 'success', f"Scan API failed: {data}")
+        self.assertIn('data', data)
+        self.assertGreater(len(data['data']), 0)
+        self.assertIn('market_regime', data)
+
 if __name__ == '__main__':
     unittest.main()

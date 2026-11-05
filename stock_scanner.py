@@ -10,6 +10,7 @@ import yfinance as yf
 from datetime import datetime
 import csv
 import os
+import sys
 import json
 import argparse
 import warnings
@@ -132,17 +133,70 @@ def load_ticker_backtest_stats(strategy: str) -> Dict[str, Dict]:
             pass
     return stats
 
-def main():
-    parser = argparse.ArgumentParser(description="Stock Scanner")
-    parser.add_argument('--strategy', type=str, default='breakout_trend', choices=['breakout_trend', 'squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
-    args = parser.parse_args()
+def calculate_podium(records: List[Dict], market_regime: Dict) -> Dict:
+    regime = market_regime.get("regime", "GREEN")
+    is_red = (regime == "RED")
     
-    print("=" * 60)
-    print(f"Stock Scanner (Strategy: {args.strategy})")
-    print("=" * 60)
+    if is_red:
+        return {
+            "is_locked": True,
+            "regime": "RED",
+            "status_label": "PODIUM LOCKED (Kill Switch Active)",
+            "action_msg": "Bearish market regime detected. Zero new stock purchases allowed. 100% capital preserved in cash.",
+            "picks": []
+        }
     
+    buys = [r for r in records if r.get('Strategy_Signal') == 'Buy']
+    if not buys:
+        return {
+            "is_locked": False,
+            "regime": regime,
+            "status_label": "UNLOCKED (No Qualified Breakouts Today)",
+            "action_msg": "Market conditions are favorable, but 0 stocks met strict breakout criteria today. Hold 100% cash.",
+            "picks": []
+        }
+    
+    def get_score(r):
+        return r.get('Runner_Score') or r.get('Momentum_Score') or 0.0
+    
+    sorted_buys = sorted(buys, key=get_score, reverse=True)
+    medals = ["1st Place", "2nd Place", "3rd Place"]
+    picks = []
+    for i, stock in enumerate(sorted_buys[:3]):
+        picks.append({
+            "rank": i + 1,
+            "medal": medals[i],
+            "ticker": stock.get("Ticker"),
+            "yahoo_ticker": stock.get("Yahoo_Ticker"),
+            "name": stock.get("Name"),
+            "close": stock.get("Close"),
+            "day_gain_pct": stock.get("Day_Gain_Pct"),
+            "runner_score": stock.get("Runner_Score"),
+            "volume_surge": stock.get("Volume_Surge"),
+            "stop_loss": stock.get("Stop_Loss"),
+            "target": stock.get("Target"),
+            "order_shares": stock.get("Order_Shares"),
+            "order_limit_price": stock.get("Order_Limit_Price"),
+            "order_ticket": stock.get("Order_Ticket"),
+            "tier": stock.get("Tier"),
+            "chart": stock.get("Chart")
+        })
+    
+    return {
+        "is_locked": False,
+        "regime": regime,
+        "status_label": f"UNLOCKED ({len(picks)} Allocated Breakout Picks)",
+        "action_msg": "Execute qualified buy orders in the 16:50 CET closing auction fixing window.",
+        "picks": picks
+    }
+
+def scan_market(
+    strategy: str = 'squeeze_ignition',
+    on_stock: Optional[callable] = None,
+    on_regime: Optional[callable] = None
+) -> Dict:
     config = load_config()
-    bt_ticker_stats = load_ticker_backtest_stats(args.strategy)
+    bt_ticker_stats = load_ticker_backtest_stats(strategy)
     
     from portfolio import PortfolioManager
     pm = PortfolioManager()
@@ -156,7 +210,6 @@ def main():
     
     valid_stocks = [t for t in config['stocks'] if t and t.upper() not in ['N/A', 'NA', '']]
     
-    # Fast multi-threaded batch download (reduces scan duration from 35s to ~4s)
     batch_data = {}
     try:
         raw_batch = yf.download(
@@ -166,7 +219,8 @@ def main():
             group_by="ticker",
             threads=True,
             progress=False,
-            auto_adjust=True
+            auto_adjust=True,
+            timeout=20
         )
         for t in valid_stocks:
             try:
@@ -209,7 +263,28 @@ def main():
         status_label = "UNLOCKED (Risk-On)"
         action_msg = "Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold)."
 
-    for ticker in valid_stocks:
+    regime_data = {
+        "regime": regime,
+        "status_label": status_label,
+        "action_msg": action_msg,
+        "index_change_pct": round(avg_mkt_ret, 2),
+        "breadth_above_sma20_pct": round(breadth_sma20, 1),
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    # Save Layer 1 Market Regime status
+    os.makedirs('Output', exist_ok=True)
+    with open("Output/market_regime.json", "w", encoding="utf-8") as f:
+        json.dump(regime_data, f, indent=2)
+
+    if on_regime:
+        try:
+            on_regime(regime_data)
+        except Exception:
+            pass
+
+    total_stocks = len(valid_stocks)
+    for idx, ticker in enumerate(valid_stocks):
         try:
             if ticker in batch_data:
                 df_data = batch_data[ticker]
@@ -277,7 +352,8 @@ def main():
             order_limit = round(latest_close * 1.005, 2)
             order_ticket = f"KUPNO | {sigg_symbol} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
             
-            if args.strategy == 'breakout_trend':
+            item = None
+            if strategy == 'breakout_trend':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
                 c1_coil = (atr_pct_prev >= 0.020)
                 c2_breakout = (latest_close > high_10_prev) and is_uptrend
@@ -294,9 +370,11 @@ def main():
                     signal = "Buy" if is_champion else "Hold"
                     tier = "CHAMPION BREAKOUT" if is_champion else "WATCH"
                 
-                stop_loss_price = latest_close - (2.0 * atr_prev)
+                stop_loss_price = latest_close - (2.0 * latest_atr)
+                risk_amt = max(0.01, latest_close - stop_loss_price)
+                rr_ratio = round(reward_amt / risk_amt, 2)
                 
-                results.append({
+                item = {
                     'Ticker': sigg_symbol,
                     'Yahoo_Ticker': ticker,
                     'Name': stock_name,
@@ -321,9 +399,9 @@ def main():
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
                     'Chart': chart_link,
-                })
+                }
                 
-            elif args.strategy == 'squeeze_ignition':
+            elif strategy == 'squeeze_ignition':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
                 
                 c1_coil = (0.015 <= atr_pct_prev <= 0.080)
@@ -331,7 +409,6 @@ def main():
                 c3_ignition = (tr_ratio >= 1.3) and (0.025 <= day_gain_pct <= 0.12)
                 c4_structure = (close_pos >= 0.70)
                 
-                # Layer 1 Caution Rule: on YELLOW days, new entries strictly require RelVol >= 3.0x
                 min_vol_t2 = 3.0 if regime == "YELLOW" else 1.5
                 min_vol_t1 = 3.0 if regime == "YELLOW" else 2.0
                 c5_liquidity = (vol_surge >= min_vol_t2) and (turnover_pln >= 150000)
@@ -339,7 +416,6 @@ def main():
                 strict_pass = (0.015 <= atr_pct_prev <= 0.040) and c2_breakout and (tr_ratio >= 1.8) and (0.03 <= day_gain_pct <= 0.09) and (close_pos >= 0.75) and (vol_surge >= min_vol_t1) and (turnover_pln >= 400000)
                 burst_pass = c1_coil and c2_breakout and c3_ignition and c4_structure and c5_liquidity
                 
-                # Layer 1 Kill Switch Rule: on RED days, ZERO new stock purchases allowed!
                 if regime == "RED":
                     signal = "Hold"
                     tier = "WATCH (KILL SWITCH ACTIVE)"
@@ -347,7 +423,7 @@ def main():
                     signal = "Buy" if (strict_pass or burst_pass) else "Hold"
                     tier = "TIER 1 (STRICT)" if strict_pass else ("TIER 2 (3D BURST)" if burst_pass else "WATCH")
                 
-                results.append({
+                item = {
                     'Ticker': sigg_symbol,
                     'Yahoo_Ticker': ticker,
                     'Name': stock_name,
@@ -372,11 +448,11 @@ def main():
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
                     'Chart': chart_link,
-                })
+                }
                 
-            elif args.strategy in ('breakout', 'home_run'):
-                b_period = 25 if args.strategy == 'home_run' else config['breakout']['period']
-                min_atr = 0.05 if args.strategy == 'home_run' else config['atr']['min_pct']
+            elif strategy in ('breakout', 'home_run'):
+                b_period = 25 if strategy == 'home_run' else config['breakout']['period']
+                min_atr = 0.05 if strategy == 'home_run' else config['atr']['min_pct']
                 donchian_high = high_prices.rolling(window=b_period).max().shift(1)
                 prev_donchian_high = float(donchian_high.iloc[-1])
                 
@@ -386,7 +462,7 @@ def main():
                 
                 signal = "Buy" if (is_breakout and has_atr and has_vol and is_uptrend) else "Hold"
                 
-                results.append({
+                item = {
                     'Ticker': sigg_symbol,
                     'Yahoo_Ticker': ticker,
                     'Name': stock_name,
@@ -405,9 +481,9 @@ def main():
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
                     'Chart': chart_link,
-                })
+                }
                 
-            elif args.strategy == 'macd_rsi':
+            elif strategy == 'macd_rsi':
                 macd_df = calculate_macd(close_prices, **config['macd'])
                 rsi_series = calculate_rsi(close_prices, config['rsi']['period'])
                 
@@ -423,7 +499,7 @@ def main():
                 signal = "Buy" if (has_momentum and in_momentum_band and has_vol and is_uptrend and solid_rr) else "Hold"
                 momentum_score = (abs(hist_pct) * 10.0 + (rsi_val / 10.0)) * vol_surge * (1.3 if is_uptrend else 0.7)
                 
-                results.append({
+                item = {
                     'Ticker': sigg_symbol,
                     'Yahoo_Ticker': ticker,
                     'Name': stock_name,
@@ -439,31 +515,35 @@ def main():
                     'BT_Stats': bt_summary_str,
                     'Strategy_Signal': signal,
                     'Chart': chart_link,
-                })
-                
+                }
+            
+            if item:
+                results.append(item)
+                if on_stock:
+                    try:
+                        on_stock(item, idx + 1, total_stocks)
+                    except Exception:
+                        pass
+                    
         except Exception as e:
             pass
-    
-    # Save Layer 1 Market Regime status
-    os.makedirs('Output', exist_ok=True)
-    with open("Output/market_regime.json", "w", encoding="utf-8") as f:
-        json.dump({
-            "regime": regime,
-            "status_label": status_label,
-            "action_msg": action_msg,
-            "index_change_pct": round(avg_mkt_ret, 2),
-            "breadth_above_sma20_pct": round(breadth_sma20, 1),
-            "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }, f, indent=2)
 
     if not results:
         print("ERROR: No results to save!")
-        return
+        return {
+            "status": "error",
+            "message": "No results to save!",
+            "regime": regime_data,
+            "all_stocks": [],
+            "data": [],
+            "top_3": calculate_podium([], regime_data),
+            "csv_path": None
+        }
         
     df = pd.DataFrame(results)
     df['_sort_priority'] = df['Strategy_Signal'].apply(lambda x: 0 if x == 'Buy' else 1)
     
-    if args.strategy in ('breakout_trend', 'squeeze_ignition', 'breakout', 'home_run'):
+    if strategy in ('breakout_trend', 'squeeze_ignition', 'breakout', 'home_run'):
         sort_col = 'Runner_Score' if 'Runner_Score' in df.columns else 'Volume_Surge'
         df = df.sort_values(['_sort_priority', sort_col], ascending=[True, False])
     else:
@@ -471,9 +551,44 @@ def main():
         
     df = df.drop(columns=['_sort_priority'])
     
+    sorted_records = df.to_dict('records')
+    top_3 = calculate_podium(sorted_records, regime_data)
+    buys = df[df['Strategy_Signal'] == 'Buy']
+    
     output_path = config['output_file']
     os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else 'Output', exist_ok=True)
     df.to_csv(output_path, index=False, encoding='utf-8-sig')
+    
+    # Also save latest copy for fast reference
+    try:
+        df.to_csv("Output/scan_results_latest.csv", index=False, encoding='utf-8-sig')
+    except Exception:
+        pass
+        
+    return {
+        "status": "success",
+        "regime": regime_data,
+        "all_stocks": sorted_records,
+        "data": buys.to_dict('records') if len(buys) > 0 else sorted_records[:10],
+        "top_3": top_3,
+        "type": "buys" if len(buys) > 0 else "closest",
+        "csv_path": output_path
+    }
+
+def main():
+    parser = argparse.ArgumentParser(description="Stock Scanner")
+    parser.add_argument('--strategy', type=str, default='breakout_trend', choices=['breakout_trend', 'squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
+    args = parser.parse_args()
+    
+    print("=" * 60)
+    print(f"Stock Scanner (Strategy: {args.strategy})")
+    print("=" * 60)
+    
+    res = scan_market(strategy=args.strategy)
+    output_path = res.get('csv_path')
+    if not res.get('all_stocks'):
+        print("ERROR: No results to save!")
+        sys.exit(1)
     print(f"CSV FILE SAVED SUCCESSFULLY: {output_path}")
 
 if __name__ == "__main__":

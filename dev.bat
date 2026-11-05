@@ -86,7 +86,7 @@ echo ==========================================
 echo.
 
 REM Run the Trading Hub using venv Python
-python app.py
+"%VENV_DIR%\Scripts\python.exe" app.py
 
 if errorlevel 1 (
     echo.

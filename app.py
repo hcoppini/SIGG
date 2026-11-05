@@ -1,13 +1,23 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file
+from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file, Response, stream_with_context
 import subprocess
 import threading
 import glob
 import os
 import time
 import json
+import queue
 import pandas as pd
 import sys
 from datetime import datetime, timezone, timedelta
+
+def get_python_executable():
+    win_venv = os.path.join(os.path.dirname(__file__), 'venv', 'Scripts', 'python.exe')
+    unix_venv = os.path.join(os.path.dirname(__file__), 'venv', 'bin', 'python')
+    if os.path.exists(win_venv):
+        return win_venv
+    if os.path.exists(unix_venv):
+        return unix_venv
+    return sys.executable
 
 try:
     from zoneinfo import ZoneInfo
@@ -17,11 +27,13 @@ except Exception:
 
 from backtester import run_5year_backtest, _RAW_DATA_CACHE
 from portfolio import PortfolioManager
+from stock_scanner import scan_market, calculate_podium
 from notifications import (
     load_settings, save_settings, send_discord_webhook,
     dispatch_1635_preclose_alert, dispatch_1650_fixing_action_sheet,
     get_recent_in_app_notifications, push_in_app_notification
 )
+from contest_sync import contest_sync_engine, parse_curl_command
 
 app = Flask(__name__)
 
@@ -35,7 +47,7 @@ def get_latest_csv(prefix):
     files = glob.glob(f"Output/{prefix}_*.csv")
     if not files:
         return None
-    return max(files, key=os.path.getctime)
+    return max(files, key=os.path.getmtime)
 
 def get_market_regime():
     regime_file = "Output/market_regime.json"
@@ -94,12 +106,32 @@ def _run_scheduled_automation_loop():
             # Run only on weekdays during market hours
             if weekday < 5 and minute_key != _LAST_DISPATCHED_MINUTE:
                 settings = load_settings()
-                
+                hh = int(now_cet.strftime("%H"))
+                mm = int(now_cet.strftime("%M"))
+
+                # Periodic Contest Sync every 10 mins during GPW market hours (09:00 - 17:05 CET)
+                if (9 <= hh < 17 or (hh == 17 and mm <= 10)) and mm % 10 == 0:
+                    try:
+                        contest_cfg = contest_sync_engine.load_config()
+                        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+                            contest_sync_engine.sync_now(portfolio_mgr)
+                    except Exception as e:
+                        print(f"[{datetime.now()}] Error in background contest sync: {e}")
+
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
                     print(f"[{datetime.now()}] Triggering scheduled 16:35 CET pre-close scan & alert...")
-                    subprocess.run([sys.executable, "stock_scanner.py", "--strategy", "squeeze_ignition"], check=True)
+                    
+                    # Ensure latest contest positions & balance are synced first
+                    try:
+                        contest_cfg = contest_sync_engine.load_config()
+                        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+                            contest_sync_engine.sync_now(portfolio_mgr)
+                    except Exception:
+                        pass
+
+                    scan_market(strategy="squeeze_ignition")
                     portfolio_mgr.update_live_quotes()
                     regime = get_market_regime()
                     summary = portfolio_mgr.get_summary()
@@ -110,6 +142,15 @@ def _run_scheduled_automation_loop():
                 elif hh_mm == "16:50" and settings.get("auto_dispatch_1650", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
                     print(f"[{datetime.now()}] Triggering scheduled 16:50 CET fixing action sheet...")
+                    
+                    # Ensure latest contest positions are synced first
+                    try:
+                        contest_cfg = contest_sync_engine.load_config()
+                        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+                            contest_sync_engine.sync_now(portfolio_mgr)
+                    except Exception:
+                        pass
+
                     portfolio_mgr.update_live_quotes()
                     summary = portfolio_mgr.get_summary()
                     
@@ -211,6 +252,69 @@ def portfolio_sell():
         push_in_app_notification("Position Liquidated", f"Sold {ticker} at {exit_price:.2f} PLN (PnL: {res['trade']['net_pnl_pln']:+.2f} PLN)", level="warning")
     return jsonify(res)
 
+# -------------------------------------------------------------
+# SIGG Contest Synchronization Endpoints
+# -------------------------------------------------------------
+@app.route('/api/contest/curl/parse', methods=['POST'])
+def contest_curl_parse():
+    data = request.get_json(silent=True) or {}
+    curl_str = data.get("curl", "").strip()
+    if not curl_str:
+        return jsonify({"status": "error", "message": "No curl string provided."})
+    
+    parsed = parse_curl_command(curl_str)
+    if not parsed.get("success"):
+        return jsonify({"status": "error", "message": parsed.get("error", "Failed to parse curl command.")})
+    
+    return jsonify({"status": "success", "parsed": parsed})
+
+@app.route('/api/contest/config', methods=['GET', 'POST'])
+def contest_config_route():
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        p_curl = data.get("portfolio_curl", "")
+        r_curl = data.get("ranking_curl", "")
+        enabled = bool(data.get("enabled", True))
+        saved = contest_sync_engine.save_config(p_curl, r_curl, enabled=enabled)
+        return jsonify({"status": "success", "config": saved})
+    
+    cfg = contest_sync_engine.load_config()
+    return jsonify({"status": "success", "config": cfg})
+
+@app.route('/api/contest/sync', methods=['POST'])
+def contest_sync_now():
+    try:
+        res = contest_sync_engine.sync_now(portfolio_mgr)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Contest sync exception: {str(e)}"})
+
+@app.route('/api/contest/mock_sync', methods=['POST'])
+def contest_mock_sync():
+    data = request.get_json(silent=True) or {}
+    if not data:
+        return jsonify({"status": "error", "message": "Empty mock data payload."})
+    res = contest_sync_engine.mock_sync(data, portfolio_mgr)
+    return jsonify(res)
+
+@app.route('/api/contest/status', methods=['GET'])
+def contest_status():
+    summary = portfolio_mgr.get_summary()
+    sync_meta = portfolio_mgr.state.get("contest_sync", {
+        "status": "unconfigured",
+        "last_synced": None,
+        "rank": None,
+        "total_teams": None
+    })
+    cfg = contest_sync_engine.load_config()
+    return jsonify({
+        "status": "success",
+        "contest_sync": sync_meta,
+        "is_configured": bool(cfg.get("portfolio_curl")),
+        "is_enabled": cfg.get("enabled", False),
+        "summary": summary
+    })
+
 @app.route('/api/notifications/active', methods=['GET'])
 def get_active_notifications():
     return jsonify({"status": "success", "data": get_recent_in_app_notifications()})
@@ -263,11 +367,88 @@ def run_scan():
         data = request.get_json(silent=True) or {}
         strategy = data.get('strategy', 'breakout_trend')
         
-        subprocess.run([sys.executable, "stock_scanner.py", "--strategy", strategy], check=True)
-        latest_csv = get_latest_csv("scan_results")
-        
-        if latest_csv:
+        res = scan_market(strategy=strategy)
+        if res.get("status") == "error":
+            return jsonify({"status": "error", "message": res.get("message", "Scanner failed")})
+            
+        return jsonify({
+            "status": "success",
+            "data": res["data"],
+            "all_stocks": res.get("all_stocks", []),
+            "top_3": res.get("top_3", calculate_podium(res.get("all_stocks", []), res.get("regime", {}))),
+            "type": res.get("type", "buys"),
+            "market_regime": res.get("regime", get_market_regime()),
+            "backtest_summary": get_backtest_summary_for_scanner(strategy)
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/api/scan/stream', methods=['GET', 'POST'])
+def scan_stream():
+    strategy = request.args.get('strategy') or (request.get_json(silent=True) or {}).get('strategy', 'squeeze_ignition')
+    q = queue.Queue()
+    
+    def worker():
+        try:
+            def on_regime(regime_data):
+                q.put({"type": "regime", "data": regime_data})
+                
+            def on_stock(stock_dict, idx, total):
+                q.put({
+                    "type": "stock",
+                    "index": idx,
+                    "total": total,
+                    "stock": stock_dict
+                })
+                
+            res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime)
+            q.put({
+                "type": "complete",
+                "market_regime": res.get("regime", {}),
+                "top_3": res.get("top_3", {}),
+                "data": res.get("data", []),
+                "all_stocks": res.get("all_stocks", []),
+                "type_mode": res.get("type", "buys"),
+                "stats": {
+                    "total": len(res.get("all_stocks", [])),
+                    "buys": len([s for s in res.get("all_stocks", []) if s.get("Strategy_Signal") == "Buy"])
+                }
+            })
+        except Exception as e:
+            q.put({"type": "error", "message": str(e)})
+        finally:
+            q.put(None)
+            
+    threading.Thread(target=worker, daemon=True).start()
+    
+    def generate():
+        while True:
+            item = q.get()
+            if item is None:
+                break
+            evt_type = item.get("type", "message")
+            yield f"event: {evt_type}\ndata: {json.dumps(item)}\n\n"
+            
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        }
+    )
+
+@app.route('/api/results/scan', methods=['GET'])
+def get_scan_results():
+    strategy = request.args.get('strategy', 'breakout_trend')
+    latest_csv = get_latest_csv("scan_results")
+    regime = get_market_regime()
+    if latest_csv:
+        try:
             df = pd.read_csv(latest_csv).fillna('')
+            all_records = df.to_dict('records')
+            top_3 = calculate_podium(all_records, regime)
             buys = df[df['Strategy_Signal'] == 'Buy']
             if len(buys) == 0:
                 results = df.head(10).to_dict('records')
@@ -278,38 +459,22 @@ def run_scan():
             return jsonify({
                 "status": "success",
                 "data": results,
+                "all_stocks": all_records,
+                "top_3": top_3,
                 "type": scan_type,
-                "market_regime": get_market_regime(),
+                "market_regime": regime,
                 "backtest_summary": get_backtest_summary_for_scanner(strategy)
             })
-        return jsonify({"status": "error", "message": "No output found."})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-@app.route('/api/results/scan', methods=['GET'])
-def get_scan_results():
-    strategy = request.args.get('strategy', 'breakout_trend')
-    latest_csv = get_latest_csv("scan_results")
-    if latest_csv:
-        df = pd.read_csv(latest_csv).fillna('')
-        buys = df[df['Strategy_Signal'] == 'Buy']
-        if len(buys) == 0:
-            results = df.head(10).to_dict('records')
-            scan_type = "closest"
-        else:
-            results = buys.to_dict('records')
-            scan_type = "buys"
-        return jsonify({
-            "status": "success",
-            "data": results,
-            "type": scan_type,
-            "market_regime": get_market_regime(),
-            "backtest_summary": get_backtest_summary_for_scanner(strategy)
-        })
+        except Exception as e:
+            pass
+            
     return jsonify({
         "status": "error",
         "message": "No previous scan found.",
-        "market_regime": get_market_regime(),
+        "all_stocks": [],
+        "data": [],
+        "top_3": calculate_podium([], regime),
+        "market_regime": regime,
         "backtest_summary": get_backtest_summary_for_scanner(strategy)
     })
 

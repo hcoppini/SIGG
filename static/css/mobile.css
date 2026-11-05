@@ -1092,3 +1092,75 @@ body {
 .font-mono { font-family: var(--font-mono) !important; }
 .font-bold { font-weight: 700 !important; }
 .hidden { display: none !important; }
+
+/* Mobile Podium Styles */
+.podium-mobile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.mobile-podium-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.5rem;
+}
+
+.mobile-podium-card {
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-accent);
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.mobile-podium-card.rank-1 {
+    border-color: #f59e0b;
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, var(--bg-card-subtle) 100%);
+}
+
+.mobile-podium-card.rank-2 {
+    border-color: #94a3b8;
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, var(--bg-card-subtle) 100%);
+}
+
+.mobile-podium-card.rank-3 {
+    border-color: #d97706;
+    background: linear-gradient(180deg, rgba(217, 119, 6, 0.06) 0%, var(--bg-card-subtle) 100%);
+}
+
+.mobile-podium-locked {
+    background: rgba(244, 63, 94, 0.08);
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.mobile-podium-locked-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.mobile-podium-locked-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fb7185;
+    margin-bottom: 0.25rem;
+}
+
+.mobile-podium-locked-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.pill-btn-mobile.active {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent) !important;
+}

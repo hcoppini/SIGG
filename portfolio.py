@@ -296,6 +296,7 @@ class PortfolioManager:
             "closed_trades_count": len(closed),
             "win_rate": win_rate,
             "closed_trades": closed,
+            "contest_sync": self.state.get("contest_sync", {"status": "unconfigured"}),
             "last_updated": self.state.get("last_updated")
         }
 

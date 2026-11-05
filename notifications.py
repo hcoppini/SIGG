@@ -131,6 +131,18 @@ def dispatch_1635_preclose_alert(regime_data: Dict[str, Any], portfolio_summary:
         "timestamp": datetime.utcnow().isoformat()
     }
 
+    # Add verified contest standing if synced
+    contest_meta = portfolio_summary.get("contest_sync", {})
+    if contest_meta and contest_meta.get("status") == "synced":
+        rank_val = contest_meta.get("rank")
+        total_t = contest_meta.get("total_teams")
+        rank_display = f"#{rank_val}" + (f" / {total_t}" if total_t else "") if rank_val else "N/A"
+        embed_regime["fields"].append({
+            "name": "🏆 Live Contest Standing",
+            "value": f"Rank: `{rank_display}` | Verified Equity: `{contest_meta.get('contest_equity', 0):,.2f} PLN`",
+            "inline": True
+        })
+
     # Positions to liquidate or watch
     pos_fields = []
     positions = portfolio_summary.get("positions", [])
@@ -210,6 +222,17 @@ def dispatch_1650_fixing_action_sheet(portfolio_summary: Dict[str, Any], execute
         "footer": {"text": "SIGG Stage 1 • Trade the Chart, Never the Leaderboard"},
         "timestamp": datetime.utcnow().isoformat()
     }
+
+    contest_meta = portfolio_summary.get("contest_sync", {})
+    if contest_meta and contest_meta.get("status") == "synced":
+        rank_val = contest_meta.get("rank")
+        total_t = contest_meta.get("total_teams")
+        rank_display = f"#{rank_val}" + (f" / {total_t}" if total_t else "") if rank_val else "N/A"
+        embed["fields"].append({
+            "name": "🏆 Contest Snapshot",
+            "value": f"Rank: `{rank_display}` | Verified Equity: `{contest_meta.get('contest_equity', 0):,.2f} PLN`",
+            "inline": True
+        })
 
     if execute_sells:
         sells_txt = []

@@ -42,27 +42,71 @@
     <div id="mobileToastContainer" class="mobile-toast-container"></div>
 
     <!-- ==========================================
-         TAB 1: SIGNALS (FEED OF TOUCH CARDS)
+         TAB 1: SIGNALS & LIVE SCANNER
          ========================================== -->
     <main id="signalsView" class="mobile-view active">
+        <!-- TOP 3 ALLOCATION PODIUM (MOBILE) -->
+        <div id="mobilePodiumSection" class="feed-header-card podium-mobile-card">
+            <div class="feed-header-row" style="margin-bottom: 0.5rem;">
+                <div class="feed-title">
+                    <span style="font-size: 1.1rem;">🏆</span>
+                    <span>Top 3 Allocation Podium</span>
+                </div>
+                <span id="mobilePodiumBadge" class="feed-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">UNLOCKED</span>
+            </div>
+            <div id="mobilePodiumGrid" class="mobile-podium-grid">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
+
         <div class="feed-header-card">
             <div class="feed-header-row">
                 <div class="feed-title">
                     <i data-lucide="radar" style="width: 18px; height: 18px; color: var(--accent);"></i>
-                    <span>Squeeze-Ignition Signals</span>
+                    <span id="mobileFeedTitle">Live Stock Scanner</span>
                 </div>
-                <span id="mobileSignalCount" class="feed-badge">0 signals</span>
+                <span id="mobileSignalCount" class="feed-badge">0 / 140 scanned</span>
             </div>
             
-            <button id="mobileRunScanBtn" class="scan-action-btn">
+            <div style="margin: 0.5rem 0 0.35rem 0;">
+                <select id="mobileStrategySelect" class="mobile-input" style="padding: 0.5rem 0.65rem; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; width: 100%;">
+                    <option value="squeeze_ignition" selected>Squeeze-Ignition (3-Day Burst)</option>
+                    <option value="breakout_trend">Breakout Trend-Rider (SIGG Champion +82.9%)</option>
+                    <option value="breakout">High-Velocity Breakout</option>
+                    <option value="home_run">Home Run Chaser (All-In Risk)</option>
+                    <option value="macd_rsi">RSI-Filtered MACD Momentum</option>
+                </select>
+            </div>
+            
+            <button id="mobileRunScanBtn" class="scan-action-btn" style="margin-top: 0.5rem;">
                 <i data-lucide="play" style="width: 18px; height: 18px;"></i>
-                <span>Run Scanner Now (16:35 CET)</span>
+                <span id="mobileRunBtnText">Run Live Scanner</span>
             </button>
         </div>
 
-        <div id="mobileSignalsLoading" class="feed-header-card hidden" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-            <i data-lucide="loader" class="icon-inline" style="animation: spin 1s linear infinite;"></i>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Evaluating WIG140 universe on server...</p>
+        <!-- MOBILE STREAMING PROGRESS -->
+        <div id="mobileScanProgressCard" class="feed-header-card hidden" style="padding: 0.85rem 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; color: #fff;">
+                    <span class="status-dot"></span>
+                    <span id="mobileProgressText">Evaluating stocks live...</span>
+                </div>
+                <span id="mobileProgressCount" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);">0 / 140 (0%)</span>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div id="mobileProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); transition: width 0.15s ease;"></div>
+            </div>
+        </div>
+
+        <!-- SEARCH & FILTER ROW -->
+        <div class="mobile-filter-strip" style="display: flex; gap: 0.5rem; margin-bottom: 0.65rem; padding: 0 0.25rem;">
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="mobileSearchInput" placeholder="Filter ticker or name..." style="width: 100%; padding: 0.45rem 0.65rem; background: var(--bg-card); border: 1px solid var(--border-accent); border-radius: 8px; color: #fff; font-size: 0.8rem; outline: none;">
+            </div>
+            <div style="display: flex; gap: 0.25rem;">
+                <button id="mobileFilterAllBtn" class="pill-btn-mobile active" data-filter="all" style="padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: var(--accent); color: #fff; border: none;">All</button>
+                <button id="mobileFilterBuysBtn" class="pill-btn-mobile" data-filter="buys" style="padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-accent);">Buys</button>
+            </div>
         </div>
 
         <div id="mobileSignalsFeed">

@@ -61,6 +61,10 @@
                 <span id="sidebarEquity" class="val">20,000 PLN</span>
             </div>
             <div class="stat-pill">
+                <span class="label">CONTEST RANK</span>
+                <span id="sidebarContestRank" class="val text-gold">N/A</span>
+            </div>
+            <div class="stat-pill">
                 <span class="label">ACTIVE SLOTS</span>
                 <span id="sidebarSlots" class="val">0 / 3 Active</span>
             </div>
@@ -74,136 +78,112 @@
     <main class="content">
         <!-- 1. DAILY SCANNER PANEL -->
         <section id="dashboard" class="panel active">
-            <header class="panel-header">
-                <div>
-                    <h2>Daily Momentum & Squeeze-Ignition Scanner</h2>
-                    <p>Evaluates WIG140 + BETA ETFs at 16:35 CET for 3-Day Squeeze-Ignition bursts.</p>
+            <header class="scanner-minimal-header">
+                <div class="header-titles">
+                    <h2>Daily Stock Scanner</h2>
+                    <div class="scanner-meta-row">
+                        <div id="marketRegimeBanner" class="regime-strip-compact regime-green">
+                            <span id="regimeBadge" class="regime-pill">GREEN REGIME — UNLOCKED</span>
+                            <span id="regimeMetrics" class="regime-stats font-mono">Breadth &gt; SMA20: --% | Daily Δ: --%</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="actions">
-                    <a href="/mobile" class="btn secondary">
-                        <i data-lucide="smartphone" class="btn-icon"></i> Phone View
-                    </a>
-                    <button id="openBlueprintBtn" class="btn secondary">
-                        <i data-lucide="book-open" class="btn-icon"></i> Read Strategy.md
+                <div class="scanner-actions">
+                    <div id="contestStatusBadge" class="contest-badge unconfigured" title="SIGG Contest Connection Status">
+                        <span class="contest-dot"></span>
+                        <span id="contestStatusText">Contest: Offline</span>
+                    </div>
+                    <span id="contestRankBadge" class="contest-rank-badge hidden">Rank: #--</span>
+                    <button id="syncContestBtn" class="btn secondary btn-sm" title="Sync live positions & ranking from sigg.gpw.pl">
+                        <i data-lucide="cloud-lightning" class="btn-icon"></i>
+                        <span id="syncContestBtnText">Sync Contest</span>
                     </button>
-                    <button id="openSettingsBtn" class="btn secondary">
-                        <i data-lucide="bell" class="btn-icon"></i> Discord Alerts
-                    </button>
-                    <button id="runScanBtn" class="btn primary">
-                        <i data-lucide="play" class="btn-icon"></i> Run Scanner Now
+                    <div class="active-equity-chip">
+                        <span class="chip-label">CASH:</span>
+                        <span id="portfolioCashBadge" class="chip-val font-mono">20,000 PLN</span>
+                    </div>
+                    <button id="runScanBtn" class="btn primary btn-scan-live">
+                        <i data-lucide="play" class="btn-icon"></i>
+                        <span id="runScanBtnText">Run Live Scanner</span>
                     </button>
                 </div>
             </header>
 
-            <!-- Layer 1: Market Regime Kill Switch Banner -->
-            <div id="marketRegimeBanner" class="regime-banner regime-green">
-                <div class="regime-left">
-                    <span id="regimeBadge" class="regime-pill">GREEN REGIME — UNLOCKED</span>
-                    <span id="regimeActionText" class="regime-desc">Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold).</span>
+            <!-- PODIUM SECTION (TOP 3 ALLOCATED PICKS / LOCKED KILL SWITCH) -->
+            <div id="podiumSection" class="glass-card podium-section">
+                <div class="card-header-flex">
+                    <div class="podium-title-group">
+                        <div class="podium-badge-icon">🏆</div>
+                        <div>
+                            <h3>Top 3 Allocation Podium</h3>
+                            <p class="chart-subtitle" id="podiumSubtitle">3-Slot Capital Allocation — Ready for 16:50 CET closing auction execution</p>
+                        </div>
+                    </div>
+                    <div id="podiumStatusBadge" class="podium-status-pill unlocked">UNLOCKED</div>
                 </div>
-                <div class="regime-right font-mono">
-                    <span id="regimeMetrics">WIG140 Breadth &gt; SMA20: --% | Daily Δ: --%</span>
+
+                <!-- Podium Container: Locked card or 3 podium cards -->
+                <div id="podiumCardsGrid" class="podium-grid">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
-            <!-- ACTIVE 3-SLOT PORTFOLIO COMMAND CENTER -->
-            <div class="glass-card portfolio-command-card">
-                <div class="card-header-flex">
+            <!-- LIVE SCANNER PROGRESS & STATUS -->
+            <div id="scanProgressCard" class="glass-card scan-progress-card hidden">
+                <div class="progress-header">
+                    <div class="progress-info">
+                        <span class="live-dot-pulse"></span>
+                        <span id="scanProgressStatus">Streaming WIG140 universe evaluation...</span>
+                    </div>
+                    <span id="scanProgressCount" class="progress-count font-mono">0 / 140 (0%)</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div id="scanProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- LIVE SCANNED STOCK LEDGER -->
+            <div class="glass-card ledger-card">
+                <div class="card-header-flex ledger-controls-row">
                     <div>
-                        <h3>Active 3-Slot Portfolio Command Center</h3>
-                        <p class="chart-subtitle">Real-time position tracking, dynamic 2.2x ATR trailing stops, and mandatory 3-Day Hold countdowns</p>
+                        <h3>Live Scanned Stock Ledger</h3>
+                        <p class="chart-subtitle">Real-time ledger of every stock evaluated across the WIG140 universe</p>
                     </div>
-                    <div class="actions">
-                        <span id="portfolioCashBadge" class="count-badge">Available Cash: 20,000 PLN</span>
-                        <button id="refreshPortfolioBtn" class="btn secondary btn-sm" title="Refresh live quotes and PnL">
-                            <i data-lucide="refresh-cw" class="btn-icon"></i> Refresh Quotes
-                        </button>
+                    <div class="ledger-actions">
+                        <div class="filter-pills">
+                            <button id="filterAllBtn" class="pill-btn active" data-filter="all">All Scanned (<span id="ledgerTotalCount">0</span>)</button>
+                            <button id="filterBuysBtn" class="pill-btn" data-filter="buys">Qualified Buys (<span id="ledgerBuysCount">0</span>)</button>
+                        </div>
+                        <div class="ledger-search-box">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="ledgerSearchInput" placeholder="Filter ticker or name..." autocomplete="off">
+                        </div>
                     </div>
                 </div>
 
-                <div id="portfolioSlotsGrid" class="portfolio-slots-grid">
-                    <!-- Populated via JS: Slot 1, Slot 2, Slot 3 -->
-                    <div class="slot-card vacant">
-                        <div class="slot-header"><span class="slot-num">SLOT 1</span><span class="badge badge-hold">VACANT</span></div>
-                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
-                    </div>
-                    <div class="slot-card vacant">
-                        <div class="slot-header"><span class="slot-num">SLOT 2</span><span class="badge badge-hold">VACANT</span></div>
-                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
-                    </div>
-                    <div class="slot-card vacant">
-                        <div class="slot-header"><span class="slot-num">SLOT 3</span><span class="badge badge-hold">VACANT</span></div>
-                        <div class="slot-body"><div class="slot-empty-title">Waiting for Breakout</div><p class="slot-empty-desc">Allocated: ~6,666 PLN</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Backtest Summary Bar right on the Scanner -->
-            <div class="glass-card scanner-bt-bar">
-                <div class="card-header-flex">
-                    <div>
-                        <h3>Active Strategy 5-Year Backtest Performance (2020–2026)</h3>
-                        <p id="scannerBtNotes" class="chart-subtitle">Verified on 126 cached GPW stocks across 6 historical Nov–Jan SIGG contest seasons.</p>
-                    </div>
-                    <button id="goToBacktestBtn" class="btn secondary">
-                        <i data-lucide="sliders" class="btn-icon"></i> Test Custom Parameters Yourself &rarr;
-                    </button>
-                </div>
-                <div class="kpi-grid scanner-kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-title">6-Season Avg Return</div>
-                        <div id="scanBtAvgReturn" class="kpi-value">--%</div>
-                        <div id="scanBtWinRate" class="kpi-sub">Win Rate: --%</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Avg Trades / Contest</div>
-                        <div id="scanBtTradesPerSeason" class="kpi-value">--</div>
-                        <div id="scanBtTotalTrades" class="kpi-sub">Total 6-Yr Trades: --</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Best Contest Season</div>
-                        <div id="scanBtBestSeason" class="kpi-value">--</div>
-                        <div id="scanBtBestReturn" class="kpi-sub">Return: --%</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Worst Contest Season</div>
-                        <div id="scanBtWorstSeason" class="kpi-value">--</div>
-                        <div id="scanBtWorstReturn" class="kpi-sub">Return: --%</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="scanLoading" class="loader hidden"></div>
-
-            <div class="glass-card">
-                <div class="card-header-flex">
-                    <h3>Top Qualified Signals (Ranked by Runner Score)</h3>
-                    <span id="scanCountBadge" class="count-badge">0 signals</span>
-                </div>
-                <div class="table-container">
+                <div class="table-container ledger-table-container">
                     <table id="scanTable">
                         <thead id="scanTableHeader">
                             <tr>
-                                <th>Ticker</th>
+                                <th style="width: 45px;">#</th>
+                                <th>Ticker & Company</th>
+                                <th>Signal</th>
                                 <th>Close (PLN)</th>
-                                <th>Runner Score</th>
-                                <th>Order Ticket (Whole Shares)</th>
                                 <th>Day Δ%</th>
-                                <th>ATR Coil</th>
-                                <th>TR / ATR</th>
+                                <th>Runner Score</th>
                                 <th>Vol Surge</th>
-                                <th>Stop / Hold</th>
-                                <th>5-Yr BT</th>
-                                <th>Action</th>
+                                <th>ATR Coil</th>
+                                <th>Stop Loss</th>
+                                <th>Order Ticket (1-Click Copy)</th>
                                 <th>Chart</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Populated via JS -->
+                        <tbody id="scanTableBody">
+                            <!-- Populated live via JS -->
                         </tbody>
                     </table>
                 </div>
-                <p id="scanEmpty" class="empty-state">No scan data. Click "Run Scanner Now" to fetch live market signals.</p>
+                <p id="scanEmpty" class="empty-state">No scan data loaded. Click "Run Live Scanner" to stream stocks into this ledger.</p>
             </div>
         </section>
 
@@ -581,6 +561,44 @@
                         <span>16:50 CET Fixing Action Sheet</span>
                     </label>
                     <span class="setting-hint">Exact whole-share order tickets for the closing auction.</span>
+                </div>
+
+                <!-- CONTEST LIVE SYNC SECTION -->
+                <div class="contest-setting-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; font-size: 0.88rem; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="cloud-lightning" style="width: 16px; height: 16px; color: #facc15;"></i>
+                            SIGG Contest Live Sync (sigg.gpw.pl)
+                        </h4>
+                        <label class="switch-label" style="font-size: 0.75rem;">
+                            <input type="checkbox" id="contestSyncEnabledToggle" checked>
+                            <span>Enable Live Sync</span>
+                        </label>
+                    </div>
+                    <span class="setting-hint" style="display: block; margin-bottom: 0.75rem;">
+                        In Chrome/Edge on <code>sigg.gpw.pl</code>, open DevTools (F12) &rarr; Network tab &rarr; Right click any portfolio or contest request &rarr; <b>Copy as cURL</b> &rarr; Paste below.
+                    </span>
+
+                    <div class="setting-group" style="margin-bottom: 0.75rem;">
+                        <label for="contestCurlInput" style="font-size: 0.78rem;">Portfolio cURL Command</label>
+                        <textarea id="contestCurlInput" class="contest-curl-textarea" placeholder="curl 'https://sigg.gpw.pl/api/user/holdings' -H 'cookie: ...' ..."></textarea>
+                    </div>
+
+                    <div class="setting-group" style="margin-bottom: 0.75rem;">
+                        <label for="contestRankCurlInput" style="font-size: 0.78rem;">Optional Ranking cURL (if ranking is on a separate endpoint)</label>
+                        <textarea id="contestRankCurlInput" class="contest-curl-textarea" style="min-height: 50px;" placeholder="curl 'https://sigg.gpw.pl/api/ranking' -H 'cookie: ...' ..."></textarea>
+                    </div>
+
+                    <div class="modal-test-actions" style="margin-top: 0.5rem;">
+                        <button id="testContestCurlBtn" type="button" class="btn secondary btn-sm">
+                            <i data-lucide="play" class="btn-icon"></i> Parse & Test Connection
+                        </button>
+                        <button id="testMockSyncBtn" type="button" class="btn secondary btn-sm" title="Injects sample contest data to test UI rendering offline">
+                            <i data-lucide="beaker" class="btn-icon"></i> Test Mock Sync
+                        </button>
+                    </div>
+
+                    <div id="contestCurlPreview" class="contest-preview-box"></div>
                 </div>
 
                 <div class="modal-test-actions">

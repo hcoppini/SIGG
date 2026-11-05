@@ -175,6 +175,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 cashBadge.textContent = `Available Cash: ${Number(summary.cash || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
             }
 
+            // Update Contest Sync Status & Rank
+            const contestBadge = document.getElementById('contestStatusBadge');
+            const contestStatusText = document.getElementById('contestStatusText');
+            const contestRankBadge = document.getElementById('contestRankBadge');
+            const sidebarContestRank = document.getElementById('sidebarContestRank');
+            const cs = summary.contest_sync || {};
+
+            if (contestBadge && contestStatusText) {
+                if (cs.status === 'synced') {
+                    contestBadge.className = 'contest-badge synced';
+                    const timePart = cs.last_synced ? cs.last_synced.split(' ')[1] : '';
+                    contestStatusText.textContent = `Contest: Synced ${timePart}`;
+                    contestBadge.title = `Verified with sigg.gpw.pl: ${Number(cs.contest_equity || summary.total_equity).toLocaleString('pl-PL')} PLN at ${cs.last_synced}`;
+                } else if (cs.status === 'expired') {
+                    contestBadge.className = 'contest-badge expired';
+                    contestStatusText.textContent = 'Contest: Session Expired';
+                    contestBadge.title = cs.error_message || 'Session expired. Paste refreshed cURL in Settings.';
+                } else if (cs.status === 'error') {
+                    contestBadge.className = 'contest-badge error';
+                    contestStatusText.textContent = 'Contest: Error';
+                    contestBadge.title = cs.error_message || 'Sync error';
+                } else {
+                    contestBadge.className = 'contest-badge unconfigured';
+                    contestStatusText.textContent = 'Contest: Offline';
+                    contestBadge.title = 'Paste DevTools cURL in Settings to connect live contest';
+                }
+            }
+
+            if (contestRankBadge) {
+                if (cs.rank) {
+                    contestRankBadge.classList.remove('hidden');
+                    contestRankBadge.textContent = `Rank: #${cs.rank}${cs.total_teams ? ' / ' + cs.total_teams : ''}`;
+                } else {
+                    contestRankBadge.classList.add('hidden');
+                }
+            }
+
+            if (sidebarContestRank) {
+                sidebarContestRank.textContent = cs.rank ? `#${cs.rank}` : 'N/A';
+            }
+
             if (!grid) return;
             grid.innerHTML = '';
 
@@ -376,6 +417,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const trigger1635Btn = document.getElementById('trigger1635Btn');
         const trigger1650Btn = document.getElementById('trigger1650Btn');
 
+        // Contest Sync Modal Elements
+        const contestCurlInput = document.getElementById('contestCurlInput');
+        const contestRankCurlInput = document.getElementById('contestRankCurlInput');
+        const contestSyncEnabledToggle = document.getElementById('contestSyncEnabledToggle');
+        const testContestCurlBtn = document.getElementById('testContestCurlBtn');
+        const testMockSyncBtn = document.getElementById('testMockSyncBtn');
+        const contestCurlPreview = document.getElementById('contestCurlPreview');
+
         async function loadSettings() {
             try {
                 const res = await fetch('/api/settings');
@@ -386,6 +435,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (soundToggle && s.sound_alerts !== undefined) soundToggle.checked = Boolean(s.sound_alerts);
                     if (dispatch1635Toggle && s.auto_dispatch_1635 !== undefined) dispatch1635Toggle.checked = Boolean(s.auto_dispatch_1635);
                     if (dispatch1650Toggle && s.auto_dispatch_1650 !== undefined) dispatch1650Toggle.checked = Boolean(s.auto_dispatch_1650);
+                }
+
+                // Load Contest Sync Config
+                const cRes = await fetch('/api/contest/config');
+                const cJson = await cRes.json();
+                if (cJson.status === 'success' && cJson.config) {
+                    const c = cJson.config;
+                    if (contestCurlInput && c.portfolio_curl !== undefined) contestCurlInput.value = c.portfolio_curl;
+                    if (contestRankCurlInput && c.ranking_curl !== undefined) contestRankCurlInput.value = c.ranking_curl;
+                    if (contestSyncEnabledToggle && c.enabled !== undefined) contestSyncEnabledToggle.checked = Boolean(c.enabled);
                 }
             } catch (e) {
                 console.error('Error loading settings:', e);
@@ -420,16 +479,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     auto_dispatch_1635: dispatch1635Toggle?.checked ?? true,
                     auto_dispatch_1650: dispatch1650Toggle?.checked ?? true
                 };
+
+                const contestPayload = {
+                    portfolio_curl: contestCurlInput?.value?.trim() || '',
+                    ranking_curl: contestRankCurlInput?.value?.trim() || '',
+                    enabled: contestSyncEnabledToggle?.checked ?? true
+                };
+
                 try {
+                    // Save general alert settings
                     const res = await fetch('/api/settings', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const json = await res.json();
+
+                    // Save contest cURL settings
+                    await fetch('/api/contest/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(contestPayload)
+                    });
+
                     if (json.status === 'success') {
-                        showToast('Settings Saved', 'Alert preferences and webhook configuration saved successfully.', 'success');
+                        showToast('Settings Saved', 'Alerts and Contest Live Sync configurations updated.', 'success');
                         closeModal();
+                        fetchPortfolio();
                     } else {
                         showToast('Save Error', json.message || 'Could not save settings.', 'error');
                     }
@@ -437,6 +513,117 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Save Error', 'Error saving settings: ' + err, 'error');
                 }
                 saveBtn.disabled = false;
+            });
+        }
+
+        if (testContestCurlBtn) {
+            testContestCurlBtn.addEventListener('click', async () => {
+                const curlStr = contestCurlInput?.value?.trim() || '';
+                if (!curlStr) {
+                    showToast('cURL Required', 'Please paste a cURL command copied from browser DevTools.', 'warning');
+                    return;
+                }
+                testContestCurlBtn.disabled = true;
+                if (contestCurlPreview) {
+                    contestCurlPreview.className = 'contest-preview-box show';
+                    contestCurlPreview.innerHTML = '<span style="color: #94a3b8;"><i data-lucide="loader" class="icon-inline" style="animation: spin 1s linear infinite;"></i> Parsing and testing connection to contest...</span>';
+                }
+                try {
+                    // Save first
+                    await fetch('/api/contest/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            portfolio_curl: curlStr,
+                            ranking_curl: contestRankCurlInput?.value?.trim() || '',
+                            enabled: true
+                        })
+                    });
+
+                    // Trigger sync
+                    const sRes = await fetch('/api/contest/sync', { method: 'POST' });
+                    const sJson = await sRes.json();
+
+                    if (sJson.status === 'success' && sJson.data) {
+                        const d = sJson.data;
+                        const rankDisplay = d.rank ? `#${d.rank}` + (d.total_teams ? ` / ${d.total_teams}` : '') : 'N/A';
+                        const posSummary = d.positions && d.positions.length > 0 
+                            ? d.positions.map(p => `${p.symbol} (${p.shares} szt. @ ${p.entry_price.toFixed(2)} PLN)`).join(', ')
+                            : 'Zero open positions (100% Cash)';
+
+                        if (contestCurlPreview) {
+                            contestCurlPreview.innerHTML = `
+                                <div style="color: #34d399; font-weight: 700; margin-bottom: 4px;">✅ Contest Connection Verified & Synced</div>
+                                <div>• <b>Live Equity:</b> ${d.portfolio_value.toFixed(2)} PLN</div>
+                                <div>• <b>Available Cash:</b> ${d.cash.toFixed(2)} PLN</div>
+                                <div>• <b>Contest Rank:</b> <span class="text-gold font-bold">${rankDisplay}</span></div>
+                                <div>• <b>Positions:</b> ${d.positions.length} holdings &mdash; ${posSummary}</div>
+                            `;
+                        }
+                        showToast('Contest Synced', `Verified ${d.portfolio_value.toFixed(2)} PLN, Rank ${rankDisplay}`, 'success');
+                        playChime();
+                        fetchPortfolio();
+                    } else {
+                        if (contestCurlPreview) {
+                            contestCurlPreview.innerHTML = `
+                                <div style="color: #fb7185; font-weight: 700; margin-bottom: 4px;">❌ Connection Failed</div>
+                                <div>${sJson.message || 'Could not retrieve data from contest.'}</div>
+                                <div style="color: #94a3b8; margin-top: 4px; font-size: 0.72rem;">Tip: In Chrome DevTools, make sure you copy a request that happened while logged into sigg.gpw.pl.</div>
+                            `;
+                        }
+                        showToast('Connection Failed', sJson.message || 'Check your session cookie.', 'error');
+                    }
+                } catch (e) {
+                    if (contestCurlPreview) {
+                        contestCurlPreview.innerHTML = `<div style="color: #fb7185;">Error: ${e}</div>`;
+                    }
+                    showToast('Error', 'Request failed: ' + e, 'error');
+                } finally {
+                    testContestCurlBtn.disabled = false;
+                }
+            });
+        }
+
+        if (testMockSyncBtn) {
+            testMockSyncBtn.addEventListener('click', async () => {
+                testMockSyncBtn.disabled = true;
+                try {
+                    const mockPayload = {
+                        "wartosc_portfela": 21850.0,
+                        "wolne_srodki": 7250.0,
+                        "miejsce": 28,
+                        "liczba_uczestnikow": 3150,
+                        "pozycje": [
+                            { "symbol": "DINOPL", "ilosc": 20, "kurs_zakupu": 380.0, "kurs_biezacy": 395.0 },
+                            { "symbol": "KGHM", "ilosc": 35, "kurs_zakupu": 140.0, "kurs_biezacy": 146.5 }
+                        ]
+                    };
+                    const res = await fetch('/api/contest/mock_sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(mockPayload)
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        if (contestCurlPreview) {
+                            contestCurlPreview.className = 'contest-preview-box show';
+                            contestCurlPreview.innerHTML = `
+                                <div style="color: #facc15; font-weight: 700; margin-bottom: 4px;">🧪 Mock Payload Injected (Offline Mode)</div>
+                                <div>• <b>Simulated Equity:</b> 21,850.00 PLN</div>
+                                <div>• <b>Simulated Cash:</b> 7,250.00 PLN</div>
+                                <div>• <b>Simulated Rank:</b> #28 / 3,150</div>
+                                <div>• <b>Simulated Holdings:</b> DINOPL (20), KGHM (35)</div>
+                            `;
+                        }
+                        showToast('Mock Contest Applied', 'Simulated contest state injected into Portfolio.', 'info');
+                        playChime();
+                        fetchPortfolio();
+                    }
+                } catch (err) {
+                    showToast('Mock Error', 'Error applying mock: ' + err, 'error');
+                } finally {
+                    testMockSyncBtn.disabled = false;
+                }
             });
         }
 
@@ -651,17 +838,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (type === 'closest') {
-            if (scanEmpty) {
-                scanEmpty.classList.remove('hidden');
-                scanEmpty.textContent = "No strict Ignition Buy signals today. Displaying top candidates ranked by Runner Score.";
-            }
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} watchlist`;
+            if (scanEmpty) scanEmpty.classList.add('hidden');
+            if (scanCountBadge) scanCountBadge.textContent = `${data.length} watchlist (regime protected)`;
         } else {
             if (scanEmpty) scanEmpty.classList.add('hidden');
             if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified signals`;
         }
 
-        if (strategy === 'squeeze_ignition') {
+        if (strategy === 'breakout_trend') {
+            if (scanTableHeader) {
+                scanTableHeader.innerHTML = `
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Close (PLN)</th>
+                        <th>Runner Score</th>
+                        <th>Order Ticket (Whole Shares)</th>
+                        <th>Day Δ%</th>
+                        <th>10-Day High</th>
+                        <th>Vol Surge</th>
+                        <th>Turnover</th>
+                        <th>Trailing Stop (2.0x ATR)</th>
+                        <th>Target &amp; R:R</th>
+                        <th>5-Yr BT</th>
+                        <th>Action</th>
+                        <th>Chart</th>
+                    </tr>
+                `;
+            }
+        } else if (strategy === 'squeeze_ignition') {
             if (scanTableHeader) {
                 scanTableHeader.innerHTML = `
                     <tr>
@@ -723,26 +927,70 @@ document.addEventListener('DOMContentLoaded', () => {
             const isBuy = (row.Strategy_Signal === 'Buy');
             const isUptrend = (row.Trend_SMA50 === 'Uptrend');
             const btStats = row.BT_Stats || 'No past triggers';
+            const closeP = Number(row.Close || 0);
+            const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
+            const cleanSym = ticker.replace('.WA', '').replace('.W', '');
+            const safeTicket = row.Order_Ticket || `KUPNO | ${cleanSym} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
 
-            if (strategy === 'squeeze_ignition') {
+            if (strategy === 'breakout_trend') {
+                const dayGain = Number(row.Day_Gain_Pct || 0);
+                const volS = Number(row.Volume_Surge || 0);
+                const rScore = Number(row.Runner_Score || 0);
+                const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
+                const targetP = row.Target ? Number(row.Target).toFixed(2) : '-';
+                const rrVal = row.RR_Ratio ? `${Number(row.RR_Ratio).toFixed(1)}:1` : '-';
+                const turnoverK = Math.round(Number(row.Turnover_PLN || 0) / 1000);
+
+                tr.innerHTML = `
+                    <td>
+                        <strong>${ticker}</strong>
+                        <div class="text-xs text-muted">${row.Name || ''}</div>
+                    </td>
+                    <td class="font-mono">${closeP.toFixed(2)}</td>
+                    <td class="font-mono font-bold text-green">★ ${rScore.toFixed(2)}</td>
+                    <td class="font-mono text-xs">
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span>${safeTicket}</span>
+                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(safeTicket)}" title="Copy ticket to clipboard for GPW broker">
+                                Copy
+                            </button>
+                        </div>
+                    </td>
+                    <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
+                    <td class="font-mono">${Number(row.Breakout_Target || 0).toFixed(2)}</td>
+                    <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
+                    <td class="font-mono text-xs">${turnoverK}k PLN</td>
+                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} <span class="text-muted">/ Trailing</span></td>
+                    <td class="font-mono text-xs">${targetP} <span class="text-muted">(${rrVal})</span></td>
+                    <td class="font-mono text-xs">${btStats}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${atrVal}">
+                                Execute
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
+                    </td>
+                `;
+            } else if (strategy === 'squeeze_ignition') {
                 const dayGain = Number(row.Day_Gain_Pct || 0);
                 const trRatio = Number(row.TR_Ratio || 0);
                 const cPos = Number(row.Close_Pos || 0);
                 const volS = Number(row.Volume_Surge || 0);
                 const rScore = Number(row.Runner_Score || 0);
-                const closeP = Number(row.Close || 0);
-                const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
-                const ticket = row.Order_Ticket || `KUPNO | ${ticker} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
                 const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
 
                 tr.innerHTML = `
                     <td><strong>${ticker}</strong></td>
                     <td class="font-mono">${closeP.toFixed(2)}</td>
-                    <td class="font-mono font-bold text-green">${rScore.toFixed(2)}</td>
+                    <td class="font-mono font-bold text-green">★ ${rScore.toFixed(2)}</td>
                     <td class="font-mono text-xs">
                         <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span>${ticket}</span>
-                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(ticket)}" title="Copy ticket to clipboard for GPW broker">
+                            <span>${safeTicket}</span>
+                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(safeTicket)}" title="Copy ticket to clipboard for GPW broker">
                                 Copy
                             </button>
                         </div>
@@ -756,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>
                         <div style="display:flex; align-items:center; gap:0.4rem;">
                             <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(ticket)}" data-atr="${atrVal}">
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${atrVal}">
                                 Execute
                             </button>
                         </div>
@@ -779,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>
                         <div style="display:flex; align-items:center; gap:0.4rem;">
                             <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${Number(row.Close || 0)}" data-shares="${Math.floor(6600 / (Number(row.Close) || 1))}" data-ticket="${encodeURIComponent('KUP ' + tickerClean)}" data-atr="${(Number(row.Close || 0) * 0.03).toFixed(2)}">
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${(closeP * 0.03).toFixed(2)}">
                                 Execute
                             </button>
                         </div>
@@ -802,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>
                         <div style="display:flex; align-items:center; gap:0.4rem;">
                             <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${Number(row.Close || 0)}" data-shares="${Math.floor(6600 / (Number(row.Close) || 1))}" data-ticket="${encodeURIComponent('KUP ' + tickerClean)}" data-atr="${(Number(row.Close || 0) * 0.03).toFixed(2)}">
+                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${(closeP * 0.03).toFixed(2)}">
                                 Execute
                             </button>
                         </div>

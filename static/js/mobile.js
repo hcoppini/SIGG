@@ -152,6 +152,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const mobileStrategySelect = document.getElementById('mobileStrategySelect');
+    const mobileFeedTitle = document.getElementById('mobileFeedTitle');
+
+    function getMobileStrategy() {
+        return mobileStrategySelect ? mobileStrategySelect.value : 'breakout_trend';
+    }
+
+    if (mobileStrategySelect) {
+        mobileStrategySelect.addEventListener('change', () => {
+            const strat = getMobileStrategy();
+            if (mobileFeedTitle) {
+                const text = mobileStrategySelect.options[mobileStrategySelect.selectedIndex]?.text || '';
+                mobileFeedTitle.textContent = text.split('(')[0].trim() + ' Signals';
+            }
+            fetchMobileSignals();
+        });
+    }
+
     function renderSignalCards(data) {
         if (!mobileSignalsFeed) return;
         mobileSignalsFeed.innerHTML = '';
@@ -174,11 +192,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const rScore = Number(row.Runner_Score || 0);
             const closeP = Number(row.Close || 0);
             const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
-            const ticket = row.Order_Ticket || `KUPNO | ${ticker} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
+            const cleanSym = ticker.replace('.WA', '').replace('.W', '');
+            const ticket = row.Order_Ticket || `KUPNO | ${cleanSym} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
             const trRatio = Number(row.TR_Ratio || 0);
             const volS = Number(row.Volume_Surge || 0);
-            const atrPct = Number(row.ATR_Pct || 0);
             const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
+            const stopP = row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-';
+            const targetP = row.Target ? Number(row.Target).toFixed(2) : '-';
+            const rrRatio = row.RR_Ratio ? `${Number(row.RR_Ratio).toFixed(1)}:1` : '';
+            const tierLabel = row.Tier || (isBuy ? 'BUY CANDIDATE' : 'WATCH');
 
             const card = document.createElement('div');
             card.className = `signal-card ${isBuy ? 'tier-strict' : ''}`;
@@ -194,6 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
+                    ${tierLabel}
+                </div>
+
                 <div class="card-metrics-grid">
                     <div class="card-metric">
                         <span class="metric-label">Close</span>
@@ -204,19 +230,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="metric-val ${dayGain >= 2.5 ? 'text-green' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(1)}%</span>
                     </div>
                     <div class="card-metric">
-                        <span class="metric-label">TR/ATR</span>
-                        <span class="metric-val ${trRatio >= 1.3 ? 'text-green' : ''}">${trRatio.toFixed(1)}x</span>
-                    </div>
-                    <div class="card-metric">
                         <span class="metric-label">Vol Surge</span>
                         <span class="metric-val ${volS >= 1.5 ? 'text-green' : ''}">${volS.toFixed(1)}x</span>
+                    </div>
+                    <div class="card-metric">
+                        <span class="metric-label">Target (R:R)</span>
+                        <span class="metric-val text-green">${targetP} ${rrRatio ? `<small>(${rrRatio})</small>` : ''}</span>
                     </div>
                 </div>
 
                 <div class="card-ticket-box">
                     <div class="ticket-headline">
                         <span>Order Ticket (Whole Shares)</span>
-                        <span>Stop: ${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} PLN</span>
+                        <span>Stop: ${stopP} PLN</span>
                     </div>
                     <div class="ticket-text">${ticket}</div>
                 </div>
@@ -272,7 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchMobileSignals() {
         try {
-            const res = await fetch('/api/results/scan?strategy=squeeze_ignition');
+            const strat = getMobileStrategy();
+            const res = await fetch('/api/results/scan?strategy=' + encodeURIComponent(strat));
             const json = await res.json();
             if (json.market_regime) renderRegime(json.market_regime);
             if (json.status === 'success') {
@@ -291,10 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mobileSignalsEmpty) mobileSignalsEmpty.classList.add('hidden');
 
             try {
+                const strat = getMobileStrategy();
                 const res = await fetch('/api/scan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ strategy: 'squeeze_ignition' })
+                    body: JSON.stringify({ strategy: strat })
                 });
                 const json = await res.json();
                 if (json.status === 'success') {
