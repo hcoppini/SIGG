@@ -7,8 +7,35 @@ import time
 import json
 import queue
 import pandas as pd
+import math
 import sys
 from datetime import datetime, timezone, timedelta
+
+def sanitize_for_json(obj):
+    if obj is None:
+        return None
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, (int, str, bool)):
+        return obj
+    elif isinstance(obj, dict):
+        return {str(k): sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [sanitize_for_json(v) for v in obj]
+    try:
+        import numpy as np
+        if isinstance(obj, (np.floating, np.integer)):
+            val = obj.item()
+            if isinstance(val, float) and (math.isnan(val) or math.isinf(val)):
+                return None
+            return val
+        if isinstance(obj, np.ndarray):
+            return [sanitize_for_json(v) for v in obj.tolist()]
+    except Exception:
+        pass
+    return str(obj)
 
 def get_python_executable():
     win_venv = os.path.join(os.path.dirname(__file__), 'venv', 'Scripts', 'python.exe')
@@ -365,19 +392,24 @@ def manual_dispatch_alert():
 def run_scan():
     try:
         data = request.get_json(silent=True) or {}
-        strategy = data.get('strategy', 'breakout_trend')
+        strategy = data.get('strategy') or request.args.get('strategy', 'breakout_trend')
         
         res = scan_market(strategy=strategy)
         if res.get("status") == "error":
             return jsonify({"status": "error", "message": res.get("message", "Scanner failed")})
             
+        all_stocks = sanitize_for_json(res.get("all_stocks", []))
+        regime = sanitize_for_json(res.get("regime", get_market_regime()))
+        top_3 = sanitize_for_json(res.get("top_3", calculate_podium(all_stocks, regime)))
+        data_clean = sanitize_for_json(res.get("data", []))
+        
         return jsonify({
             "status": "success",
-            "data": res["data"],
-            "all_stocks": res.get("all_stocks", []),
-            "top_3": res.get("top_3", calculate_podium(res.get("all_stocks", []), res.get("regime", {}))),
+            "data": data_clean,
+            "all_stocks": all_stocks,
+            "top_3": top_3,
             "type": res.get("type", "buys"),
-            "market_regime": res.get("regime", get_market_regime()),
+            "market_regime": regime,
             "backtest_summary": get_backtest_summary_for_scanner(strategy)
         })
     except Exception as e:
@@ -385,33 +417,47 @@ def run_scan():
 
 @app.route('/api/scan/stream', methods=['GET', 'POST'])
 def scan_stream():
-    strategy = request.args.get('strategy') or (request.get_json(silent=True) or {}).get('strategy', 'squeeze_ignition')
+    strategy = request.args.get('strategy') or (request.get_json(silent=True) or {}).get('strategy', 'breakout_trend')
     q = queue.Queue()
     
     def worker():
         try:
             def on_regime(regime_data):
-                q.put({"type": "regime", "data": regime_data})
+                clean_reg = sanitize_for_json(regime_data)
+                q.put({
+                    "type": "regime",
+                    "data": clean_reg,
+                    "regime": clean_reg.get("regime", "GREEN"),
+                    "status_label": clean_reg.get("status_label", ""),
+                    "index_change_pct": clean_reg.get("index_change_pct", 0),
+                    "breadth_above_sma20_pct": clean_reg.get("breadth_above_sma20_pct", 50)
+                })
                 
             def on_stock(stock_dict, idx, total):
+                clean_stock = sanitize_for_json(stock_dict)
                 q.put({
                     "type": "stock",
                     "index": idx,
                     "total": total,
-                    "stock": stock_dict
+                    "stock": clean_stock
                 })
                 
             res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime)
+            clean_all = sanitize_for_json(res.get("all_stocks", []))
+            clean_reg = sanitize_for_json(res.get("regime", {}))
+            clean_top3 = sanitize_for_json(res.get("top_3", calculate_podium(clean_all, clean_reg)))
+            clean_data = sanitize_for_json(res.get("data", []))
+            
             q.put({
                 "type": "complete",
-                "market_regime": res.get("regime", {}),
-                "top_3": res.get("top_3", {}),
-                "data": res.get("data", []),
-                "all_stocks": res.get("all_stocks", []),
+                "market_regime": clean_reg,
+                "top_3": clean_top3,
+                "data": clean_data,
+                "all_stocks": clean_all,
                 "type_mode": res.get("type", "buys"),
                 "stats": {
-                    "total": len(res.get("all_stocks", [])),
-                    "buys": len([s for s in res.get("all_stocks", []) if s.get("Strategy_Signal") == "Buy"])
+                    "total": len(clean_all),
+                    "buys": len([s for s in clean_all if s.get("Strategy_Signal") == "Buy"])
                 }
             })
         except Exception as e:
@@ -422,8 +468,15 @@ def scan_stream():
     threading.Thread(target=worker, daemon=True).start()
     
     def generate():
+        # Immediate handshake event so EventSource opens on client right away
+        yield "event: connected\ndata: {\"status\": \"connected\"}\n\n"
         while True:
-            item = q.get()
+            try:
+                item = q.get(timeout=2.0)
+            except queue.Empty:
+                # Keep-alive comment prevents mobile carrier / reverse proxy timeout
+                yield ": keepalive\n\n"
+                continue
             if item is None:
                 break
             evt_type = item.get("type", "message")
@@ -443,18 +496,18 @@ def scan_stream():
 def get_scan_results():
     strategy = request.args.get('strategy', 'breakout_trend')
     latest_csv = get_latest_csv("scan_results")
-    regime = get_market_regime()
+    regime = sanitize_for_json(get_market_regime())
     if latest_csv:
         try:
             df = pd.read_csv(latest_csv).fillna('')
-            all_records = df.to_dict('records')
-            top_3 = calculate_podium(all_records, regime)
-            buys = df[df['Strategy_Signal'] == 'Buy']
+            all_records = sanitize_for_json(df.to_dict('records'))
+            top_3 = sanitize_for_json(calculate_podium(all_records, regime))
+            buys = [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
             if len(buys) == 0:
-                results = df.head(10).to_dict('records')
+                results = all_records[:10]
                 scan_type = "closest"
             else:
-                results = buys.to_dict('records')
+                results = buys
                 scan_type = "buys"
             return jsonify({
                 "status": "success",

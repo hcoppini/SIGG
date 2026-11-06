@@ -14,7 +14,7 @@ import sys
 import json
 import argparse
 import warnings
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any, Union
 
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', message='.*auto_adjust.*')
@@ -133,60 +133,82 @@ def load_ticker_backtest_stats(strategy: str) -> Dict[str, Dict]:
             pass
     return stats
 
-def calculate_podium(records: List[Dict], market_regime: Dict) -> Dict:
-    regime = market_regime.get("regime", "GREEN")
-    is_red = (regime == "RED")
+def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
+    if isinstance(market_regime, str):
+        regime = market_regime
+    elif isinstance(market_regime, dict):
+        regime = market_regime.get("regime", "GREEN")
+    else:
+        regime = "GREEN"
+    
+    is_red = (str(regime).upper() == "RED")
     
     if is_red:
         return {
             "is_locked": True,
             "regime": "RED",
-            "status_label": "PODIUM LOCKED (Kill Switch Active)",
+            "status": "RED regime kill switch active",
+            "status_label": "ALLOCATION LOCKED (Kill Switch Active)",
             "action_msg": "Bearish market regime detected. Zero new stock purchases allowed. 100% capital preserved in cash.",
+            "slots": [
+                {"slot": 1, "rank": 1, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"},
+                {"slot": 2, "rank": 2, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"},
+                {"slot": 3, "rank": 3, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"}
+            ],
             "picks": []
         }
     
+    # STRICT FILTER: Only stocks that strictly meet the strategy criteria (Strategy_Signal == 'Buy') enter
     buys = [r for r in records if r.get('Strategy_Signal') == 'Buy']
-    if not buys:
-        return {
-            "is_locked": False,
-            "regime": regime,
-            "status_label": "UNLOCKED (No Qualified Breakouts Today)",
-            "action_msg": "Market conditions are favorable, but 0 stocks met strict breakout criteria today. Hold 100% cash.",
-            "picks": []
-        }
     
     def get_score(r):
         return r.get('Runner_Score') or r.get('Momentum_Score') or 0.0
     
     sorted_buys = sorted(buys, key=get_score, reverse=True)
-    medals = ["1st Place", "2nd Place", "3rd Place"]
-    picks = []
-    for i, stock in enumerate(sorted_buys[:3]):
-        picks.append({
-            "rank": i + 1,
-            "medal": medals[i],
-            "ticker": stock.get("Ticker"),
-            "yahoo_ticker": stock.get("Yahoo_Ticker"),
-            "name": stock.get("Name"),
-            "close": stock.get("Close"),
-            "day_gain_pct": stock.get("Day_Gain_Pct"),
-            "runner_score": stock.get("Runner_Score"),
-            "volume_surge": stock.get("Volume_Surge"),
-            "stop_loss": stock.get("Stop_Loss"),
-            "target": stock.get("Target"),
-            "order_shares": stock.get("Order_Shares"),
-            "order_limit_price": stock.get("Order_Limit_Price"),
-            "order_ticket": stock.get("Order_Ticket"),
-            "tier": stock.get("Tier"),
-            "chart": stock.get("Chart")
-        })
     
+    slots = []
+    picks = []
+    for i in range(3):
+        slot_num = i + 1
+        if i < len(sorted_buys):
+            stock = sorted_buys[i]
+            slot_data = {
+                "rank": slot_num,
+                "slot": slot_num,
+                "is_allocated": True,
+                "ticker": stock.get("Ticker"),
+                "yahoo_ticker": stock.get("Yahoo_Ticker"),
+                "name": stock.get("Name"),
+                "close": stock.get("Close"),
+                "day_gain_pct": stock.get("Day_Gain_Pct"),
+                "runner_score": stock.get("Runner_Score"),
+                "volume_surge": stock.get("Volume_Surge"),
+                "stop_loss": stock.get("Stop_Loss"),
+                "target": stock.get("Target"),
+                "order_shares": stock.get("Order_Shares"),
+                "order_limit_price": stock.get("Order_Limit_Price"),
+                "order_ticket": stock.get("Order_Ticket"),
+                "tier": stock.get("Tier"),
+                "chart": stock.get("Chart")
+            }
+            slots.append(slot_data)
+            picks.append(slot_data)
+        else:
+            slots.append({
+                "rank": slot_num,
+                "slot": slot_num,
+                "is_allocated": False,
+                "reason": "No stock met strategy buy criteria for this slot — 100% Cash Preserved"
+            })
+    
+    allocated_count = len(picks)
     return {
         "is_locked": False,
         "regime": regime,
-        "status_label": f"UNLOCKED ({len(picks)} Allocated Breakout Picks)",
-        "action_msg": "Execute qualified buy orders in the 16:50 CET closing auction fixing window.",
+        "status": "UNLOCKED (Allocated Breakouts)" if allocated_count > 0 else "UNLOCKED (No Qualified Breakouts Today)",
+        "status_label": f"UNLOCKED ({allocated_count} / 3 Slots Allocated)",
+        "action_msg": f"{allocated_count} stock(s) met strict buy criteria. Remaining slots held in cash." if allocated_count > 0 else "Market conditions are favorable, but 0 stocks met strict breakout criteria today. Hold 100% cash.",
+        "slots": slots,
         "picks": picks
     }
 

@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebarSlots.textContent = `${positions.length} / ${maxSlots} Active`;
             }
             if (cashBadge) {
-                cashBadge.textContent = `Available Cash: ${Number(summary.cash || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
+                cashBadge.textContent = `${Number(summary.cash || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
             }
 
             // Update Contest Sync Status & Rank
@@ -811,309 +811,170 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMarketRegime(regimeData) {
         const banner = document.getElementById('marketRegimeBanner');
         const badge = document.getElementById('regimeBadge');
-        const desc = document.getElementById('regimeActionText');
         const metrics = document.getElementById('regimeMetrics');
         if (!banner || !regimeData) return;
 
-        const reg = regimeData.regime || 'GREEN';
-        banner.className = 'regime-banner';
+        const regObj = (typeof regimeData === 'object' && regimeData !== null) ? regimeData : { regime: String(regimeData) };
+        const reg = (regObj.regime || 'GREEN').toUpperCase();
+        banner.className = 'regime-strip-compact';
         if (reg === 'RED') banner.classList.add('regime-red');
         else if (reg === 'YELLOW') banner.classList.add('regime-yellow');
         else banner.classList.add('regime-green');
 
-        if (badge) badge.textContent = `${reg} REGIME — ${regimeData.status_label || ''}`;
-        if (desc) desc.textContent = regimeData.action_msg || '';
+        if (badge) badge.textContent = `${reg} REGIME — ${regObj.status_label || (reg === 'RED' ? 'LOCKED (Kill Switch Active)' : 'UNLOCKED')}`;
         if (metrics) {
-            const chg = Number(regimeData.index_change_pct || 0);
-            const brd = Number(regimeData.breadth_above_sma20_pct || 0);
-            metrics.textContent = `WIG140 Breadth > SMA20: ${brd.toFixed(1)}% | Daily Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            const chg = Number(regObj.index_change_pct || 0);
+            const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32.5 : 55.0));
+            metrics.textContent = `Breadth > SMA20: ${brd.toFixed(1)}% | Daily Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
         }
     }
 
     function renderScannerBacktestSummary(summary) {
         if (!summary) return;
         const avgEl = document.getElementById('scanBtAvgReturn');
-        const wrEl = document.getElementById('scanBtWinRate');
-        const tpsEl = document.getElementById('scanBtTradesPerSeason');
-        const totEl = document.getElementById('scanBtTotalTrades');
-        const bestSEl = document.getElementById('scanBtBestSeason');
-        const bestREl = document.getElementById('scanBtBestReturn');
-        const worstSEl = document.getElementById('scanBtWorstSeason');
-        const worstREl = document.getElementById('scanBtWorstReturn');
-        const notesEl = document.getElementById('scannerBtNotes');
-
-        const ret = Number(summary.avg_return_pct || 0);
         if (avgEl) {
+            const ret = Number(summary.avg_return_pct || 0);
             avgEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
             avgEl.className = `kpi-value ${ret >= 0 ? 'text-green' : 'text-red'}`;
         }
-        if (wrEl) wrEl.textContent = `Win Rate: ${summary.overall_win_rate || 0}%`;
-        if (tpsEl) {
-            const tps = summary.avg_trades_per_season || ((summary.total_trades || 0) / 6).toFixed(1);
-            tpsEl.textContent = `${tps} / season`;
-        }
-        if (totEl) totEl.textContent = `Total 6-Yr Trades: ${summary.total_trades || 0}`;
-
-        if (summary.best_season && bestSEl && bestREl) {
-            bestSEl.textContent = summary.best_season.season;
-            bestREl.textContent = `Return: +${summary.best_season.return_pct}% (${Number(summary.best_season.final_capital).toLocaleString('pl-PL')} PLN)`;
-        }
-        if (summary.worst_season && worstSEl && worstREl) {
-            worstSEl.textContent = summary.worst_season.season;
-            const wRet = Number(summary.worst_season.return_pct || 0);
-            worstREl.textContent = `Return: ${wRet >= 0 ? '+' : ''}${wRet}% (${Number(summary.worst_season.final_capital).toLocaleString('pl-PL')} PLN)`;
-        }
-        if (notesEl && summary.notes) {
-            notesEl.textContent = summary.notes;
-        }
     }
 
-    function populateScanTable(data, type, strategy) {
-        if (!scanTableBody) return;
-        
-        if (!data || data.length === 0) {
-            if (scanEmpty) {
-                scanEmpty.classList.remove('hidden');
-                scanEmpty.textContent = "No scan data available. Click 'Run Scanner Now'.";
+    function renderPodium(podiumData, regimeData) {
+        if (!podiumCardsGrid) return;
+        const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
+        const isRed = (podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED');
+
+        if (isRed) {
+            if (podiumStatusBadge) {
+                podiumStatusBadge.className = 'podium-status-pill locked';
+                podiumStatusBadge.textContent = '🔴 LOCKED (KILL SWITCH ACTIVE)';
             }
-            scanTableBody.innerHTML = '';
-            if (scanCountBadge) scanCountBadge.textContent = "0 signals";
-            return;
-        }
-        
-        if (type === 'closest') {
-            if (scanEmpty) scanEmpty.classList.add('hidden');
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} watchlist (regime protected)`;
+            if (podiumSubtitle) {
+                podiumSubtitle.textContent = 'Bearish market regime active — Zero stock purchases permitted. 100% Cash preserved across all 3 slots.';
+            }
+            podiumCardsGrid.innerHTML = `
+                <div class="podium-locked-banner" style="grid-column: 1 / -1;">
+                    <div class="locked-icon-wrapper">
+                        <i data-lucide="lock" class="locked-icon"></i>
+                    </div>
+                    <div class="locked-content">
+                        <div class="locked-headline">ALLOCATION LOCKED — BEARISH MARKET KILL SWITCH ACTIVE</div>
+                        <p class="locked-desc">
+                            The WIG140 breadth is below 45% or the market index experienced an adverse drop.
+                            <strong>Zero stock purchases are permitted today.</strong> 100% of your capital is safely held in cash (0 fee drag, 0 downside risk).
+                        </p>
+                        <div class="locked-slots-row">
+                            <div class="locked-slot-pill"><i data-lucide="shield-check"></i> Slot 1: 100% Cash Preserved</div>
+                            <div class="locked-slot-pill"><i data-lucide="shield-check"></i> Slot 2: 100% Cash Preserved</div>
+                            <div class="locked-slot-pill"><i data-lucide="shield-check"></i> Slot 3: 100% Cash Preserved</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         } else {
-            if (scanEmpty) scanEmpty.classList.add('hidden');
-            if (scanCountBadge) scanCountBadge.textContent = `${data.length} qualified signals`;
+            const slots = (podiumData && podiumData.slots) ? podiumData.slots : [];
+            const picks = (podiumData && podiumData.picks) ? podiumData.picks : [];
+            const allocatedCount = picks.length;
+
+            if (podiumStatusBadge) {
+                podiumStatusBadge.className = 'podium-status-pill unlocked';
+                podiumStatusBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / 3 ALLOCATED)`;
+            }
+            if (podiumSubtitle) {
+                podiumSubtitle.textContent = allocatedCount === 0
+                    ? 'Market healthy, but 0 stocks met strict strategy criteria today. 100% Cash preserved across all 3 slots.'
+                    : `${allocatedCount} of 3 slots allocated under strategy criteria. Remaining slots held in 100% cash.`;
+            }
+
+            let html = '';
+            for (let i = 0; i < 3; i++) {
+                const slotNum = i + 1;
+                const slotItem = slots[i] || (picks[i] ? { ...picks[i], is_allocated: true, slot: slotNum } : { slot: slotNum, is_allocated: false });
+                const isAllocated = Boolean(slotItem && slotItem.is_allocated && slotItem.ticker);
+
+                if (isAllocated) {
+                    const dayGain = Number(slotItem.day_gain_pct || 0);
+                    const tvSymbol = (slotItem.yahoo_ticker || slotItem.ticker || '').replace('.WA', '');
+                    const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
+                    const ticket = slotItem.order_ticket || `KUPNO | ${slotItem.ticker} | ${slotItem.order_shares || 0} szt. | LIMIT ${(slotItem.order_limit_price || slotItem.close || 0).toFixed(2)} PLN`;
+
+                    html += `
+                        <div class="podium-card slot-${slotNum} allocated">
+                            <div class="podium-card-top">
+                                <span class="slot-badge allocated">Slot ${slotNum} • Allocated</span>
+                                <span class="badge badge-buy">${slotItem.tier || 'QUALIFIED BUY'}</span>
+                            </div>
+                            <div class="podium-ticker-row">
+                                <span class="podium-ticker">${slotItem.ticker}</span>
+                                <span class="podium-price font-mono">${Number(slotItem.close).toFixed(2)} PLN</span>
+                            </div>
+                            <div class="podium-name-row">
+                                <span>${slotItem.name || ''}</span>
+                                <span class="font-mono font-bold ${dayGain >= 0 ? 'text-green' : 'text-red'}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</span>
+                            </div>
+                            <div class="podium-metrics-grid">
+                                <div class="podium-metric-item">
+                                    <span>Runner Score:</span>
+                                    <span class="text-green font-bold">${Number(slotItem.runner_score || 0).toFixed(2)}</span>
+                                </div>
+                                <div class="podium-metric-item">
+                                    <span>Vol Surge:</span>
+                                    <span>${Number(slotItem.volume_surge || 1).toFixed(2)}x</span>
+                                </div>
+                                <div class="podium-metric-item">
+                                    <span>Stop Loss:</span>
+                                    <span class="text-red">${Number(slotItem.stop_loss || 0).toFixed(2)} PLN</span>
+                                </div>
+                                <div class="podium-metric-item">
+                                    <span>Max Hold:</span>
+                                    <span>3 Days</span>
+                                </div>
+                            </div>
+                            <div class="podium-ticket-container">
+                                <span class="podium-ticket-text" title="${ticket}">${ticket}</span>
+                                <button class="copy-mini-btn copy-ticket-btn" data-ticket="${encodeURIComponent(ticket)}" title="Copy ticket for GPW broker">
+                                    Copy
+                                </button>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.65rem;">
+                                <button class="btn btn-xs primary exec-order-btn" style="flex: 1;" data-ticker="${slotItem.ticker}" data-price="${slotItem.close}" data-shares="${slotItem.order_shares || 0}" data-ticket="${encodeURIComponent(ticket)}" data-atr="${((slotItem.close || 0) * 0.03).toFixed(2)}">
+                                    Execute Order
+                                </button>
+                                <a href="${tvUrl}" target="_blank" class="tv-link" style="padding: 4px 8px;">TV &nearr;</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="podium-card vacant slot-${slotNum}">
+                            <div class="podium-card-top" style="width: 100%;">
+                                <span class="slot-badge unallocated">Slot ${slotNum} • 33.3% Capital</span>
+                                <span class="badge" style="background: rgba(255,255,255,0.06); color: var(--text-muted); font-size: 0.68rem; padding: 2px 6px;">100% CASH</span>
+                            </div>
+                            <div class="vacant-slot-body">
+                                <i data-lucide="shield-check" class="vacant-slot-icon"></i>
+                                <div class="vacant-slot-title">PRESERVED IN CASH</div>
+                                <p class="vacant-slot-desc">
+                                    ${allocatedCount > 0 
+                                        ? `Only ${allocatedCount} stock(s) met strict buy criteria today.` 
+                                        : 'No stock met strict strategy entry criteria today.'}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            podiumCardsGrid.innerHTML = html;
+        }
         }
 
-        if (strategy === 'breakout_trend') {
-            if (scanTableHeader) {
-                scanTableHeader.innerHTML = `
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Close (PLN)</th>
-                        <th>Runner Score</th>
-                        <th>Order Ticket (Whole Shares)</th>
-                        <th>Day Δ%</th>
-                        <th>10-Day High</th>
-                        <th>Vol Surge</th>
-                        <th>Turnover</th>
-                        <th>Trailing Stop (2.0x ATR)</th>
-                        <th>Target &amp; R:R</th>
-                        <th>5-Yr BT</th>
-                        <th>Action</th>
-                        <th>Chart</th>
-                    </tr>
-                `;
-            }
-        } else if (strategy === 'squeeze_ignition') {
-            if (scanTableHeader) {
-                scanTableHeader.innerHTML = `
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Close (PLN)</th>
-                        <th>Runner Score</th>
-                        <th>Order Ticket (Whole Shares)</th>
-                        <th>Day Δ%</th>
-                        <th>ATR Coil</th>
-                        <th>TR / ATR</th>
-                        <th>Vol Surge</th>
-                        <th>Stop / Hold</th>
-                        <th>5-Yr BT</th>
-                        <th>Action</th>
-                        <th>Chart</th>
-                    </tr>
-                `;
-            }
-        } else if (strategy === 'breakout' || strategy === 'home_run') {
-            if (scanTableHeader) {
-                scanTableHeader.innerHTML = `
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Close (PLN)</th>
-                        <th>Trend (SMA50)</th>
-                        <th>Vol Surge</th>
-                        <th>Stop Loss</th>
-                        <th>Target</th>
-                        <th>5-Yr Backtest History</th>
-                        <th>Action</th>
-                        <th>Chart</th>
-                    </tr>
-                `;
-            }
-        } else {
-            if (scanTableHeader) {
-                scanTableHeader.innerHTML = `
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Close (PLN)</th>
-                        <th>Trend (SMA50)</th>
-                        <th>RSI (14)</th>
-                        <th>Vol Surge</th>
-                        <th>Stop Loss</th>
-                        <th>5-Yr Backtest History</th>
-                        <th>Action</th>
-                        <th>Chart</th>
-                    </tr>
-                `;
-            }
-        }
-        
-        scanTableBody.innerHTML = '';
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            const ticker = row.Ticker || '';
-            const tvSymbol = (row.Yahoo_Ticker || row.Ticker || '').replace('.WA', '').replace('.W', '');
-            const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
-            const isBuy = (row.Strategy_Signal === 'Buy');
-            const isUptrend = (row.Trend_SMA50 === 'Uptrend');
-            const btStats = row.BT_Stats || 'No past triggers';
-            const closeP = Number(row.Close || 0);
-            const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
-            const cleanSym = ticker.replace('.WA', '').replace('.W', '');
-            const safeTicket = row.Order_Ticket || `KUPNO | ${cleanSym} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
-
-            if (strategy === 'breakout_trend') {
-                const dayGain = Number(row.Day_Gain_Pct || 0);
-                const volS = Number(row.Volume_Surge || 0);
-                const rScore = Number(row.Runner_Score || 0);
-                const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
-                const targetP = row.Target ? Number(row.Target).toFixed(2) : '-';
-                const rrVal = row.RR_Ratio ? `${Number(row.RR_Ratio).toFixed(1)}:1` : '-';
-                const turnoverK = Math.round(Number(row.Turnover_PLN || 0) / 1000);
-
-                tr.innerHTML = `
-                    <td>
-                        <strong>${ticker}</strong>
-                        <div class="text-xs text-muted">${row.Name || ''}</div>
-                    </td>
-                    <td class="font-mono">${closeP.toFixed(2)}</td>
-                    <td class="font-mono font-bold text-green">★ ${rScore.toFixed(2)}</td>
-                    <td class="font-mono text-xs">
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span>${safeTicket}</span>
-                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(safeTicket)}" title="Copy ticket to clipboard for GPW broker">
-                                Copy
-                            </button>
-                        </div>
-                    </td>
-                    <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
-                    <td class="font-mono">${Number(row.Breakout_Target || 0).toFixed(2)}</td>
-                    <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
-                    <td class="font-mono text-xs">${turnoverK}k PLN</td>
-                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} <span class="text-muted">/ Trailing</span></td>
-                    <td class="font-mono text-xs">${targetP} <span class="text-muted">(${rrVal})</span></td>
-                    <td class="font-mono text-xs">${btStats}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${atrVal}">
-                                Execute
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
-                    </td>
-                `;
-            } else if (strategy === 'squeeze_ignition') {
-                const dayGain = Number(row.Day_Gain_Pct || 0);
-                const trRatio = Number(row.TR_Ratio || 0);
-                const cPos = Number(row.Close_Pos || 0);
-                const volS = Number(row.Volume_Surge || 0);
-                const rScore = Number(row.Runner_Score || 0);
-                const atrVal = (row.ATR_Pct ? (closeP * (row.ATR_Pct / 100)) : (closeP * 0.03)).toFixed(2);
-
-                tr.innerHTML = `
-                    <td><strong>${ticker}</strong></td>
-                    <td class="font-mono">${closeP.toFixed(2)}</td>
-                    <td class="font-mono font-bold text-green">★ ${rScore.toFixed(2)}</td>
-                    <td class="font-mono text-xs">
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span>${safeTicket}</span>
-                            <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(safeTicket)}" title="Copy ticket to clipboard for GPW broker">
-                                Copy
-                            </button>
-                        </div>
-                    </td>
-                    <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
-                    <td class="font-mono">${Number(row.ATR_Pct || 0).toFixed(2)}%</td>
-                    <td class="font-mono ${trRatio >= 1.3 ? 'text-green font-bold' : ''}">${trRatio.toFixed(2)}x</td>
-                    <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
-                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'} <span class="text-muted">/ 3D</span></td>
-                    <td class="font-mono text-xs">${btStats}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${atrVal}">
-                                Execute
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
-                    </td>
-                `;
-            } else if (strategy === 'breakout' || strategy === 'home_run') {
-                tr.innerHTML = `
-                    <td><strong>${ticker}</strong></td>
-                    <td class="font-mono">${Number(row.Close || 0).toFixed(2)}</td>
-                    <td>
-                        <span class="badge ${isUptrend ? 'badge-buy' : 'badge-loss'}">${row.Trend_SMA50 || 'Uptrend'}</span>
-                    </td>
-                    <td class="font-mono ${Number(row.Volume_Surge || 0) >= 1.25 ? 'text-green font-bold' : ''}">${Number(row.Volume_Surge || 0).toFixed(2)}x</td>
-                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'}</td>
-                    <td class="font-mono text-green">${row.Target ? Number(row.Target).toFixed(2) : '-'}</td>
-                    <td class="font-mono text-xs">${btStats}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${(closeP * 0.03).toFixed(2)}">
-                                Execute
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
-                    </td>
-                `;
-            } else {
-                tr.innerHTML = `
-                    <td><strong>${ticker}</strong></td>
-                    <td class="font-mono">${Number(row.Close || 0).toFixed(2)}</td>
-                    <td>
-                        <span class="badge ${isUptrend ? 'badge-buy' : 'badge-loss'}">${row.Trend_SMA50 || 'Uptrend'}</span>
-                    </td>
-                    <td class="font-mono">${Number(row.RSI || 0).toFixed(1)}</td>
-                    <td class="font-mono">${Number(row.Volume_Surge || 0).toFixed(2)}x</td>
-                    <td class="font-mono text-red">${row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-'}</td>
-                    <td class="font-mono text-xs">${btStats}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${row.Strategy_Signal || 'Hold'}</span>
-                            <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${(closeP * 0.03).toFixed(2)}">
-                                Execute
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
-                    </td>
-                `;
-            }
-            scanTableBody.appendChild(tr);
-        });
-
-        // Wire copy ticket buttons
-        scanTableBody.querySelectorAll('.copy-ticket-btn').forEach(btn => {
+        // Wire copy buttons in podium
+        podiumCardsGrid.querySelectorAll('.copy-ticket-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const raw = decodeURIComponent(btn.getAttribute('data-ticket') || '');
                 navigator.clipboard.writeText(raw).then(() => {
-                    showToast('Ticket Copied', `"${raw}" copied to clipboard. Ready to paste in broker.`, 'info', 3000);
+                    showToast('Ticket Copied 📋', `"${raw}" copied to clipboard. Ready for broker.`, 'info', 3000);
                 }).catch(() => {
                     prompt('Copy order ticket manually:', raw);
                 });
@@ -1121,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Wire execute order buttons
-        scanTableBody.querySelectorAll('.exec-order-btn').forEach(btn => {
+        podiumCardsGrid.querySelectorAll('.exec-order-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const ticker = btn.getAttribute('data-ticker');
@@ -1141,18 +1002,348 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function buildStockRowHtml(row, index) {
+        const ticker = row.Ticker || '';
+        const name = row.Name || '';
+        const tvSymbol = (row.Yahoo_Ticker || row.Ticker || '').replace('.WA', '').replace('.W', '');
+        const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
+        const isBuy = (row.Strategy_Signal === 'Buy');
+        const closeP = Number(row.Close || 0);
+        const dayGain = Number(row.Day_Gain_Pct || 0);
+        const rScore = Number(row.Runner_Score || 0);
+        const volS = Number(row.Volume_Surge || 0);
+        const atrPct = Number(row.ATR_Pct || 0);
+        const stopLoss = row.Stop_Loss ? Number(row.Stop_Loss).toFixed(2) : '-';
+        const shares = row.Order_Shares || Math.floor(6600 / (closeP || 1));
+        const cleanSym = ticker.replace('.WA', '').replace('.W', '');
+        const safeTicket = row.Order_Ticket || (isBuy ? `KUPNO | ${cleanSym} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN` : '');
+        const atrVal = (atrPct > 0 ? (closeP * (atrPct / 100)) : (closeP * 0.03)).toFixed(2);
+
+        let ticketHtml = '<span class="text-muted text-xs font-mono">-</span>';
+        if (safeTicket) {
+            ticketHtml = `
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <span class="font-mono text-xs" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${safeTicket}">${safeTicket}</span>
+                    <button class="btn btn-xs secondary copy-ticket-btn" data-ticket="${encodeURIComponent(safeTicket)}" title="Copy ticket to clipboard for GPW broker">
+                        Copy
+                    </button>
+                    ${isBuy ? `
+                        <button class="btn btn-xs primary exec-order-btn" data-ticker="${ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(safeTicket)}" data-atr="${atrVal}">
+                            Execute
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        return `
+            <td class="font-mono text-muted text-xs">${index + 1}</td>
+            <td>
+                <strong>${ticker}</strong>
+                <div class="text-xs text-muted">${name}</div>
+            </td>
+            <td>
+                <span class="badge ${isBuy ? 'badge-buy' : 'badge-hold'}">${isBuy ? 'BUY' : 'HOLD'}</span>
+            </td>
+            <td class="font-mono">${closeP.toFixed(2)}</td>
+            <td class="font-mono ${dayGain >= 2.5 ? 'text-green font-bold' : (dayGain < 0 ? 'text-red' : '')}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</td>
+            <td class="font-mono ${rScore >= 2.5 ? 'text-green font-bold' : ''}">★ ${rScore.toFixed(2)}</td>
+            <td class="font-mono ${volS >= 1.5 ? 'text-green font-bold' : ''}">${volS.toFixed(2)}x</td>
+            <td class="font-mono">${atrPct.toFixed(2)}%</td>
+            <td class="font-mono text-red">${stopLoss}</td>
+            <td>${ticketHtml}</td>
+            <td>
+                <a href="${tvUrl}" target="_blank" class="tv-link">TV &nearr;</a>
+            </td>
+        `;
+    }
+
+    function wireScanTableActions(container) {
+        if (!container) return;
+        container.querySelectorAll('.copy-ticket-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const raw = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                if (!raw) return;
+                navigator.clipboard.writeText(raw).then(() => {
+                    showToast('Ticket Copied 📋', `"${raw}" copied to clipboard.`, 'info', 2500);
+                }).catch(() => {
+                    prompt('Copy order ticket manually:', raw);
+                });
+            };
+        });
+
+        container.querySelectorAll('.exec-order-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const ticker = btn.getAttribute('data-ticker');
+                const price = parseFloat(btn.getAttribute('data-price'));
+                const shares = parseInt(btn.getAttribute('data-shares'), 10);
+                const ticket = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                const atr = parseFloat(btn.getAttribute('data-atr'));
+
+                if (window.openExecuteModal) {
+                    window.openExecuteModal({ ticker, price, shares, ticket, atr });
+                }
+            };
+        });
+    }
+
+    function appendSingleStockRow(row, index) {
+        if (!scanTableBody) return;
+        
+        // Filter check
+        if (_activeLedgerFilter === 'buys' && row.Strategy_Signal !== 'Buy') return;
+        if (_ledgerSearchTerm) {
+            const q = _ledgerSearchTerm.toLowerCase();
+            const t = (row.Ticker || '').toLowerCase();
+            const n = (row.Name || '').toLowerCase();
+            if (!t.includes(q) && !n.includes(q)) return;
+        }
+
+        if (scanEmpty) scanEmpty.classList.add('hidden');
+
+        const tr = document.createElement('tr');
+        tr.className = 'live-row-enter';
+        tr.innerHTML = buildStockRowHtml(row, index);
+        scanTableBody.appendChild(tr);
+        wireScanTableActions(tr);
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderLedgerTable() {
+        if (!scanTableBody) return;
+
+        const totalScanned = _allScannedStocks.length;
+        const buyCount = _allScannedStocks.filter(s => s.Strategy_Signal === 'Buy').length;
+        if (ledgerTotalCount) ledgerTotalCount.textContent = String(totalScanned);
+        if (ledgerBuysCount) ledgerBuysCount.textContent = String(buyCount);
+
+        const filtered = _allScannedStocks.filter(stock => {
+            if (_activeLedgerFilter === 'buys' && stock.Strategy_Signal !== 'Buy') return false;
+            if (_ledgerSearchTerm) {
+                const q = _ledgerSearchTerm.toLowerCase();
+                const t = (stock.Ticker || '').toLowerCase();
+                const n = (stock.Name || '').toLowerCase();
+                if (!t.includes(q) && !n.includes(q)) return false;
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            scanTableBody.innerHTML = '';
+            if (scanEmpty) {
+                scanEmpty.classList.remove('hidden');
+                if (totalScanned === 0) {
+                    scanEmpty.textContent = 'No scan data loaded. Click "Run Live Scanner" to stream stocks into this ledger.';
+                } else {
+                    scanEmpty.textContent = 'No stocks match the current filter/search.';
+                }
+            }
+            return;
+        }
+
+        if (scanEmpty) scanEmpty.classList.add('hidden');
+        scanTableBody.innerHTML = filtered.map((row, idx) => `<tr>${buildStockRowHtml(row, idx)}</tr>`).join('');
+        wireScanTableActions(scanTableBody);
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function populateScanTable(data, type, strategy) {
+        _allScannedStocks = Array.isArray(data) ? data : [];
+        renderLedgerTable();
+    }
+
+    function runLiveScanner() {
+        if (_activeScanSource) {
+            _activeScanSource.close();
+            _activeScanSource = null;
+        }
+
+        const strategy = getActiveStrategy();
+        if (runScanBtn) {
+            runScanBtn.disabled = true;
+            if (runScanBtnText) runScanBtnText.textContent = "Streaming WIG140...";
+        }
+        if (scanProgressCard) {
+            scanProgressCard.classList.remove('hidden');
+        }
+        if (scanProgressBar) scanProgressBar.style.width = '0%';
+        if (scanProgressStatus) scanProgressStatus.textContent = "Connecting to market scanner stream...";
+        if (scanProgressCount) scanProgressCount.textContent = "0 / 140 (0%)";
+
+        _allScannedStocks = [];
+        if (scanTableBody) scanTableBody.innerHTML = '';
+        if (scanEmpty) scanEmpty.classList.add('hidden');
+        if (ledgerTotalCount) ledgerTotalCount.textContent = '0';
+        if (ledgerBuysCount) ledgerBuysCount.textContent = '0';
+
+        let receivedCount = 0;
+        const streamUrl = `/api/scan/stream?strategy=${encodeURIComponent(strategy)}`;
+
+        try {
+            const es = new EventSource(streamUrl);
+            _activeScanSource = es;
+
+            es.addEventListener('connected', () => {
+                if (scanProgressStatus) scanProgressStatus.textContent = "Connected. Evaluating WIG140 universe...";
+            });
+
+            es.addEventListener('regime', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    const reg = payload.data || payload;
+                    renderMarketRegime(reg);
+                    if ((reg.regime || payload.regime) === 'RED') {
+                        renderPodium({ is_locked: true, picks: [] }, reg);
+                    }
+                } catch (err) {
+                    console.error("Error parsing regime event", err);
+                }
+            });
+
+            es.addEventListener('stock', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    const stock = payload.stock;
+                    const total = payload.total || 140;
+                    receivedCount++;
+
+                    _allScannedStocks.push(stock);
+                    if (ledgerTotalCount) ledgerTotalCount.textContent = String(_allScannedStocks.length);
+                    const buys = _allScannedStocks.filter(s => s.Strategy_Signal === 'Buy').length;
+                    if (ledgerBuysCount) ledgerBuysCount.textContent = String(buys);
+
+                    const pct = Math.min(100, Math.round((receivedCount / total) * 100));
+                    if (scanProgressBar) scanProgressBar.style.width = `${pct}%`;
+                    if (scanProgressCount) scanProgressCount.textContent = `${receivedCount} / ${total} (${pct}%)`;
+                    if (scanProgressStatus) scanProgressStatus.textContent = `Scanned ${stock.Ticker} (${stock.Name || ''}) — ${stock.Strategy_Signal === 'Buy' ? '🔥 BUY SIGNAL' : 'Hold'}`;
+
+                    appendSingleStockRow(stock, _allScannedStocks.length - 1);
+                } catch (err) {
+                    console.error("Error processing stock event", err);
+                }
+            });
+
+            es.addEventListener('error', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    showToast('Scan Error', payload.message || 'Error occurred during streaming', 'error', 4000);
+                } catch (_) {}
+            });
+
+            es.addEventListener('complete', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    es.close();
+                    _activeScanSource = null;
+
+                    if (payload.all_stocks && Array.isArray(payload.all_stocks)) {
+                        _allScannedStocks = payload.all_stocks;
+                    }
+
+                    if (payload.market_regime) renderMarketRegime(payload.market_regime);
+                    renderPodium(payload.top_3, payload.market_regime);
+                    renderLedgerTable();
+
+                    if (scanProgressBar) scanProgressBar.style.width = '100%';
+                    if (scanProgressCount) scanProgressCount.textContent = `${_allScannedStocks.length} / ${_allScannedStocks.length} (100%)`;
+                    if (scanProgressStatus) scanProgressStatus.textContent = `Scan complete. ${_allScannedStocks.length} stocks evaluated.`;
+
+                    showToast('Scanner Complete 🎯', `Evaluated ${_allScannedStocks.length} WIG140 stocks. Podium updated.`, 'success', 3500);
+
+                    setTimeout(() => {
+                        if (scanProgressCard) scanProgressCard.classList.add('hidden');
+                    }, 3000);
+                } catch (err) {
+                    console.error("Error on scan complete", err);
+                } finally {
+                    if (runScanBtn) {
+                        runScanBtn.disabled = false;
+                        if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                    }
+                }
+            });
+
+            es.onerror = (err) => {
+                console.warn("EventSource error or connection dropped:", err);
+                es.close();
+                _activeScanSource = null;
+                if (receivedCount === 0) {
+                    fetchScanViaPost(strategy);
+                } else {
+                    if (runScanBtn) {
+                        runScanBtn.disabled = false;
+                        if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                    }
+                    renderLedgerTable();
+                }
+            };
+        } catch (err) {
+            console.error("Failed to initialize EventSource, using POST fallback", err);
+            fetchScanViaPost(strategy);
+        }
+    }
+
+    function fetchScanViaPost(strategy) {
+        if (scanProgressStatus) scanProgressStatus.textContent = "Streaming unavailable, running batch scan...";
+        fetch('/api/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ strategy: strategy })
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    if (res.all_stocks && Array.isArray(res.all_stocks)) {
+                        _allScannedStocks = res.all_stocks;
+                    } else if (res.data && Array.isArray(res.data)) {
+                        _allScannedStocks = res.data;
+                    }
+                    if (res.market_regime) renderMarketRegime(res.market_regime);
+                    renderPodium(res.top_3, res.market_regime);
+                    renderLedgerTable();
+                    showToast('Scan Finished 🎯', `Evaluated ${_allScannedStocks.length} stocks.`, 'success', 3000);
+                } else {
+                    showToast('Scan Error', res.message || 'Scan failed', 'error', 4000);
+                }
+            })
+            .catch(err => {
+                showToast('Scan Request Failed', String(err), 'error', 4000);
+            })
+            .finally(() => {
+                if (runScanBtn) {
+                    runScanBtn.disabled = false;
+                    if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                }
+                if (scanProgressCard) scanProgressCard.classList.add('hidden');
+            });
+    }
+
     function fetchScanResults() {
         const strategy = getActiveStrategy();
-        fetch('/api/results/scan?strategy=' + strategy).then(r => r.json()).then(j => {
-            if (j.market_regime) renderMarketRegime(j.market_regime);
-            if (j.backtest_summary) renderScannerBacktestSummary(j.backtest_summary);
-            if (j.status === 'success') {
-                populateScanTable(j.data, j.type, strategy);
-            } else {
+        fetch('/api/results/scan?strategy=' + encodeURIComponent(strategy))
+            .then(r => r.json())
+            .then(j => {
+                if (j.market_regime) renderMarketRegime(j.market_regime);
+                if (j.backtest_summary) renderScannerBacktestSummary(j.backtest_summary);
+                
+                if (j.all_stocks && Array.isArray(j.all_stocks)) {
+                    _allScannedStocks = j.all_stocks;
+                } else if (j.data && Array.isArray(j.data)) {
+                    _allScannedStocks = j.data;
+                } else {
+                    _allScannedStocks = [];
+                }
+
+                renderPodium(j.top_3, j.market_regime);
+                renderLedgerTable();
+            })
+            .catch(err => {
+                console.error("Error fetching scan results:", err);
                 if (scanEmpty) scanEmpty.classList.remove('hidden');
                 if (scanTableBody) scanTableBody.innerHTML = '';
-            }
-        }).catch(() => {});
+            });
     }
 
     // ==========================================

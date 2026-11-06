@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderRegime(regime) {
         if (!mobileRegimeStrip || !regime) return;
-        const reg = regime.regime || 'GREEN';
+        const regObj = (typeof regime === 'object' && regime !== null) ? regime : { regime: String(regime) };
+        const reg = (regObj.regime || 'GREEN').toUpperCase();
         mobileRegimeStrip.className = 'regime-strip';
         if (reg === 'RED') mobileRegimeStrip.classList.add('regime-red');
         else if (reg === 'YELLOW') mobileRegimeStrip.classList.add('regime-yellow');
@@ -146,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (mobileRegimeTag) mobileRegimeTag.textContent = `${reg} REGIME`;
         if (mobileRegimeText) {
-            const brd = Number(regime.breadth_above_sma20_pct || 0).toFixed(0);
-            const chg = Number(regime.index_change_pct || 0);
+            const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32 : 55)).toFixed(0);
+            const chg = Number(regObj.index_change_pct || 0);
             mobileRegimeText.textContent = `Breadth: ${brd}% | Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(1)}% | Max 3 Slots`;
         }
     }
@@ -170,20 +171,232 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let _mobileAllScanned = [];
+    let _mobileFilter = 'all';
+    let _mobileSearch = '';
+    let _mobileActiveScanSource = null;
+
+    const mobilePodiumGrid = document.getElementById('mobilePodiumGrid');
+    const mobilePodiumBadge = document.getElementById('mobilePodiumBadge');
+    const mobileRunBtnText = document.getElementById('mobileRunBtnText');
+    const mobileScanProgressCard = document.getElementById('mobileScanProgressCard');
+    const mobileProgressText = document.getElementById('mobileProgressText');
+    const mobileProgressCount = document.getElementById('mobileProgressCount');
+    const mobileProgressBar = document.getElementById('mobileProgressBar');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileFilterAllBtn = document.getElementById('mobileFilterAllBtn');
+    const mobileFilterBuysBtn = document.getElementById('mobileFilterBuysBtn');
+
+    if (mobileFilterAllBtn) {
+        mobileFilterAllBtn.addEventListener('click', () => {
+            _mobileFilter = 'all';
+            mobileFilterAllBtn.style.background = 'var(--accent)';
+            mobileFilterAllBtn.style.color = '#fff';
+            if (mobileFilterBuysBtn) {
+                mobileFilterBuysBtn.style.background = 'var(--bg-card)';
+                mobileFilterBuysBtn.style.color = 'var(--text-secondary)';
+            }
+            renderSignalCards();
+        });
+    }
+
+    if (mobileFilterBuysBtn) {
+        mobileFilterBuysBtn.addEventListener('click', () => {
+            _mobileFilter = 'buys';
+            mobileFilterBuysBtn.style.background = 'var(--accent)';
+            mobileFilterBuysBtn.style.color = '#fff';
+            if (mobileFilterAllBtn) {
+                mobileFilterAllBtn.style.background = 'var(--bg-card)';
+                mobileFilterAllBtn.style.color = 'var(--text-secondary)';
+            }
+            renderSignalCards();
+        });
+    }
+
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', (e) => {
+            _mobileSearch = (e.target.value || '').trim().toLowerCase();
+            renderSignalCards();
+        });
+    }
+
+    function renderMobilePodium(podiumData, regimeData) {
+        if (!mobilePodiumGrid) return;
+        const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
+        const isRed = (podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED');
+
+        if (isRed) {
+            if (mobilePodiumBadge) {
+                mobilePodiumBadge.textContent = '🔴 LOCKED';
+                mobilePodiumBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                mobilePodiumBadge.style.color = '#f87171';
+            }
+            mobilePodiumGrid.innerHTML = `
+                <div class="mobile-podium-locked" style="padding: 1rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #ef4444; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                        <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                        <span>KILL SWITCH ACTIVE (RED REGIME)</span>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #fca5a5; line-height: 1.35; margin: 0 0 0.5rem 0;">
+                        WIG breadth is weak. Zero stock purchases permitted today. 100% Cash preserved (0 downside risk).
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <span style="font-size: 0.72rem; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">🛡️ Slot 1: 100% Cash Preserved</span>
+                        <span style="font-size: 0.72rem; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">🛡️ Slot 2: 100% Cash Preserved</span>
+                        <span style="font-size: 0.72rem; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">🛡️ Slot 3: 100% Cash Preserved</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            const slots = (podiumData && podiumData.slots) ? podiumData.slots : [];
+            const picks = (podiumData && podiumData.picks) ? podiumData.picks : [];
+            const allocatedCount = picks.length;
+
+            if (mobilePodiumBadge) {
+                mobilePodiumBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / 3)`;
+                mobilePodiumBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                mobilePodiumBadge.style.color = '#34d399';
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 0.6rem;">';
+            for (let i = 0; i < 3; i++) {
+                const slotNum = i + 1;
+                const slotItem = slots[i] || (picks[i] ? { ...picks[i], is_allocated: true, slot: slotNum } : { slot: slotNum, is_allocated: false });
+                const isAllocated = Boolean(slotItem && slotItem.is_allocated && slotItem.ticker);
+
+                if (isAllocated) {
+                    const dayGain = Number(slotItem.day_gain_pct || 0);
+                    const closeP = Number(slotItem.close || 0);
+                    const shares = slotItem.order_shares || Math.floor(6600 / (closeP || 1));
+                    const cleanSym = (slotItem.ticker || '').replace('.WA', '').replace('.W', '');
+                    const ticket = slotItem.order_ticket || `KUPNO | ${cleanSym} | ${shares} szt. | LIMIT ${(closeP * 1.005).toFixed(2)} PLN`;
+                    const atrVal = ((closeP || 0) * 0.03).toFixed(2);
+                    const tvUrl = `https://pl.tradingview.com/symbols/GPW-${cleanSym}/`;
+
+                    html += `
+                        <div class="mobile-podium-card" style="border: 1px solid rgba(16,185,129,0.35); background: rgba(16,185,129,0.04); border-radius: 10px; padding: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <span style="font-size: 0.72rem; font-weight: 800; color: #34d399; text-transform: uppercase;">Slot ${slotNum} • Allocated</span>
+                                <span class="badge-signal-buy" style="font-size: 0.68rem; padding: 2px 6px;">${slotItem.tier || 'BUY'}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <div>
+                                    <strong style="font-size: 0.95rem; color: #fff;">${slotItem.ticker}</strong>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); margin-left: 4px;">${slotItem.name || ''}</span>
+                                </div>
+                                <div style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: #fff;">
+                                    ${closeP.toFixed(2)} PLN
+                                    <span style="font-size: 0.75rem; margin-left: 4px;" class="${dayGain >= 0 ? 'text-green' : 'text-red'}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(1)}%</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin: 0.4rem 0; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">
+                                <span>Score: <b style="color: #34d399;">★ ${(slotItem.runner_score || 0).toFixed(2)}</b></span>
+                                <span>Vol: ${(slotItem.volume_surge || 1).toFixed(1)}x</span>
+                                <span>Stop: <span style="color: #f87171;">${Number(slotItem.stop_loss || 0).toFixed(2)}</span></span>
+                            </div>
+                            <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
+                                <button class="btn-card-copy mobile-copy-btn" style="flex: 1; padding: 5px;" data-ticket="${encodeURIComponent(ticket)}">
+                                    <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy
+                                </button>
+                                <button class="btn-card-exec mobile-exec-btn" style="flex: 1; padding: 5px;" data-ticker="${slotItem.ticker}" data-price="${closeP}" data-shares="${shares}" data-ticket="${encodeURIComponent(ticket)}" data-atr="${atrVal}">
+                                    <i data-lucide="zap" style="width: 12px; height: 12px;"></i> Execute
+                                </button>
+                                <a href="${tvUrl}" target="_blank" class="btn-card-chart" style="padding: 5px 8px;">TV &nearr;</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="mobile-podium-card vacant" style="border: 1px dashed rgba(255,255,255,0.15); background: rgba(255,255,255,0.02); border-radius: 10px; padding: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Slot ${slotNum} • 33.3% Capital</span>
+                                <span style="font-size: 0.68rem; padding: 2px 6px; background: rgba(255,255,255,0.05); color: var(--text-muted); border-radius: 4px;">100% CASH</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                                <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #10b981; flex-shrink: 0;"></i>
+                                <div>
+                                    <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">Preserved in Cash</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">
+                                        ${allocatedCount > 0 ? `Only ${allocatedCount} stock(s) met buy criteria.` : 'No stock met strict buy criteria today.'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            html += '</div>';
+            mobilePodiumGrid.innerHTML = html;
+        }
+        }
+
+        mobilePodiumGrid.querySelectorAll('.mobile-copy-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                triggerHaptic(30);
+                const raw = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                navigator.clipboard.writeText(raw).then(() => {
+                    showMobileToast('Ticket Copied! 📋', 'Pasted to clipboard.', 'info', 2500);
+                }).catch(() => {
+                    prompt('Copy ticket manually:', raw);
+                });
+            };
+        });
+
+        mobilePodiumGrid.querySelectorAll('.mobile-exec-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                triggerHaptic(20);
+                const ticker = btn.getAttribute('data-ticker');
+                const price = parseFloat(btn.getAttribute('data-price'));
+                const shares = parseInt(btn.getAttribute('data-shares'), 10);
+                const ticket = decodeURIComponent(btn.getAttribute('data-ticket') || '');
+                const atr = parseFloat(btn.getAttribute('data-atr'));
+
+                openMobileExecSheet({ ticker, price, shares, ticket, atr });
+            };
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
     function renderSignalCards(data) {
+        if (data && Array.isArray(data)) {
+            _mobileAllScanned = data;
+        }
         if (!mobileSignalsFeed) return;
         mobileSignalsFeed.innerHTML = '';
 
-        if (!data || data.length === 0) {
-            if (mobileSignalsEmpty) mobileSignalsEmpty.classList.remove('hidden');
-            if (mobileSignalCount) mobileSignalCount.textContent = '0 signals';
+        const total = _mobileAllScanned.length;
+        const buysCount = _mobileAllScanned.filter(s => s.Strategy_Signal === 'Buy').length;
+        if (mobileSignalCount) {
+            mobileSignalCount.textContent = `${buysCount} buys / ${total} scanned`;
+        }
+
+        const filtered = _mobileAllScanned.filter(row => {
+            if (_mobileFilter === 'buys' && row.Strategy_Signal !== 'Buy') return false;
+            if (_mobileSearch) {
+                const t = (row.Ticker || '').toLowerCase();
+                const n = (row.Name || '').toLowerCase();
+                if (!t.includes(_mobileSearch) && !n.includes(_mobileSearch)) return false;
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            if (mobileSignalsEmpty) {
+                mobileSignalsEmpty.classList.remove('hidden');
+                const titleEl = mobileSignalsEmpty.querySelector('div');
+                if (titleEl) {
+                    titleEl.textContent = total === 0 ? 'No Signals Loaded' : 'No Stocks Match Filter';
+                }
+            }
             return;
         }
 
         if (mobileSignalsEmpty) mobileSignalsEmpty.classList.add('hidden');
-        if (mobileSignalCount) mobileSignalCount.textContent = `${data.length} qualified`;
 
-        data.forEach(row => {
+        filtered.forEach(row => {
             const ticker = row.Ticker || '';
             const tvSymbol = (row.Yahoo_Ticker || row.Ticker || '').replace('.WA', '').replace('.W', '');
             const tvUrl = `https://pl.tradingview.com/symbols/GPW-${tvSymbol}/`;
@@ -264,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Wire copy ticket handlers
         mobileSignalsFeed.querySelectorAll('.mobile-copy-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 triggerHaptic(30);
                 const raw = decodeURIComponent(btn.getAttribute('data-ticket') || '');
@@ -273,12 +486,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).catch(() => {
                     prompt('Copy ticket manually:', raw);
                 });
-            });
+            };
         });
 
         // Wire execution bottom sheet triggers
         mobileSignalsFeed.querySelectorAll('.mobile-exec-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 triggerHaptic(20);
                 const ticker = btn.getAttribute('data-ticker');
@@ -288,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const atr = parseFloat(btn.getAttribute('data-atr'));
 
                 openMobileExecSheet({ ticker, price, shares, ticket, atr });
-            });
+            };
         });
 
         if (window.lucide) {
@@ -302,44 +515,178 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/results/scan?strategy=' + encodeURIComponent(strat));
             const json = await res.json();
             if (json.market_regime) renderRegime(json.market_regime);
-            if (json.status === 'success') {
-                renderSignalCards(json.data);
+            renderMobilePodium(json.top_3, json.market_regime);
+            if (json.all_stocks && Array.isArray(json.all_stocks)) {
+                _mobileAllScanned = json.all_stocks;
+            } else if (json.data && Array.isArray(json.data)) {
+                _mobileAllScanned = json.data;
+            } else {
+                _mobileAllScanned = [];
             }
+            renderSignalCards();
         } catch (e) {
             console.error('Failed to fetch signals:', e);
         }
     }
 
     if (mobileRunScanBtn) {
-        mobileRunScanBtn.addEventListener('click', async () => {
-            triggerHaptic(30);
-            mobileRunScanBtn.disabled = true;
-            if (mobileSignalsLoading) mobileSignalsLoading.classList.remove('hidden');
-            if (mobileSignalsEmpty) mobileSignalsEmpty.classList.add('hidden');
-
-            try {
-                const strat = getMobileStrategy();
-                const res = await fetch('/api/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ strategy: strat })
-                });
-                const json = await res.json();
-                if (json.status === 'success') {
-                    if (json.market_regime) renderRegime(json.market_regime);
-                    renderSignalCards(json.data);
-                    showMobileToast('Scan Complete ⚡', `Evaluated WIG140 (${json.data ? json.data.length : 0} signals)`, 'success');
-                    playMobileChime();
-                } else {
-                    showMobileToast('Scan Error', json.message || 'Error running scanner', 'error');
-                }
-            } catch (err) {
-                showMobileToast('Scan Error', 'Connection failed: ' + err, 'error');
-            }
-
-            if (mobileSignalsLoading) mobileSignalsLoading.classList.add('hidden');
-            mobileRunScanBtn.disabled = false;
+        mobileRunScanBtn.addEventListener('click', () => {
+            runMobileLiveScanner();
         });
+    }
+
+    function runMobileLiveScanner() {
+        if (_mobileActiveScanSource) {
+            _mobileActiveScanSource.close();
+            _mobileActiveScanSource = null;
+        }
+
+        triggerHaptic(30);
+        const strat = getMobileStrategy();
+        if (mobileRunScanBtn) mobileRunScanBtn.disabled = true;
+        if (mobileRunBtnText) mobileRunBtnText.textContent = "Scanning WIG140...";
+        if (mobileScanProgressCard) mobileScanProgressCard.classList.remove('hidden');
+        if (mobileProgressBar) mobileProgressBar.style.width = '0%';
+        if (mobileProgressText) mobileProgressText.textContent = "Connecting to market stream...";
+        if (mobileProgressCount) mobileProgressCount.textContent = "0 / 140 (0%)";
+        if (mobileSignalsEmpty) mobileSignalsEmpty.classList.add('hidden');
+
+        _mobileAllScanned = [];
+        if (mobileSignalsFeed) mobileSignalsFeed.innerHTML = '';
+
+        let count = 0;
+        const streamUrl = `/api/scan/stream?strategy=${encodeURIComponent(strat)}`;
+
+        try {
+            const es = new EventSource(streamUrl);
+            _mobileActiveScanSource = es;
+
+            es.addEventListener('connected', () => {
+                if (mobileProgressText) mobileProgressText.textContent = "Connected. Scanning WIG140 universe...";
+            });
+
+            es.addEventListener('regime', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    const reg = payload.data || payload;
+                    renderRegime(reg);
+                    if ((reg.regime || payload.regime) === 'RED') {
+                        renderMobilePodium({ is_locked: true, picks: [] }, reg);
+                    }
+                } catch (err) {
+                    console.error("Error parsing regime event", err);
+                }
+            });
+
+            es.addEventListener('stock', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    const stock = payload.stock;
+                    const total = payload.total || 140;
+                    count++;
+
+                    _mobileAllScanned.push(stock);
+                    const pct = Math.min(100, Math.round((count / total) * 100));
+                    if (mobileProgressBar) mobileProgressBar.style.width = `${pct}%`;
+                    if (mobileProgressCount) mobileProgressCount.textContent = `${count} / ${total} (${pct}%)`;
+                    if (mobileProgressText) mobileProgressText.textContent = `${stock.Ticker} (${stock.Strategy_Signal === 'Buy' ? '🔥 BUY' : 'Hold'})`;
+
+                    if (stock.Strategy_Signal === 'Buy' || _mobileAllScanned.length % 5 === 0) {
+                        renderSignalCards();
+                    }
+                } catch (err) {
+                    console.error("Error parsing stock event", err);
+                }
+            });
+
+            es.addEventListener('error', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    showMobileToast('Scan Error', payload.message || 'Stream error', 'error');
+                } catch (_) {}
+            });
+
+            es.addEventListener('complete', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    es.close();
+                    _mobileActiveScanSource = null;
+
+                    if (payload.all_stocks && Array.isArray(payload.all_stocks)) {
+                        _mobileAllScanned = payload.all_stocks;
+                    }
+
+                    if (payload.market_regime) renderRegime(payload.market_regime);
+                    renderMobilePodium(payload.top_3, payload.market_regime);
+                    renderSignalCards();
+
+                    if (mobileProgressBar) mobileProgressBar.style.width = '100%';
+                    if (mobileProgressCount) mobileProgressCount.textContent = `${_mobileAllScanned.length} / ${_mobileAllScanned.length} (100%)`;
+                    if (mobileProgressText) mobileProgressText.textContent = "Scan complete!";
+
+                    showMobileToast('Scan Complete ⚡', `Evaluated ${_mobileAllScanned.length} stocks. Podium updated.`, 'success');
+                    playMobileChime();
+                    triggerHaptic(40);
+
+                    setTimeout(() => {
+                        if (mobileScanProgressCard) mobileScanProgressCard.classList.add('hidden');
+                    }, 2500);
+                } catch (err) {
+                    console.error("Error on mobile complete", err);
+                } finally {
+                    if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
+                    if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
+                }
+            });
+
+            es.onerror = (err) => {
+                console.warn("Mobile EventSource error, fallback to POST", err);
+                es.close();
+                _mobileActiveScanSource = null;
+                if (count === 0) {
+                    fallbackMobilePostScan(strat);
+                } else {
+                    if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
+                    if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
+                    renderSignalCards();
+                }
+            };
+        } catch (err) {
+            console.error("Failed to connect EventSource on mobile, using POST fallback", err);
+            fallbackMobilePostScan(strat);
+        }
+    }
+
+    async function fallbackMobilePostScan(strat) {
+        if (mobileProgressText) mobileProgressText.textContent = "Streaming unavailable, running batch scan...";
+        try {
+            const res = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ strategy: strat })
+            });
+            const json = await res.json();
+            if (json.status === 'success') {
+                if (json.all_stocks && Array.isArray(json.all_stocks)) {
+                    _mobileAllScanned = json.all_stocks;
+                } else if (json.data && Array.isArray(json.data)) {
+                    _mobileAllScanned = json.data;
+                }
+                if (json.market_regime) renderRegime(json.market_regime);
+                renderMobilePodium(json.top_3, json.market_regime);
+                renderSignalCards();
+                showMobileToast('Scan Complete ⚡', `Evaluated WIG140 (${_mobileAllScanned.length} stocks)`, 'success');
+                playMobileChime();
+            } else {
+                showMobileToast('Scan Error', json.message || 'Error running scanner', 'error');
+            }
+        } catch (err) {
+            showMobileToast('Scan Error', 'Connection failed: ' + err, 'error');
+        } finally {
+            if (mobileScanProgressCard) mobileScanProgressCard.classList.add('hidden');
+            if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
+            if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
+        }
     }
 
     // ==========================================
