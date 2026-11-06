@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mobileSignalsFeed) mobileSignalsFeed.innerHTML = '';
 
         let count = 0;
-        const streamUrl = `/api/scan/stream?strategy=${encodeURIComponent(strat)}`;
+        const streamUrl = new URL(`/api/scan/stream?strategy=${encodeURIComponent(strat)}`, window.location.origin).href;
 
         try {
             const es = new EventSource(streamUrl);
@@ -664,6 +664,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ strategy: strat })
             });
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status} (${res.statusText || 'Server Error'})`);
+            }
             const json = await res.json();
             if (json.status === 'success') {
                 if (json.all_stocks && Array.isArray(json.all_stocks)) {

@@ -1178,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ledgerBuysCount) ledgerBuysCount.textContent = '0';
 
         let receivedCount = 0;
-        const streamUrl = `/api/scan/stream?strategy=${encodeURIComponent(strategy)}`;
+        const streamUrl = new URL(`/api/scan/stream?strategy=${encodeURIComponent(strategy)}`, window.location.origin).href;
 
         try {
             const es = new EventSource(streamUrl);
