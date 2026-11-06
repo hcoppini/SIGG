@@ -966,7 +966,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             podiumCardsGrid.innerHTML = html;
         }
-        }
 
         // Wire copy buttons in podium
         podiumCardsGrid.querySelectorAll('.copy-ticket-btn').forEach(btn => {

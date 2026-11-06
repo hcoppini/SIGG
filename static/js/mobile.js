@@ -328,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
             html += '</div>';
             mobilePodiumGrid.innerHTML = html;
         }
-        }
 
         mobilePodiumGrid.querySelectorAll('.mobile-copy-btn').forEach(btn => {
             btn.onclick = (e) => {
