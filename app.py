@@ -145,6 +145,16 @@ def _run_scheduled_automation_loop():
                     except Exception as e:
                         print(f"[{datetime.now()}] Error in background contest sync: {e}")
 
+                # Off-Hours Session Keep-Alive Heartbeat every 30 mins (06:00 - 23:00)
+                # Keeps the session cookie active on GPWTr@der so it never expires from inactivity
+                elif (hh < 9 or hh >= 17) and 6 <= hh <= 23 and mm % 30 == 0:
+                    try:
+                        contest_cfg = contest_sync_engine.load_config()
+                        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+                            contest_sync_engine.sync_now(portfolio_mgr)
+                    except Exception:
+                        pass
+
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
