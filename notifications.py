@@ -23,6 +23,7 @@ def load_settings() -> Dict[str, Any]:
     os.makedirs(os.path.dirname(SETTINGS_FILE) if os.path.dirname(SETTINGS_FILE) else ".", exist_ok=True)
     settings = {
         "discord_webhook_url": os.environ.get("DISCORD_WEBHOOK_URL", ""),
+        "active_strategy": "breakout_trend",
         "sound_alerts_enabled": True,
         "auto_dispatch_1635": True,
         "auto_dispatch_1650": True
@@ -300,26 +301,36 @@ if __name__ == "__main__":
             
     if args.type == "preclose":
         import glob
-        scan_files = glob.glob("Output/scan_results_*.csv")
         candidates = []
-        if scan_files:
-            latest_csv = max(scan_files, key=os.path.getctime)
-            df = pd.read_csv(latest_csv).fillna("")
+        if os.path.exists("Output/scan_results_latest.csv"):
+            df = pd.read_csv("Output/scan_results_latest.csv").fillna("")
             buys = df[df["Strategy_Signal"] == "Buy"]
             candidates = buys.to_dict("records") if len(buys) > 0 else df.head(5).to_dict("records")
+        else:
+            scan_files = glob.glob("Output/scan_results_*.csv")
+            if scan_files:
+                latest_csv = max(scan_files, key=os.path.getmtime)
+                df = pd.read_csv(latest_csv).fillna("")
+                buys = df[df["Strategy_Signal"] == "Buy"]
+                candidates = buys.to_dict("records") if len(buys) > 0 else df.head(5).to_dict("records")
         res = dispatch_1635_preclose_alert(regime_data, summary, candidates)
         print("Preclose alert result:", res)
     elif args.type == "fixing":
         sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
         vacant = summary.get("vacant_slots", 3) + len(sells)
         candidates = []
-        import glob
-        scan_files = glob.glob("Output/scan_results_*.csv")
-        if scan_files:
-            latest_csv = max(scan_files, key=os.path.getctime)
-            df = pd.read_csv(latest_csv).fillna("")
+        if os.path.exists("Output/scan_results_latest.csv"):
+            df = pd.read_csv("Output/scan_results_latest.csv").fillna("")
             buys = df[df["Strategy_Signal"] == "Buy"]
             candidates = buys.to_dict("records")[:vacant] if len(buys) > 0 else []
+        else:
+            import glob
+            scan_files = glob.glob("Output/scan_results_*.csv")
+            if scan_files:
+                latest_csv = max(scan_files, key=os.path.getmtime)
+                df = pd.read_csv(latest_csv).fillna("")
+                buys = df[df["Strategy_Signal"] == "Buy"]
+                candidates = buys.to_dict("records")[:vacant] if len(buys) > 0 else []
         res = dispatch_1650_fixing_action_sheet(summary, candidates, sells)
         print("Fixing action sheet result:", res)
     elif args.type == "test":

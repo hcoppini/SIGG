@@ -163,9 +163,14 @@
             <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
                 Active Slots (<span id="portActiveCount">0</span>/3)
             </span>
-            <button id="mobileRefreshPortBtn" class="btn-card-copy" style="padding: 4px 10px; font-size: 0.75rem;">
-                <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Refresh
-            </button>
+            <div style="display: flex; gap: 6px;">
+                <button id="mobileResetPortBtn" class="btn-card-copy" style="padding: 4px 8px; font-size: 0.72rem; color: #f87171; border-color: rgba(248,113,113,0.3);" title="Reset portfolio to clean 20,000 PLN">
+                    <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset
+                </button>
+                <button id="mobileRefreshPortBtn" class="btn-card-copy" style="padding: 4px 10px; font-size: 0.75rem;">
+                    <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Refresh
+                </button>
+            </div>
         </div>
 
         <div id="mobileSlotsFeed">

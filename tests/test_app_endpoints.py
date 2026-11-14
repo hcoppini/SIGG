@@ -131,5 +131,14 @@ class TestAppEndpoints(unittest.TestCase):
         self.assertGreater(len(data['data']), 0)
         self.assertIn('market_regime', data)
 
+    def test_portfolio_reset_endpoint(self):
+        res = self.client.post('/api/portfolio/reset', json={'initial_capital': 20000.0})
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data.get('status'), 'success')
+        self.assertEqual(data['state']['cash'], 20000.0)
+        self.assertEqual(len(data['state']['positions']), 0)
+        self.assertEqual(len(data['state']['closed_trades']), 0)
+
 if __name__ == '__main__':
     unittest.main()

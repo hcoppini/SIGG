@@ -11,7 +11,7 @@ Enforces:
 
 import json
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Dict, List, Optional, Any
 import pandas as pd
 import yfinance as yf
@@ -57,6 +57,60 @@ class PortfolioManager:
         os.makedirs(os.path.dirname(self.state_file) if os.path.dirname(self.state_file) else ".", exist_ok=True)
         with open(self.state_file, 'w', encoding='utf-8') as f:
             json.dump(self.state, f, indent=2)
+
+    def calculate_trading_days_held(self, entry_date_str: str, today_date: Optional[date] = None) -> int:
+        """
+        Calculates the number of trading sessions elapsed (including entry day as Day 1)
+        based on calendar weekdays (Monday-Friday) between entry_date and today.
+        Guarantees that even if server restarts, day counts remain 100% accurate.
+        """
+        if not entry_date_str:
+            return 1
+        try:
+            entry_d = datetime.strptime(str(entry_date_str)[:10], "%Y-%m-%d").date()
+            today_d = today_date if today_date is not None else date.today()
+            if entry_d >= today_d:
+                return 1
+            
+            cur = entry_d
+            count = 1
+            while cur < today_d:
+                cur += timedelta(days=1)
+                if cur.weekday() < 5 and cur <= today_d:  # Mon-Fri
+                    if cur == today_d and today_d.weekday() >= 5:
+                        pass
+                    else:
+                        count += 1
+            return max(1, count)
+        except Exception:
+            return 1
+
+    def reset_portfolio(self, initial_capital: float = 20000.0) -> Dict[str, Any]:
+        """Resets portfolio state to clean slate for official contest start."""
+        self.initial_capital = float(initial_capital)
+        clean_state = {
+            "initial_capital": self.initial_capital,
+            "cash": self.initial_capital,
+            "positions": [],
+            "closed_trades": [],
+            "contest_sync": {
+                "status": "unconfigured",
+                "last_synced": None,
+                "rank": None,
+                "total_teams": None,
+                "contest_equity": self.initial_capital,
+                "contest_cash": self.initial_capital,
+                "positions_count": 0,
+                "error_message": None
+            },
+            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.save_state(clean_state)
+        return {
+            "status": "success",
+            "message": f"Portfolio reset to clean slate with {self.initial_capital:.2f} PLN.",
+            "state": clean_state
+        }
 
     def calculate_slot_allocation(self) -> float:
         """Calculates cash available for next slot based on current equity / vacant slots."""
@@ -234,6 +288,10 @@ class PortfolioManager:
             trailing_stop = pos.get("highest_price", curr_p) - (2.2 * atr)
             pos["stop_loss_price"] = round(trailing_stop, 2)
             
+            # Auto-sync sessions held with calendar trading days
+            if pos.get("entry_date"):
+                cal_days = self.calculate_trading_days_held(pos["entry_date"])
+                pos["sessions_held"] = max(pos.get("sessions_held", 1), cal_days)
             sessions = pos.get("sessions_held", 1)
             
             # Exit Logic

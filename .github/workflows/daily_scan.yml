@@ -2,10 +2,10 @@ name: Daily SIGG Cloud Scanner & Alert Dispatcher
 
 on:
   schedule:
-    # 15:35 UTC = 16:35 CET (Monday to Friday) -> Pre-Close Scan & Evaluation
-    - cron: '35 15 * * 1-5'
-    # 15:50 UTC = 16:50 CET (Monday to Friday) -> Fixing Auction Action Sheet
-    - cron: '50 15 * * 1-5'
+    # 15:30 UTC = 16:30 CET (Monday to Friday) -> Pre-Close Scan & Evaluation (5m queue buffer)
+    - cron: '30 15 * * 1-5'
+    # 15:45 UTC = 16:45 CET (Monday to Friday) -> Fixing Auction Action Sheet (5m queue buffer before 16:50 CET fixing)
+    - cron: '45 15 * * 1-5'
   workflow_dispatch:
     inputs:
       alert_type:
@@ -38,9 +38,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Live Stock Scanner (Squeeze-Ignition)
+      - name: Run Live Stock Scanner
         run: |
-          python stock_scanner.py --strategy squeeze_ignition
+          python stock_scanner.py --strategy breakout_trend
 
       - name: Dispatch Discord Alert
         env:
@@ -49,7 +49,7 @@ jobs:
           ALERT_TYPE="${{ github.event.inputs.alert_type }}"
           if [ -z "$ALERT_TYPE" ]; then
             MINUTE=$(date -u +%M)
-            if [ "$MINUTE" -ge 45 ]; then
+            if [ "$MINUTE" -ge 40 ]; then
               ALERT_TYPE="fixing"
             else
               ALERT_TYPE="preclose"

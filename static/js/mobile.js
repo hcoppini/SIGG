@@ -918,6 +918,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const mobileResetPortBtn = document.getElementById('mobileResetPortBtn');
+    if (mobileResetPortBtn) {
+        mobileResetPortBtn.addEventListener('click', async () => {
+            triggerHaptic(40);
+            const confirmed = window.confirm('Reset portfolio to 20,000.00 PLN clean slate for the official contest start? This clears all test trades.');
+            if (!confirmed) return;
+            try {
+                const res = await fetch('/api/portfolio/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initial_capital: 20000.0 })
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showMobileToast('Portfolio Reset', 'Clean slate: 20,000 PLN ready for Contest Day 1.', 'success', 3500);
+                    fetchMobilePortfolio();
+                } else {
+                    showMobileToast('Reset Error', json.message || 'Failed to reset', 'error');
+                }
+            } catch (e) {
+                showMobileToast('Network Error', e.message, 'error');
+            }
+        });
+    }
+
     const mobileSyncContestBtn = document.getElementById('mobileSyncContestBtn');
     if (mobileSyncContestBtn) {
         mobileSyncContestBtn.addEventListener('click', async () => {

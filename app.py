@@ -148,7 +148,8 @@ def _run_scheduled_automation_loop():
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
-                    print(f"[{datetime.now()}] Triggering scheduled 16:35 CET pre-close scan & alert...")
+                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    print(f"[{datetime.now()}] Triggering scheduled 16:35 CET pre-close scan & alert (Strategy: {active_strat})...")
                     
                     # Ensure latest contest positions & balance are synced first
                     try:
@@ -158,17 +159,18 @@ def _run_scheduled_automation_loop():
                     except Exception:
                         pass
 
-                    scan_market(strategy="squeeze_ignition")
+                    scan_market(strategy=active_strat)
                     portfolio_mgr.update_live_quotes()
                     regime = get_market_regime()
                     summary = portfolio_mgr.get_summary()
-                    candidates = get_latest_buy_candidates("squeeze_ignition", limit=summary.get("vacant_slots", 3))
+                    candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
                     dispatch_1635_preclose_alert(regime, summary, candidates)
 
                 # 2) 16:50 CET Closing Auction Fixing Window
                 elif hh_mm == "16:50" and settings.get("auto_dispatch_1650", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
-                    print(f"[{datetime.now()}] Triggering scheduled 16:50 CET fixing action sheet...")
+                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    print(f"[{datetime.now()}] Triggering scheduled 16:50 CET fixing action sheet (Strategy: {active_strat})...")
                     
                     # Ensure latest contest positions are synced first
                     try:
@@ -185,7 +187,7 @@ def _run_scheduled_automation_loop():
                     buys = []
                     vacant_after_sells = summary.get("vacant_slots", 3) + len(sells)
                     if vacant_after_sells > 0 and get_market_regime().get("regime") != "RED":
-                        candidates = get_latest_buy_candidates("squeeze_ignition", limit=vacant_after_sells)
+                        candidates = get_latest_buy_candidates(active_strat, limit=vacant_after_sells)
                         buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
                         if not buys and candidates:
                             buys = candidates[:vacant_after_sells]
@@ -279,6 +281,15 @@ def portfolio_sell():
         push_in_app_notification("Position Liquidated", f"Sold {ticker} at {exit_price:.2f} PLN (PnL: {res['trade']['net_pnl_pln']:+.2f} PLN)", level="warning")
     return jsonify(res)
 
+@app.route('/api/portfolio/reset', methods=['POST'])
+def portfolio_reset():
+    data = request.get_json(silent=True) or {}
+    initial_cap = float(data.get("initial_capital", 20000.0))
+    res = portfolio_mgr.reset_portfolio(initial_capital=initial_cap)
+    if res["status"] == "success":
+        push_in_app_notification("Portfolio Reset", f"Restored clean slate of {initial_cap:,.2f} PLN for official contest start.", level="info")
+    return jsonify(res)
+
 # -------------------------------------------------------------
 # SIGG Contest Synchronization Endpoints
 # -------------------------------------------------------------
@@ -369,19 +380,21 @@ def test_discord_webhook():
 def manual_dispatch_alert():
     data = request.get_json(silent=True) or {}
     window = data.get("window", "1635")
+    settings = load_settings()
+    active_strat = data.get("strategy") or settings.get("active_strategy", "breakout_trend")
     
     portfolio_mgr.update_live_quotes()
     summary = portfolio_mgr.get_summary()
     regime = get_market_regime()
     
     if window == "1635":
-        candidates = get_latest_buy_candidates("squeeze_ignition", limit=summary.get("vacant_slots", 3))
+        candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
         res = dispatch_1635_preclose_alert(regime, summary, candidates)
         return jsonify(res)
     else:
         sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
         vacant = summary.get("vacant_slots", 3) + len(sells)
-        candidates = get_latest_buy_candidates("squeeze_ignition", limit=vacant)
+        candidates = get_latest_buy_candidates(active_strat, limit=vacant)
         buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
         if not buys and candidates:
             buys = candidates[:vacant]
