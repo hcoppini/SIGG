@@ -387,6 +387,27 @@ def contest_mock_sync():
     res = contest_sync_engine.mock_sync(data, portfolio_mgr)
     return jsonify(res)
 
+@app.route('/api/test_scan', methods=['GET'])
+def test_scan_endpoint():
+    import time, traceback
+    t0 = time.time()
+    try:
+        res = scan_market('breakout_trend')
+        return jsonify({
+            'status': 'ok',
+            'time': round(time.time() - t0, 2),
+            'stocks': len(res.get('all_stocks', [])),
+            'buys': len(res.get('data', [])),
+            'regime': res.get('regime')
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'time': round(time.time() - t0, 2),
+            'error': str(e),
+            'trace': traceback.format_exc()
+        })
+
 @app.route('/api/test_yf', methods=['GET'])
 def test_yf_endpoint():
     import time, yfinance as yf
