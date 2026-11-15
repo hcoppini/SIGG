@@ -389,7 +389,7 @@ def contest_mock_sync():
 
 @app.route('/api/test_yf', methods=['GET'])
 def test_yf_endpoint():
-    import time
+    import time, yfinance as yf
     t0 = time.time()
     try:
         df = yf.download('PKN.WA', period='5d', timeout=10, progress=False)
