@@ -598,6 +598,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (mobileProgressText) mobileProgressText.textContent = "Connected. Scanning WIG140 universe...";
             });
 
+            es.addEventListener('progress', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    if (mobileProgressText && payload.message) mobileProgressText.textContent = payload.message;
+                    if (mobileProgressBar && payload.percent !== undefined) mobileProgressBar.style.width = `${Math.max(5, payload.percent)}%`;
+                } catch (_) {}
+            });
+
+            es.addEventListener('keepalive', () => {
+                // Connection alive
+            });
+
             es.addEventListener('regime', (e) => {
                 try {
                     const payload = JSON.parse(e.data);

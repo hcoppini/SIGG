@@ -234,7 +234,8 @@ _BATCH_CACHE = {"timestamp": 0, "data": {}}
 def scan_market(
     strategy: str = 'squeeze_ignition',
     on_stock: Optional[callable] = None,
-    on_regime: Optional[callable] = None
+    on_regime: Optional[callable] = None,
+    on_progress: Optional[callable] = None
 ) -> Dict:
     config = load_config()
     bt_ticker_stats = load_ticker_backtest_stats(strategy)
@@ -253,23 +254,29 @@ def scan_market(
     
     global _BATCH_CACHE
     now_ts = time.time()
-    if now_ts - _BATCH_CACHE.get("timestamp", 0) < 300 and len(_BATCH_CACHE.get("data", {})) >= 50:
+    if now_ts - _BATCH_CACHE.get("timestamp", 0) < 900 and len(_BATCH_CACHE.get("data", {})) >= 50:
         batch_data = _BATCH_CACHE["data"]
     else:
         batch_data = {}
-        chunk_size = 35
-        for i in range(0, len(valid_stocks), chunk_size):
+        chunk_size = 58
+        total_chunks = (len(valid_stocks) + chunk_size - 1) // chunk_size
+        for chunk_idx, i in enumerate(range(0, len(valid_stocks), chunk_size)):
             chunk = valid_stocks[i:i + chunk_size]
+            if on_progress:
+                try:
+                    on_progress(f"Fetching WIG140 universe ({chunk_idx + 1}/{total_chunks})...", round((chunk_idx / total_chunks) * 35))
+                except Exception:
+                    pass
             try:
                 raw_chunk = yf.download(
                     chunk,
-                    period=f"{config['data_period']}d",
+                    period="60d",
                     interval="1d",
                     group_by="ticker",
                     threads=True,
                     progress=False,
                     auto_adjust=True,
-                    timeout=15
+                    timeout=10
                 )
                 for t in chunk:
                     try:

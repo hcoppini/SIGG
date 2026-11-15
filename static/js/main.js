@@ -1233,6 +1233,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (scanProgressStatus) scanProgressStatus.textContent = "Connected. Evaluating WIG140 universe...";
             });
 
+            es.addEventListener('progress', (e) => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    if (scanProgressStatus && payload.message) scanProgressStatus.textContent = payload.message;
+                    if (scanProgressBar && payload.percent !== undefined) scanProgressBar.style.width = `${Math.max(5, payload.percent)}%`;
+                } catch (_) {}
+            });
+
+            es.addEventListener('keepalive', () => {
+                // Connection alive
+            });
+
             es.addEventListener('regime', (e) => {
                 try {
                     const payload = JSON.parse(e.data);

@@ -387,59 +387,6 @@ def contest_mock_sync():
     res = contest_sync_engine.mock_sync(data, portfolio_mgr)
     return jsonify(res)
 
-@app.route('/api/test_benchmark', methods=['GET'])
-def test_benchmark():
-    import time, yfinance as yf
-    from stock_scanner import DEFAULT_STOCKS
-    t0 = time.time()
-    chunk1 = DEFAULT_STOCKS[:20]
-    res = yf.download(chunk1, period="60d", interval="1d", group_by="ticker", threads=True, progress=False, timeout=10)
-    t1 = time.time()
-    return jsonify({
-        "time_20_stocks": round(t1 - t0, 2),
-        "columns_count": len(res.columns) if hasattr(res, 'columns') else 0
-    })
-
-@app.route('/api/test_scan', methods=['GET'])
-def test_scan_endpoint():
-    import time, traceback
-    t0 = time.time()
-    try:
-        res = scan_market('breakout_trend')
-        return jsonify({
-            'status': 'ok',
-            'time': round(time.time() - t0, 2),
-            'stocks': len(res.get('all_stocks', [])),
-            'buys': len(res.get('data', [])),
-            'regime': res.get('regime')
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'time': round(time.time() - t0, 2),
-            'error': str(e),
-            'trace': traceback.format_exc()
-        })
-
-@app.route('/api/test_yf', methods=['GET'])
-def test_yf_endpoint():
-    import time, yfinance as yf
-    t0 = time.time()
-    try:
-        df = yf.download('PKN.WA', period='5d', timeout=10, progress=False)
-        return jsonify({
-            'status': 'ok',
-            'time': round(time.time() - t0, 2),
-            'rows': len(df),
-            'empty': df.empty
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'time': round(time.time() - t0, 2),
-            'error': str(e)
-        })
-
 @app.route('/api/contest/status', methods=['GET'])
 def contest_status():
     summary = portfolio_mgr.get_summary()
@@ -540,6 +487,13 @@ def scan_stream():
     
     def worker():
         try:
+            def on_progress(msg, pct=0):
+                q.put({
+                    "type": "progress",
+                    "message": msg,
+                    "percent": pct
+                })
+
             def on_regime(regime_data):
                 clean_reg = sanitize_for_json(regime_data)
                 q.put({
@@ -560,7 +514,7 @@ def scan_stream():
                     "stock": clean_stock
                 })
                 
-            res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime)
+            res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime, on_progress=on_progress)
             clean_all = sanitize_for_json(res.get("all_stocks", []))
             clean_reg = sanitize_for_json(res.get("regime", {}))
             clean_top3 = sanitize_for_json(res.get("top_3", calculate_podium(clean_all, clean_reg)))
@@ -590,10 +544,10 @@ def scan_stream():
         yield "event: connected\ndata: {\"status\": \"connected\"}\n\n"
         while True:
             try:
-                item = q.get(timeout=2.0)
+                item = q.get(timeout=1.5)
             except queue.Empty:
-                # Keep-alive comment prevents mobile carrier / reverse proxy timeout
-                yield ": keepalive\n\n"
+                # Active keep-alive event ensures edge proxies never consider stream idle
+                yield "event: keepalive\ndata: {\"status\": \"scanning\"}\n\n"
                 continue
             if item is None:
                 break
@@ -604,7 +558,7 @@ def scan_stream():
         stream_with_context(generate()),
         mimetype='text/event-stream',
         headers={
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 'no-cache, no-transform',
             'Connection': 'keep-alive',
             'X-Accel-Buffering': 'no'
         }
