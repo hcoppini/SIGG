@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 from datetime import datetime
+import time
 import csv
 import os
 import sys
@@ -141,7 +142,23 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
     else:
         regime = "GREEN"
     
-    is_red = (str(regime).upper() == "RED")
+    reg_upper = str(regime).upper()
+    if reg_upper == "PENDING":
+        return {
+            "is_locked": False,
+            "regime": "PENDING",
+            "status": "AWAITING_SCAN",
+            "status_label": "AWAITING TODAY'S SCAN",
+            "action_msg": "Today's market scan is pending. Run the live scanner or wait for the 16:30 CET automated scan.",
+            "slots": [
+                {"slot": 1, "rank": 1, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."},
+                {"slot": 2, "rank": 2, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."},
+                {"slot": 3, "rank": 3, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."}
+            ],
+            "picks": []
+        }
+
+    is_red = (reg_upper == "RED")
     
     if is_red:
         return {
@@ -212,6 +229,8 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
         "picks": picks
     }
 
+_BATCH_CACHE = {"timestamp": 0, "data": {}}
+
 def scan_market(
     strategy: str = 'squeeze_ignition',
     on_stock: Optional[callable] = None,
@@ -232,27 +251,39 @@ def scan_market(
     
     valid_stocks = [t for t in config['stocks'] if t and t.upper() not in ['N/A', 'NA', '']]
     
-    batch_data = {}
-    try:
-        raw_batch = yf.download(
-            valid_stocks,
-            period=f"{config['data_period']}d",
-            interval="1d",
-            group_by="ticker",
-            threads=True,
-            progress=False,
-            auto_adjust=True,
-            timeout=20
-        )
-        for t in valid_stocks:
+    global _BATCH_CACHE
+    now_ts = time.time()
+    if now_ts - _BATCH_CACHE.get("timestamp", 0) < 300 and len(_BATCH_CACHE.get("data", {})) >= 50:
+        batch_data = _BATCH_CACHE["data"]
+    else:
+        batch_data = {}
+        chunk_size = 35
+        for i in range(0, len(valid_stocks), chunk_size):
+            chunk = valid_stocks[i:i + chunk_size]
             try:
-                sub = raw_batch[t]
-                if 'Close' in sub and len(sub['Close'].dropna()) >= 20:
-                    batch_data[t] = sub.dropna(subset=['Close'])
-            except Exception:
-                pass
-    except Exception as e:
-        print(f"Batch download warning: {e}")
+                raw_chunk = yf.download(
+                    chunk,
+                    period=f"{config['data_period']}d",
+                    interval="1d",
+                    group_by="ticker",
+                    threads=True,
+                    progress=False,
+                    auto_adjust=True,
+                    timeout=15
+                )
+                for t in chunk:
+                    try:
+                        sub = raw_chunk[t] if len(chunk) > 1 else raw_chunk
+                        if sub is not None and 'Close' in sub and len(sub['Close'].dropna()) >= 20:
+                            batch_data[t] = sub.dropna(subset=['Close'])
+                    except Exception:
+                        pass
+            except Exception as e:
+                print(f"Batch chunk download warning ({i}..{i+chunk_size}): {e}")
+
+        if len(batch_data) >= 20:
+            _BATCH_CACHE["timestamp"] = now_ts
+            _BATCH_CACHE["data"] = batch_data
 
     # Layer 1: Top-Down Market Regime Filter (Evaluated before stock scanning)
     for t, df_sub in batch_data.items():
@@ -311,7 +342,7 @@ def scan_market(
             if ticker in batch_data:
                 df_data = batch_data[ticker]
             else:
-                df_data, source = fetch_stock_data(ticker, config['data_period'], config['polygon_api_key'])
+                continue
                 
             if df_data is None or len(df_data) < 20:
                 continue

@@ -77,6 +77,18 @@ class TestStreamingAndPodium(unittest.TestCase):
         self.assertFalse(podium['slots'][1]['is_allocated'])
         self.assertFalse(podium['slots'][2]['is_allocated'])
 
+    def test_calculate_podium_pending_state(self):
+        """PENDING regime must not lock podium or show red kill switch."""
+        podium = calculate_podium([], 'PENDING')
+        self.assertFalse(podium['is_locked'])
+        self.assertEqual(podium['regime'], 'PENDING')
+        self.assertEqual(podium['status'], 'AWAITING_SCAN')
+        self.assertIn("AWAITING TODAY'S SCAN", podium['status_label'])
+        self.assertEqual(len(podium['picks']), 0)
+        self.assertEqual(len(podium['slots']), 3)
+        self.assertFalse(podium['slots'][0]['is_allocated'])
+        self.assertIn("Awaiting today's scan", podium['slots'][0]['reason'])
+
     def test_zero_buys_leaves_all_slots_in_cash(self):
         """When 0 stocks meet strategy buy criteria, all 3 slots must be unallocated cash."""
         records = [

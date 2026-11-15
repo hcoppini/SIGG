@@ -76,20 +76,62 @@ def get_latest_csv(prefix):
         return None
     return max(files, key=os.path.getmtime)
 
+def is_file_stale(filepath, max_age_hours=18):
+    if not filepath or not os.path.exists(filepath):
+        return True
+    try:
+        now_dt = datetime.now(WARSAW_TZ)
+        today_date = now_dt.strftime("%Y-%m-%d")
+        today_compact = now_dt.strftime("%Y%m%d")
+
+        # 1. Check filename for date (e.g. scan_results_20261114_221857.csv)
+        base_name = os.path.basename(filepath)
+        match = re.search(r'(\d{8})', base_name)
+        if match:
+            fn_date = match.group(1)
+            if fn_date < today_compact:
+                return True
+
+        # 2. Check JSON contents for updated_at
+        if filepath.endswith('.json'):
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    jdata = json.load(f)
+                    if isinstance(jdata, dict) and "updated_at" in jdata:
+                        up_str = str(jdata["updated_at"])[:10]
+                        if up_str < today_date:
+                            return True
+            except Exception:
+                pass
+
+        # 3. Check filesystem mtime
+        mtime = os.path.getmtime(filepath)
+        file_age = time.time() - mtime
+        if file_age > max_age_hours * 3600:
+            return True
+        file_date = datetime.fromtimestamp(mtime, tz=WARSAW_TZ).strftime("%Y-%m-%d")
+        if file_date < today_date:
+            return True
+        return False
+    except Exception:
+        return True
+
 def get_market_regime():
     regime_file = "Output/market_regime.json"
-    if os.path.exists(regime_file):
+    if os.path.exists(regime_file) and not is_file_stale(regime_file):
         try:
             with open(regime_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                return data
         except Exception:
             pass
     return {
-        "regime": "GREEN",
-        "status_label": "UNLOCKED (Risk-On)",
-        "action_msg": "Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold).",
+        "regime": "PENDING",
+        "status_label": "AWAITING TODAY'S SCAN",
+        "action_msg": "Today's market scan is pending. Run the live scanner or wait for the 16:30 CET automated scan.",
         "index_change_pct": 0.0,
-        "breadth_above_sma20_pct": 55.0
+        "breadth_above_sma20_pct": None,
+        "is_stale": True
     }
 
 def get_backtest_summary_for_scanner(strategy):
@@ -520,30 +562,43 @@ def get_scan_results():
     strategy = request.args.get('strategy', 'breakout_trend')
     latest_csv = get_latest_csv("scan_results")
     regime = sanitize_for_json(get_market_regime())
-    if latest_csv:
-        try:
-            df = pd.read_csv(latest_csv).fillna('')
-            all_records = sanitize_for_json(df.to_dict('records'))
-            top_3 = sanitize_for_json(calculate_podium(all_records, regime))
-            buys = [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
-            if len(buys) == 0:
-                results = all_records[:10]
-                scan_type = "closest"
-            else:
-                results = buys
-                scan_type = "buys"
-            return jsonify({
-                "status": "success",
-                "data": results,
-                "all_stocks": all_records,
-                "top_3": top_3,
-                "type": scan_type,
-                "market_regime": regime,
-                "backtest_summary": get_backtest_summary_for_scanner(strategy)
-            })
-        except Exception as e:
-            pass
-            
+    
+    # If the regime is PENDING (new day / last scan is stale), return a clean pending state
+    if regime.get("regime") == "PENDING" or not latest_csv or is_file_stale(latest_csv):
+        return jsonify({
+            "status": "pending",
+            "message": "Today's scan has not run yet. Run live scanner to evaluate today's market.",
+            "all_stocks": [],
+            "data": [],
+            "top_3": calculate_podium([], "PENDING"),
+            "type": "pending",
+            "market_regime": regime,
+            "backtest_summary": get_backtest_summary_for_scanner(strategy)
+        })
+
+    try:
+        df = pd.read_csv(latest_csv).fillna('')
+        all_records = sanitize_for_json(df.to_dict('records'))
+        top_3 = sanitize_for_json(calculate_podium(all_records, regime))
+        buys = [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
+        if len(buys) == 0:
+            results = all_records[:10]
+            scan_type = "closest"
+        else:
+            results = buys
+            scan_type = "buys"
+        return jsonify({
+            "status": "success",
+            "data": results,
+            "all_stocks": all_records,
+            "top_3": top_3,
+            "type": scan_type,
+            "market_regime": regime,
+            "backtest_summary": get_backtest_summary_for_scanner(strategy)
+        })
+    except Exception:
+        pass
+        
     return jsonify({
         "status": "error",
         "message": "No previous scan found.",

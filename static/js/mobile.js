@@ -143,13 +143,24 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileRegimeStrip.className = 'regime-strip';
         if (reg === 'RED') mobileRegimeStrip.classList.add('regime-red');
         else if (reg === 'YELLOW') mobileRegimeStrip.classList.add('regime-yellow');
+        else if (reg === 'PENDING') mobileRegimeStrip.classList.add('regime-pending');
         else mobileRegimeStrip.classList.add('regime-green');
 
-        if (mobileRegimeTag) mobileRegimeTag.textContent = `${reg} REGIME`;
+        if (mobileRegimeTag) {
+            if (reg === 'PENDING') {
+                mobileRegimeTag.textContent = '⏳ PENDING';
+            } else {
+                mobileRegimeTag.textContent = `${reg} REGIME`;
+            }
+        }
         if (mobileRegimeText) {
-            const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32 : 55)).toFixed(0);
-            const chg = Number(regObj.index_change_pct || 0);
-            mobileRegimeText.textContent = `Breadth: ${brd}% | Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(1)}% | Max 3 Slots`;
+            if (reg === 'PENDING') {
+                mobileRegimeText.textContent = `Awaiting scan • Run live scanner or wait for 16:30 CET`;
+            } else {
+                const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32 : 55)).toFixed(0);
+                const chg = Number(regObj.index_change_pct || 0);
+                mobileRegimeText.textContent = `Breadth: ${brd}% | Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(1)}% | Max 3 Slots`;
+            }
         }
     }
 
@@ -223,7 +234,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMobilePodium(podiumData, regimeData) {
         if (!mobilePodiumGrid) return;
         const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
-        const isRed = (podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED');
+        const isPending = (String(regStr).toUpperCase() === 'PENDING') || (podiumData && podiumData.regime === 'PENDING');
+        const isRed = !isPending && ((podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED'));
+
+        if (isPending) {
+            if (mobilePodiumBadge) {
+                mobilePodiumBadge.textContent = '⏳ PENDING';
+                mobilePodiumBadge.style.background = 'rgba(148, 163, 184, 0.2)';
+                mobilePodiumBadge.style.color = '#cbd5e1';
+            }
+            mobilePodiumGrid.innerHTML = `
+                <div class="mobile-podium-pending" style="padding: 1.25rem 1rem; background: rgba(148,163,184,0.08); border: 1px dashed rgba(148,163,184,0.3); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">⏳</div>
+                    <div style="font-weight: 700; font-size: 0.88rem; color: #fff; margin-bottom: 0.25rem;">Awaiting Today's Scan</div>
+                    <p style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; margin: 0 0 0.75rem 0;">
+                        System reset for the trading day. Run a live scan to evaluate breadth &amp; pick runner stocks.
+                    </p>
+                    <button class="btn-card-copy" onclick="document.getElementById('mobileRunScanBtn')?.click()" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 600; margin: 0 auto; display: inline-flex; align-items: center; gap: 4px; background: var(--accent); color: #fff; border: none;">
+                        <i data-lucide="play" style="width: 12px; height: 12px;"></i> Run Live Scan
+                    </button>
+                </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
 
         if (isRed) {
             if (mobilePodiumBadge) {
@@ -958,7 +992,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     playMobileChime();
                     fetchMobilePortfolio();
                 } else {
-                    showMobileToast('Sync Failed', json.message || 'Could not connect to contest. Verify cURL in Desktop settings.', 'error');
+                    const msg = json.message || 'Could not connect to contest. Verify cURL in settings.';
+                    showMobileToast('Sync Failed', msg, 'error');
+                    if (msg.toLowerCase().includes('no portfolio curl')) {
+                        switchMobileTab('alertsView');
+                        setTimeout(() => {
+                            const curlCard = document.getElementById('mobileContestCard');
+                            if (curlCard) curlCard.scrollIntoView({ behavior: 'smooth' });
+                            const curlInput = document.getElementById('mobileContestCurlInput');
+                            if (curlInput) curlInput.focus();
+                        }, 200);
+                    }
                     fetchMobilePortfolio();
                 }
             } catch (err) {
@@ -1050,6 +1094,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 5. ALERTS & DISCORD SETTINGS
     // ==========================================
+    const mobileContestCurlInput = document.getElementById('mobileContestCurlInput');
+    const mobileSaveContestCurlBtn = document.getElementById('mobileSaveContestCurlBtn');
+    const mobileTestContestCurlBtn = document.getElementById('mobileTestContestCurlBtn');
+
     const mobileDiscordWebhook = document.getElementById('mobileDiscordWebhook');
     const mobileSoundToggle = document.getElementById('mobileSoundToggle');
     const mobileAuto1635Toggle = document.getElementById('mobileAuto1635Toggle');
@@ -1071,9 +1119,79 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (mobileAuto1635Toggle && s.auto_dispatch_1635 !== undefined) mobileAuto1635Toggle.checked = Boolean(s.auto_dispatch_1635);
                 if (mobileAuto1650Toggle && s.auto_dispatch_1650 !== undefined) mobileAuto1650Toggle.checked = Boolean(s.auto_dispatch_1650);
             }
+
+            // Also load contest cURL config
+            const cRes = await fetch('/api/contest/config');
+            const cJson = await cRes.json();
+            if (cJson.status === 'success' && cJson.config) {
+                if (mobileContestCurlInput && cJson.config.portfolio_curl !== undefined) {
+                    mobileContestCurlInput.value = cJson.config.portfolio_curl;
+                }
+            }
         } catch (e) {
             console.error('Failed to load settings:', e);
         }
+    }
+
+    if (mobileSaveContestCurlBtn) {
+        mobileSaveContestCurlBtn.addEventListener('click', async () => {
+            triggerHaptic(25);
+            mobileSaveContestCurlBtn.disabled = true;
+            const curlStr = mobileContestCurlInput?.value?.trim() || '';
+            try {
+                const res = await fetch('/api/contest/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        portfolio_curl: curlStr,
+                        enabled: true
+                    })
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showMobileToast('cURL Saved', 'Contest cURL configuration updated.', 'success');
+                } else {
+                    showMobileToast('Save Error', json.message || 'Failed to save cURL.', 'error');
+                }
+            } catch (err) {
+                showMobileToast('Save Error', 'Connection failed: ' + err, 'error');
+            } finally {
+                mobileSaveContestCurlBtn.disabled = false;
+            }
+        });
+    }
+
+    if (mobileTestContestCurlBtn) {
+        mobileTestContestCurlBtn.addEventListener('click', async () => {
+            triggerHaptic(20);
+            mobileTestContestCurlBtn.disabled = true;
+            const curlStr = mobileContestCurlInput?.value?.trim() || '';
+            try {
+                if (curlStr) {
+                    await fetch('/api/contest/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            portfolio_curl: curlStr,
+                            enabled: true
+                        })
+                    });
+                }
+                const res = await fetch('/api/contest/sync', { method: 'POST' });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showMobileToast('Sync Successful 🎯', json.message || 'Equity and holdings synced!', 'success');
+                    playMobileChime();
+                    fetchMobilePortfolio();
+                } else {
+                    showMobileToast('Sync Failed', json.message || 'Check cURL session token.', 'error');
+                }
+            } catch (err) {
+                showMobileToast('Sync Error', 'Test failed: ' + err, 'error');
+            } finally {
+                mobileTestContestCurlBtn.disabled = false;
+            }
+        });
     }
 
     if (mobileSaveWebhookBtn) {

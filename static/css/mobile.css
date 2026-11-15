@@ -184,6 +184,11 @@ body {
     border-color: rgba(244, 63, 94, 0.3);
 }
 
+.regime-strip.regime-pending {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
 .regime-tag {
     font-family: var(--font-mono);
     font-weight: 700;
@@ -203,6 +208,11 @@ body {
 .regime-strip.regime-red .regime-tag {
     background: var(--negative);
     color: #881337;
+}
+
+.regime-strip.regime-pending .regime-tag {
+    background: #64748b;
+    color: #f8fafc;
 }
 
 .regime-text {

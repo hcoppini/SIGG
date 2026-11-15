@@ -1265,6 +1265,11 @@ td strong {
     border-color: rgba(244, 63, 94, 0.4);
 }
 
+.regime-strip-compact.regime-pending {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
 .regime-strip-compact .regime-pill {
     padding: 0;
     background: transparent;
@@ -1275,6 +1280,13 @@ td strong {
 .regime-strip-compact.regime-green .regime-pill { color: #34d399; }
 .regime-strip-compact.regime-yellow .regime-pill { color: #fbbf24; }
 .regime-strip-compact.regime-red .regime-pill { color: #f43f5e; }
+.regime-strip-compact.regime-pending .regime-pill { color: #94a3b8; }
+
+.podium-status-pill.pending {
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
 
 .regime-stats {
     font-size: 0.72rem;

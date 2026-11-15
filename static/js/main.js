@@ -739,7 +739,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     playChime();
                     fetchPortfolio();
                 } else {
-                    showToast('Sync Failed', json.message || 'Could not connect to contest. Verify cURL.', 'error');
+                    const msg = json.message || 'Could not connect to contest. Verify cURL.';
+                    showToast('Sync Failed', msg, 'error');
+                    if (msg.toLowerCase().includes('no portfolio curl')) {
+                        const settingsModal = document.getElementById('settingsModal');
+                        if (settingsModal) {
+                            settingsModal.classList.remove('hidden');
+                            const curlInput = document.getElementById('contestCurlInput');
+                            if (curlInput) curlInput.focus();
+                        }
+                    }
                     fetchPortfolio();
                 }
             } catch (err) {
@@ -819,13 +828,24 @@ document.addEventListener('DOMContentLoaded', () => {
         banner.className = 'regime-strip-compact';
         if (reg === 'RED') banner.classList.add('regime-red');
         else if (reg === 'YELLOW') banner.classList.add('regime-yellow');
+        else if (reg === 'PENDING') banner.classList.add('regime-pending');
         else banner.classList.add('regime-green');
 
-        if (badge) badge.textContent = `${reg} REGIME — ${regObj.status_label || (reg === 'RED' ? 'LOCKED (Kill Switch Active)' : 'UNLOCKED')}`;
+        if (badge) {
+            if (reg === 'PENDING') {
+                badge.textContent = `⏳ PENDING — Awaiting Today's Scan`;
+            } else {
+                badge.textContent = `${reg} REGIME — ${regObj.status_label || (reg === 'RED' ? 'LOCKED (Kill Switch Active)' : 'UNLOCKED')}`;
+            }
+        }
         if (metrics) {
-            const chg = Number(regObj.index_change_pct || 0);
-            const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32.5 : 55.0));
-            metrics.textContent = `Breadth > SMA20: ${brd.toFixed(1)}% | Daily Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            if (reg === 'PENDING') {
+                metrics.textContent = `Awaiting scan • Run live scanner or wait for 16:30 CET`;
+            } else {
+                const chg = Number(regObj.index_change_pct || 0);
+                const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32.5 : 55.0));
+                metrics.textContent = `Breadth > SMA20: ${brd.toFixed(1)}% | Daily Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            }
         }
     }
 
@@ -842,7 +862,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPodium(podiumData, regimeData) {
         if (!podiumCardsGrid) return;
         const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
-        const isRed = (podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED');
+        const isPending = (String(regStr).toUpperCase() === 'PENDING') || (podiumData && podiumData.regime === 'PENDING');
+        const isRed = !isPending && ((podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED'));
+
+        if (isPending) {
+            if (podiumStatusBadge) {
+                podiumStatusBadge.className = 'podium-status-pill pending';
+                podiumStatusBadge.textContent = "⏳ AWAITING TODAY'S SCAN";
+            }
+            if (podiumSubtitle) {
+                podiumSubtitle.textContent = "Daily market breadth not yet evaluated today. Click \"Live Scan\" or wait for scheduled run at 16:30 CET.";
+            }
+            podiumCardsGrid.innerHTML = `
+                <div class="podium-empty-box" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; border: 1px dashed var(--border-color); border-radius: 12px; background: rgba(255,255,255,0.01);">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">⏳</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">Podium Awaiting Today's Scan</div>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 500px; margin: 0 auto 1.25rem;">
+                        The system has reset for the new trading day. Run a live scan to evaluate WIG140 breadth and identify the Top 3 Runner Breakouts.
+                    </p>
+                    <button class="btn btn-primary" onclick="document.getElementById('runScanBtn')?.click()" style="padding: 0.5rem 1.25rem; font-weight: 600; font-size: 0.88rem;">
+                        ⚡ Run Live Scan Now
+                    </button>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
 
         if (isRed) {
             if (podiumStatusBadge) {

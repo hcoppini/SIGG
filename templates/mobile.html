@@ -182,6 +182,27 @@
          TAB 3: ALERTS & NOTIFICATIONS
          ========================================== -->
     <main id="alertsView" class="mobile-view">
+        <!-- CONTEST SYNC CONFIGURATION -->
+        <div id="mobileContestCard" class="alert-card">
+            <div class="alert-card-title">
+                <i data-lucide="trophy" style="width: 18px; height: 18px; color: #facc15;"></i>
+                <span>SIGG Contest Live Sync (cURL)</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                Paste your <code style="color: var(--accent);">gpwtrader.pl</code> portfolio cURL command to synchronize live contest cash, open positions, and ranking autonomously.
+            </p>
+            <textarea id="mobileContestCurlInput" class="mobile-input" rows="3" placeholder="curl 'https://gpwtrader.pl/...' -H 'cookie: ...'" style="font-family: var(--font-mono); font-size: 0.72rem; resize: vertical; margin-top: 0.35rem;"></textarea>
+            
+            <div style="display: flex; gap: 8px; margin-top: 0.6rem;">
+                <button id="mobileSaveContestCurlBtn" class="scan-action-btn" style="flex: 1; padding: 0.65rem; font-size: 0.8rem;">
+                    Save cURL
+                </button>
+                <button id="mobileTestContestCurlBtn" class="btn-card-copy" style="padding: 0.65rem 1rem; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.15);">
+                    Test Sync
+                </button>
+            </div>
+        </div>
+
         <div class="alert-card">
             <div class="alert-card-title">
                 <i data-lucide="bell" style="width: 18px; height: 18px; color: var(--accent);"></i>
