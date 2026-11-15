@@ -387,6 +387,25 @@ def contest_mock_sync():
     res = contest_sync_engine.mock_sync(data, portfolio_mgr)
     return jsonify(res)
 
+@app.route('/api/test_yf', methods=['GET'])
+def test_yf_endpoint():
+    import time
+    t0 = time.time()
+    try:
+        df = yf.download('PKN.WA', period='5d', timeout=10, progress=False)
+        return jsonify({
+            'status': 'ok',
+            'time': round(time.time() - t0, 2),
+            'rows': len(df),
+            'empty': df.empty
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'time': round(time.time() - t0, 2),
+            'error': str(e)
+        })
+
 @app.route('/api/contest/status', methods=['GET'])
 def contest_status():
     summary = portfolio_mgr.get_summary()
