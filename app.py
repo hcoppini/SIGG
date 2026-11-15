@@ -387,6 +387,19 @@ def contest_mock_sync():
     res = contest_sync_engine.mock_sync(data, portfolio_mgr)
     return jsonify(res)
 
+@app.route('/api/test_benchmark', methods=['GET'])
+def test_benchmark():
+    import time, yfinance as yf
+    from stock_scanner import DEFAULT_STOCKS
+    t0 = time.time()
+    chunk1 = DEFAULT_STOCKS[:20]
+    res = yf.download(chunk1, period="60d", interval="1d", group_by="ticker", threads=True, progress=False, timeout=10)
+    t1 = time.time()
+    return jsonify({
+        "time_20_stocks": round(t1 - t0, 2),
+        "columns_count": len(res.columns) if hasattr(res, 'columns') else 0
+    })
+
 @app.route('/api/test_scan', methods=['GET'])
 def test_scan_endpoint():
     import time, traceback
