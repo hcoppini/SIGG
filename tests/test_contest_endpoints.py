@@ -7,6 +7,7 @@ import unittest
 import json
 import os
 import shutil
+import tempfile
 from unittest.mock import patch, MagicMock
 
 from app import app, portfolio_mgr
@@ -17,9 +18,14 @@ class TestContestEndpoints(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
         self._saved_state = json.loads(json.dumps(portfolio_mgr.state))
+        self._saved_config_file = contest_sync_engine.config_file
+        self._temp_dir = tempfile.mkdtemp()
+        contest_sync_engine.config_file = os.path.join(self._temp_dir, "test_contest_curl.json")
 
     def tearDown(self):
         portfolio_mgr.save_state(self._saved_state)
+        contest_sync_engine.config_file = self._saved_config_file
+        shutil.rmtree(self._temp_dir, ignore_errors=True)
 
     def test_parse_curl_endpoint_valid(self):
         payload = {
