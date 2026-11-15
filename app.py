@@ -685,6 +685,23 @@ def scan_stream():
 @app.route('/api/results/scan', methods=['GET'])
 def get_scan_results():
     strategy = request.args.get('strategy', 'breakout_trend')
+    
+    with _SCAN_LOCK:
+        if _SCAN_STATE["status"] == "complete" and len(_SCAN_STATE["all_stocks"]) > 0:
+            all_records = _SCAN_STATE["all_stocks"]
+            regime = _SCAN_STATE["market_regime"] or get_market_regime()
+            top_3 = _SCAN_STATE["top_3"] or calculate_podium(all_records, regime)
+            buys = _SCAN_STATE["data"] or [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
+            return jsonify({
+                "status": "success",
+                "data": buys if len(buys) > 0 else all_records[:10],
+                "all_stocks": all_records,
+                "top_3": top_3,
+                "type": "buys" if len(buys) > 0 else "closest",
+                "market_regime": regime,
+                "backtest_summary": get_backtest_summary_for_scanner(strategy)
+            })
+
     latest_csv = get_latest_csv("scan_results")
     regime = sanitize_for_json(get_market_regime())
     
