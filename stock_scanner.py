@@ -258,7 +258,7 @@ def scan_market(
         batch_data = _BATCH_CACHE["data"]
     else:
         batch_data = {}
-        chunk_size = 58
+        chunk_size = 35
         total_chunks = (len(valid_stocks) + chunk_size - 1) // chunk_size
         for chunk_idx, i in enumerate(range(0, len(valid_stocks), chunk_size)):
             chunk = valid_stocks[i:i + chunk_size]

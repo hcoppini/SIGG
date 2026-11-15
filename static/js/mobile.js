@@ -568,10 +568,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function runMobileLiveScanner() {
-        if (_mobileActiveScanSource) {
-            _mobileActiveScanSource.close();
-            _mobileActiveScanSource = null;
+    let _mobileScanPollTimer = null;
+
+    async function runMobileLiveScanner() {
+        if (_mobileScanPollTimer) {
+            clearInterval(_mobileScanPollTimer);
+            _mobileScanPollTimer = null;
         }
 
         triggerHaptic(30);
@@ -579,159 +581,70 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mobileRunScanBtn) mobileRunScanBtn.disabled = true;
         if (mobileRunBtnText) mobileRunBtnText.textContent = "Scanning WIG140...";
         if (mobileScanProgressCard) mobileScanProgressCard.classList.remove('hidden');
-        if (mobileProgressBar) mobileProgressBar.style.width = '0%';
-        if (mobileProgressText) mobileProgressText.textContent = "Connecting to market stream...";
-        if (mobileProgressCount) mobileProgressCount.textContent = "0 / 140 (0%)";
+        if (mobileProgressBar) mobileProgressBar.style.width = '5%';
+        if (mobileProgressText) mobileProgressText.textContent = "Connecting to market feed...";
+        if (mobileProgressCount) mobileProgressCount.textContent = "0 / 171 (0%)";
         if (mobileSignalsEmpty) mobileSignalsEmpty.classList.add('hidden');
 
         _mobileAllScanned = [];
         if (mobileSignalsFeed) mobileSignalsFeed.innerHTML = '';
 
-        let count = 0;
-        const streamUrl = new URL(`/api/scan/stream?strategy=${encodeURIComponent(strat)}`, window.location.origin).href;
-
         try {
-            const es = new EventSource(streamUrl);
-            _mobileActiveScanSource = es;
-
-            es.addEventListener('connected', () => {
-                if (mobileProgressText) mobileProgressText.textContent = "Connected. Scanning WIG140 universe...";
-            });
-
-            es.addEventListener('progress', (e) => {
-                try {
-                    const payload = JSON.parse(e.data);
-                    if (mobileProgressText && payload.message) mobileProgressText.textContent = payload.message;
-                    if (mobileProgressBar && payload.percent !== undefined) mobileProgressBar.style.width = `${Math.max(5, payload.percent)}%`;
-                } catch (_) {}
-            });
-
-            es.addEventListener('keepalive', () => {
-                // Connection alive
-            });
-
-            es.addEventListener('regime', (e) => {
-                try {
-                    const payload = JSON.parse(e.data);
-                    const reg = payload.data || payload;
-                    renderRegime(reg);
-                    if ((reg.regime || payload.regime) === 'RED') {
-                        renderMobilePodium({ is_locked: true, picks: [] }, reg);
-                    }
-                } catch (err) {
-                    console.error("Error parsing regime event", err);
-                }
-            });
-
-            es.addEventListener('stock', (e) => {
-                try {
-                    const payload = JSON.parse(e.data);
-                    const stock = payload.stock;
-                    const total = payload.total || 140;
-                    count++;
-
-                    _mobileAllScanned.push(stock);
-                    const pct = Math.min(100, Math.round((count / total) * 100));
-                    if (mobileProgressBar) mobileProgressBar.style.width = `${pct}%`;
-                    if (mobileProgressCount) mobileProgressCount.textContent = `${count} / ${total} (${pct}%)`;
-                    if (mobileProgressText) mobileProgressText.textContent = `${stock.Ticker} (${stock.Strategy_Signal === 'Buy' ? '🔥 BUY' : 'Hold'})`;
-
-                    if (stock.Strategy_Signal === 'Buy' || _mobileAllScanned.length % 5 === 0) {
-                        renderSignalCards();
-                    }
-                } catch (err) {
-                    console.error("Error parsing stock event", err);
-                }
-            });
-
-            es.addEventListener('error', (e) => {
-                try {
-                    const payload = JSON.parse(e.data);
-                    showMobileToast('Scan Error', payload.message || 'Stream error', 'error');
-                } catch (_) {}
-            });
-
-            es.addEventListener('complete', (e) => {
-                try {
-                    const payload = JSON.parse(e.data);
-                    es.close();
-                    _mobileActiveScanSource = null;
-
-                    if (payload.all_stocks && Array.isArray(payload.all_stocks)) {
-                        _mobileAllScanned = payload.all_stocks;
-                    }
-
-                    if (payload.market_regime) renderRegime(payload.market_regime);
-                    renderMobilePodium(payload.top_3, payload.market_regime);
-                    renderSignalCards();
-
-                    if (mobileProgressBar) mobileProgressBar.style.width = '100%';
-                    if (mobileProgressCount) mobileProgressCount.textContent = `${_mobileAllScanned.length} / ${_mobileAllScanned.length} (100%)`;
-                    if (mobileProgressText) mobileProgressText.textContent = "Scan complete!";
-
-                    showMobileToast('Scan Complete ⚡', `Evaluated ${_mobileAllScanned.length} stocks. Podium updated.`, 'success');
-                    playMobileChime();
-                    triggerHaptic(40);
-
-                    setTimeout(() => {
-                        if (mobileScanProgressCard) mobileScanProgressCard.classList.add('hidden');
-                    }, 2500);
-                } catch (err) {
-                    console.error("Error on mobile complete", err);
-                } finally {
-                    if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
-                    if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
-                }
-            });
-
-            es.onerror = (err) => {
-                console.warn("Mobile EventSource error, fallback to POST", err);
-                es.close();
-                _mobileActiveScanSource = null;
-                if (count === 0) {
-                    fallbackMobilePostScan(strat);
-                } else {
-                    if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
-                    if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
-                    renderSignalCards();
-                }
-            };
-        } catch (err) {
-            console.error("Failed to connect EventSource on mobile, using POST fallback", err);
-            fallbackMobilePostScan(strat);
-        }
-    }
-
-    async function fallbackMobilePostScan(strat) {
-        if (mobileProgressText) mobileProgressText.textContent = "Streaming unavailable, running batch scan...";
-        try {
-            const res = await fetch('/api/scan', {
+            const startRes = await fetch('/api/scan/start', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ strategy: strat })
             });
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status} (${res.statusText || 'Server Error'})`);
-            }
-            const json = await res.json();
-            if (json.status === 'success') {
-                if (json.all_stocks && Array.isArray(json.all_stocks)) {
-                    _mobileAllScanned = json.all_stocks;
-                } else if (json.data && Array.isArray(json.data)) {
-                    _mobileAllScanned = json.data;
+            const startJson = await startRes.json();
+            console.log("Mobile scanner background engine initialized:", startJson);
+
+            _mobileScanPollTimer = setInterval(async () => {
+                try {
+                    const sRes = await fetch('/api/scan/status');
+                    const sData = await sRes.json();
+
+                    if (sData.progress !== undefined && mobileProgressBar) {
+                        mobileProgressBar.style.width = `${Math.max(5, sData.progress)}%`;
+                    }
+                    if (sData.message && mobileProgressText) {
+                        mobileProgressText.textContent = sData.message;
+                    }
+                    if (sData.scanned !== undefined && mobileProgressCount) {
+                        mobileProgressCount.textContent = `${sData.scanned} / ${sData.total || 171} (${sData.progress || 0}%)`;
+                    }
+                    if (sData.market_regime) {
+                        renderRegime(sData.market_regime);
+                    }
+
+                    if (sData.status === 'complete') {
+                        clearInterval(_mobileScanPollTimer);
+                        _mobileScanPollTimer = null;
+
+                        fetchMobileSignals();
+                        showMobileToast('Scan Complete ⚡', sData.message || 'Evaluated WIG140 universe.', 'success');
+                        playMobileChime();
+                        triggerHaptic(40);
+
+                        if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
+                        if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
+                        setTimeout(() => {
+                            if (mobileScanProgressCard) mobileScanProgressCard.classList.add('hidden');
+                        }, 2500);
+                    } else if (sData.status === 'error') {
+                        clearInterval(_mobileScanPollTimer);
+                        _mobileScanPollTimer = null;
+                        showMobileToast('Scan Error', sData.error_message || 'Scan failed', 'error');
+                        if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
+                        if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
+                    }
+                } catch (pollErr) {
+                    console.warn("Mobile poll status hiccup:", pollErr);
                 }
-                if (json.market_regime) renderRegime(json.market_regime);
-                renderMobilePodium(json.top_3, json.market_regime);
-                renderSignalCards();
-                showMobileToast('Scan Complete ⚡', `Evaluated WIG140 (${_mobileAllScanned.length} stocks)`, 'success');
-                playMobileChime();
-            } else {
-                showMobileToast('Scan Error', json.message || 'Error running scanner', 'error');
-            }
+            }, 800);
+
         } catch (err) {
-            showMobileToast('Scan Error', 'Connection failed: ' + err, 'error');
-        } finally {
-            if (mobileScanProgressCard) mobileScanProgressCard.classList.add('hidden');
+            console.error("Failed to start mobile scan:", err);
+            showMobileToast('Scan Error', 'Could not initialize scanner: ' + err, 'error');
             if (mobileRunScanBtn) mobileRunScanBtn.disabled = false;
             if (mobileRunBtnText) mobileRunBtnText.textContent = "Run Live Scanner";
         }

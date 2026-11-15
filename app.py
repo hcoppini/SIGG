@@ -453,6 +453,124 @@ def manual_dispatch_alert():
         res = dispatch_1650_fixing_action_sheet(summary, buys, sells)
         return jsonify(res)
 
+# -------------------------------------------------------------
+# Asynchronous Background Market Scanner Engine
+# -------------------------------------------------------------
+_SCAN_STATE = {
+    "status": "idle",
+    "progress": 0,
+    "message": "Ready to scan.",
+    "current_stock": "",
+    "total": 171,
+    "scanned": 0,
+    "strategy": "breakout_trend",
+    "updated_at": 0,
+    "market_regime": None,
+    "top_3": None,
+    "all_stocks": [],
+    "data": [],
+    "error_message": None
+}
+_SCAN_LOCK = threading.Lock()
+
+def _bg_scan_worker(strategy):
+    global _SCAN_STATE
+    try:
+        with _SCAN_LOCK:
+            _SCAN_STATE["status"] = "running"
+            _SCAN_STATE["progress"] = 5
+            _SCAN_STATE["message"] = "Connecting to market feed..."
+            _SCAN_STATE["strategy"] = strategy
+            _SCAN_STATE["error_message"] = None
+            _SCAN_STATE["scanned"] = 0
+            _SCAN_STATE["all_stocks"] = []
+            _SCAN_STATE["data"] = []
+            _SCAN_STATE["updated_at"] = time.time()
+
+        def on_progress(msg, pct=0):
+            with _SCAN_LOCK:
+                _SCAN_STATE["progress"] = max(5, pct)
+                _SCAN_STATE["message"] = msg
+                _SCAN_STATE["updated_at"] = time.time()
+
+        def on_regime(regime_data):
+            clean_reg = sanitize_for_json(regime_data)
+            with _SCAN_LOCK:
+                _SCAN_STATE["market_regime"] = clean_reg
+                _SCAN_STATE["updated_at"] = time.time()
+
+        def on_stock(stock_dict, idx, total):
+            clean_stock = sanitize_for_json(stock_dict)
+            with _SCAN_LOCK:
+                _SCAN_STATE["scanned"] = idx
+                _SCAN_STATE["total"] = total
+                _SCAN_STATE["current_stock"] = clean_stock.get("Ticker", "")
+                _SCAN_STATE["progress"] = min(98, 35 + int((idx / max(1, total)) * 63))
+                _SCAN_STATE["message"] = f"Scanned {clean_stock.get('Ticker', '')} ({idx}/{total})"
+                _SCAN_STATE["all_stocks"].append(clean_stock)
+                if clean_stock.get("Strategy_Signal") == "Buy":
+                    _SCAN_STATE["data"].append(clean_stock)
+                _SCAN_STATE["updated_at"] = time.time()
+
+        res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime, on_progress=on_progress)
+        clean_all = sanitize_for_json(res.get("all_stocks", []))
+        clean_reg = sanitize_for_json(res.get("regime", {}))
+        clean_top3 = sanitize_for_json(res.get("top_3", calculate_podium(clean_all, clean_reg)))
+        clean_data = sanitize_for_json(res.get("data", []))
+
+        with _SCAN_LOCK:
+            _SCAN_STATE["status"] = "complete"
+            _SCAN_STATE["progress"] = 100
+            _SCAN_STATE["message"] = f"Scan complete. Evaluated {len(clean_all)} stocks."
+            _SCAN_STATE["market_regime"] = clean_reg
+            _SCAN_STATE["top_3"] = clean_top3
+            _SCAN_STATE["all_stocks"] = clean_all
+            _SCAN_STATE["data"] = clean_data
+            _SCAN_STATE["updated_at"] = time.time()
+    except Exception as e:
+        with _SCAN_LOCK:
+            _SCAN_STATE["status"] = "error"
+            _SCAN_STATE["error_message"] = str(e)
+            _SCAN_STATE["message"] = f"Scan failed: {e}"
+            _SCAN_STATE["updated_at"] = time.time()
+
+@app.route('/api/scan/start', methods=['POST'])
+def start_scan():
+    data = request.get_json(silent=True) or {}
+    strategy = data.get('strategy') or request.args.get('strategy', 'breakout_trend')
+    with _SCAN_LOCK:
+        if _SCAN_STATE["status"] == "running":
+            return jsonify({
+                "status": "running",
+                "message": "Scan already running in background.",
+                "progress": _SCAN_STATE["progress"]
+            })
+    t = threading.Thread(target=_bg_scan_worker, args=(strategy,), daemon=True)
+    t.start()
+    return jsonify({
+        "status": "running",
+        "message": "Scan initiated in background thread."
+    })
+
+@app.route('/api/scan/status', methods=['GET'])
+def get_scan_status():
+    with _SCAN_LOCK:
+        return jsonify({
+            "status": _SCAN_STATE["status"],
+            "progress": _SCAN_STATE["progress"],
+            "message": _SCAN_STATE["message"],
+            "scanned": _SCAN_STATE["scanned"],
+            "total": _SCAN_STATE["total"],
+            "current_stock": _SCAN_STATE["current_stock"],
+            "strategy": _SCAN_STATE["strategy"],
+            "market_regime": _SCAN_STATE["market_regime"],
+            "top_3": _SCAN_STATE["top_3"],
+            "all_stocks_count": len(_SCAN_STATE["all_stocks"]),
+            "buys_count": len(_SCAN_STATE["data"]),
+            "updated_at": _SCAN_STATE["updated_at"],
+            "error_message": _SCAN_STATE["error_message"]
+        })
+
 @app.route('/api/scan', methods=['POST'])
 def run_scan():
     try:
