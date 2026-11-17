@@ -15,46 +15,39 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sigg_universe import get_sigg_symbol, get_tradingview_link
+from remote_store import load_json_file, save_json_file
 
 SETTINGS_FILE = os.path.join("Input", "settings.json")
 NOTIFICATION_QUEUE_FILE = os.path.join("Output", "recent_notifications.json")
 
 def load_settings() -> Dict[str, Any]:
-    os.makedirs(os.path.dirname(SETTINGS_FILE) if os.path.dirname(SETTINGS_FILE) else ".", exist_ok=True)
     settings = {
         "discord_webhook_url": os.environ.get("DISCORD_WEBHOOK_URL", ""),
         "active_strategy": "breakout_trend",
         "sound_alerts_enabled": True,
+        "auto_dispatch_0905": True,
         "auto_dispatch_1635": True,
         "auto_dispatch_1650": True
     }
-    if os.path.exists(SETTINGS_FILE):
-        try:
-            with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                saved = json.load(f)
-                settings.update(saved)
-        except Exception:
-            pass
+    saved = load_json_file(SETTINGS_FILE, "settings", None)
+    if isinstance(saved, dict):
+        settings.update(saved)
+    # Env webhook always wins when file/cloud webhook empty
+    if not settings.get("discord_webhook_url"):
+        settings["discord_webhook_url"] = os.environ.get("DISCORD_WEBHOOK_URL", "")
     return settings
 
 def save_settings(new_settings: Dict[str, Any]):
-    os.makedirs(os.path.dirname(SETTINGS_FILE) if os.path.dirname(SETTINGS_FILE) else ".", exist_ok=True)
     current = load_settings()
     current.update(new_settings)
-    with open(SETTINGS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(current, f, indent=2)
+    save_json_file(SETTINGS_FILE, "settings", current)
     return current
 
 def push_in_app_notification(title: str, message: str, level: str = "info", details: Optional[Dict] = None):
-    """Stores notification to file so frontend polling can display toasts and sound audio chime."""
-    os.makedirs("Output", exist_ok=True)
-    history = []
-    if os.path.exists(NOTIFICATION_QUEUE_FILE):
-        try:
-            with open(NOTIFICATION_QUEUE_FILE, 'r', encoding='utf-8') as f:
-                history = json.load(f)
-        except Exception:
-            pass
+    """Stores notification so frontend polling can display toasts (cloud-synced when configured)."""
+    history = load_json_file(NOTIFICATION_QUEUE_FILE, "notifications", [])
+    if not isinstance(history, list):
+        history = []
             
     item = {
         "id": f"notif_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}",
@@ -66,17 +59,11 @@ def push_in_app_notification(title: str, message: str, level: str = "info", deta
     }
     history.insert(0, item)
     history = history[:20] # keep last 20
-    with open(NOTIFICATION_QUEUE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(history, f, indent=2)
+    save_json_file(NOTIFICATION_QUEUE_FILE, "notifications", history)
 
 def get_recent_in_app_notifications() -> List[Dict[str, Any]]:
-    if os.path.exists(NOTIFICATION_QUEUE_FILE):
-        try:
-            with open(NOTIFICATION_QUEUE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return []
+    history = load_json_file(NOTIFICATION_QUEUE_FILE, "notifications", [])
+    return history if isinstance(history, list) else []
 
 def send_discord_webhook(embeds: List[Dict[str, Any]], content: Optional[str] = None, webhook_url: Optional[str] = None) -> Dict[str, Any]:
     url = webhook_url if webhook_url else load_settings().get("discord_webhook_url", "").strip()

@@ -203,6 +203,72 @@ class TestPortfolioReconciliation(unittest.TestCase):
         self.assertEqual(closed["ticker"], "DINOPL")
         self.assertIn("GPWTr@der", closed["exit_reason"])
 
+    def test_reconcile_preserves_positions_when_parse_unreliable(self):
+        """HTML/JSON often returns equity+cash but empty holdings — must NOT wipe local slots."""
+        self.portfolio_mgr.import_holdings(
+            holdings=[{
+                "ticker": "ONDE",
+                "shares": 1000,
+                "entry_price": 8.74,
+                "entry_date": "2026-11-16",
+                "atr": 0.26
+            }],
+            cash=500.0,
+            replace=True
+        )
+        self.assertEqual(len(self.portfolio_mgr.state["positions"]), 1)
+
+        contest_data = {
+            "valid": True,
+            "portfolio_value": 8900.0,
+            "cash": 480.0,
+            "rank": 1200,
+            "positions": [],
+            "positions_reliable": False
+        }
+        res = reconcile_portfolio_with_contest(contest_data, self.portfolio_mgr)
+        self.assertEqual(res["status"], "partial")
+        self.assertEqual(len(self.portfolio_mgr.state["positions"]), 1)
+        self.assertEqual(self.portfolio_mgr.state["positions"][0]["ticker"], "ONDE")
+        self.assertEqual(self.portfolio_mgr.state["contest_sync"]["status"], "synced_partial")
+        self.assertAlmostEqual(self.portfolio_mgr.state["cash"], 480.0)
+
+    def test_extract_html_positions_table(self):
+        sample_html = (
+            "<html><body>"
+            "<div class='wallet-chart__title'><span>9,200.00</span></div>"
+            "<div data-item-label='WOLNE ŚRODKI' data-item-value='200.00'></div>"
+            "<div><b>1,234. miejsce</b></div>"
+            "<table><thead><tr>"
+            "<th>Instrument</th><th>Ilość</th><th>Kurs</th><th>Wartość</th><th>Kurs otw.</th>"
+            "</tr></thead><tbody>"
+            "<tr><td>ONDE</td><td>1000</td><td>8.42</td><td>8420</td><td>8.74</td></tr>"
+            "<tr><td>SNTVERSE</td><td>500</td><td>2.68</td><td>1340</td><td>2.84</td></tr>"
+            "</tbody></table>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertTrue(res.get("positions_reliable", True))
+        self.assertEqual(len(res["positions"]), 2)
+        syms = {p["symbol"] for p in res["positions"]}
+        self.assertIn("ONDE", syms)
+        self.assertIn("SNTVERSE", syms)
+
+    def test_html_unreliable_when_invested_but_no_rows(self):
+        sample_html = (
+            "<html><body>"
+            "<div class='wallet-chart__title'><span>19,200.00</span></div>"
+            "<div data-item-label='WOLNE ŚRODKI' data-item-value='200.00'></div>"
+            "<div>1,111. miejsce</div>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertAlmostEqual(res["cash"], 200.0)
+        self.assertFalse(res.get("positions_reliable", True))
+        self.assertEqual(res["positions"], [])
+
 
 class TestContestSyncEngine(unittest.TestCase):
     def setUp(self):

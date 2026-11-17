@@ -61,8 +61,21 @@ from notifications import (
     get_recent_in_app_notifications, push_in_app_notification
 )
 from contest_sync import contest_sync_engine, parse_curl_command
+from remote_store import cloud_status, cloud_enabled
 
 app = Flask(__name__)
+
+def _cron_authorized() -> bool:
+    """Shared secret so GitHub Actions can wake Render and run open/close jobs."""
+    expected = (os.environ.get("CRON_SECRET") or "").strip()
+    if not expected:
+        # If unset, allow only from localhost-style calls during local dev
+        return request.remote_addr in ("127.0.0.1", "::1")
+    got = (request.headers.get("X-Cron-Secret") or request.args.get("secret") or "").strip()
+    if not got:
+        data = request.get_json(silent=True) or {}
+        got = str(data.get("secret") or "").strip()
+    return got == expected
 
 # Portfolio singleton
 portfolio_mgr = PortfolioManager()
@@ -178,24 +191,41 @@ def _run_scheduled_automation_loop():
                 hh = int(now_cet.strftime("%H"))
                 mm = int(now_cet.strftime("%M"))
 
-                # Periodic Contest Sync every 10 mins during GPW market hours (09:00 - 17:05 CET)
-                if (9 <= hh < 17 or (hh == 17 and mm <= 10)) and mm % 10 == 0:
+                # Contest sync only at open/close windows (not every 10m — burns session cookies)
+                if hh_mm in ("09:05", "16:30", "16:50"):
                     try:
                         contest_cfg = contest_sync_engine.load_config()
                         if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
                             contest_sync_engine.sync_now(portfolio_mgr)
                     except Exception as e:
-                        print(f"[{datetime.now()}] Error in background contest sync: {e}")
+                        print(f"[{datetime.now()}] Error in scheduled contest sync: {e}")
 
-                # Off-Hours Session Keep-Alive Heartbeat every 30 mins (06:00 - 23:00)
-                # Keeps the session cookie active on GPWTr@der so it never expires from inactivity
-                elif (hh < 9 or hh >= 17) and 6 <= hh <= 23 and mm % 30 == 0:
+                # 0) 09:05 CET Market Open — scan + refresh exit signals on open positions
+                if hh_mm == "09:05" and settings.get("auto_dispatch_0905", True):
+                    _LAST_DISPATCHED_MINUTE = minute_key
+                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    print(f"[{datetime.now()}] Triggering scheduled 09:05 CET market-open scan (Strategy: {active_strat})...")
                     try:
                         contest_cfg = contest_sync_engine.load_config()
                         if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
                             contest_sync_engine.sync_now(portfolio_mgr)
                     except Exception:
                         pass
+                    scan_market(strategy=active_strat)
+                    portfolio_mgr.update_live_quotes()
+                    regime = get_market_regime()
+                    summary = portfolio_mgr.get_summary()
+                    sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
+                    candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+                    # Reuse pre-close alert channel for open checklist (sells first, then optional buys)
+                    dispatch_1635_preclose_alert(regime, summary, candidates if not sells else [])
+                    if sells:
+                        push_in_app_notification(
+                            "Open Exit Check",
+                            f"{len(sells)} position(s) need action at the open: " +
+                            ", ".join(f"{p['ticker']} ({p.get('exit_signal')})" for p in sells),
+                            level="warning"
+                        )
 
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
@@ -342,6 +372,24 @@ def portfolio_reset():
         push_in_app_notification("Portfolio Reset", f"Restored clean slate of {initial_cap:,.2f} PLN for official contest start.", level="info")
     return jsonify(res)
 
+@app.route('/api/portfolio/import', methods=['POST'])
+def portfolio_import():
+    """Manually register contest open positions when cURL cannot parse holdings."""
+    data = request.get_json(silent=True) or {}
+    holdings = data.get("holdings") or data.get("positions") or []
+    cash = data.get("cash", None)
+    replace = data.get("replace", True)
+    if isinstance(holdings, dict):
+        holdings = [holdings]
+    res = portfolio_mgr.import_holdings(holdings=holdings, cash=cash, replace=bool(replace))
+    if res.get("status") == "success":
+        push_in_app_notification(
+            "Holdings Registered",
+            res.get("message", "Open positions registered for exit tracking."),
+            level="success"
+        )
+    return jsonify(res)
+
 # -------------------------------------------------------------
 # SIGG Contest Synchronization Endpoints
 # -------------------------------------------------------------
@@ -452,6 +500,83 @@ def manual_dispatch_alert():
             buys = candidates[:vacant]
         res = dispatch_1650_fixing_action_sheet(summary, buys, sells)
         return jsonify(res)
+
+@app.route('/api/cloud/status', methods=['GET'])
+def api_cloud_status():
+    """Shows whether multi-device Gist sync is configured on this Render instance."""
+    return jsonify({"status": "success", "cloud": cloud_status()})
+
+@app.route('/api/cron/<window>', methods=['POST', 'GET'])
+def cron_window(window: str):
+    """
+    External cron entrypoints used by GitHub Actions to wake Render free dynos.
+    Windows: open | preclose | fixing | ping
+    Auth: header X-Cron-Secret: $CRON_SECRET
+    """
+    if not _cron_authorized():
+        return jsonify({"status": "error", "message": "Unauthorized cron call."}), 401
+
+    window = (window or "").lower().strip()
+    if window == "ping":
+        return jsonify({
+            "status": "success",
+            "message": "pong",
+            "cloud": cloud_status(),
+            "time_cet": datetime.now(WARSAW_TZ).strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+    settings = load_settings()
+    active_strat = settings.get("active_strategy", "breakout_trend")
+
+    # Refresh contest + quotes first
+    try:
+        contest_cfg = contest_sync_engine.load_config()
+        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+            contest_sync_engine.sync_now(portfolio_mgr)
+    except Exception as e:
+        print(f"[cron] contest sync error: {e}")
+
+    if window == "open":
+        scan_market(strategy=active_strat)
+        portfolio_mgr.update_live_quotes()
+        regime = get_market_regime()
+        summary = portfolio_mgr.get_summary()
+        sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
+        candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+        alert = dispatch_1635_preclose_alert(regime, summary, [] if sells else candidates)
+        return jsonify({
+            "status": "success",
+            "window": "open",
+            "sells": sells,
+            "alert": alert,
+            "summary": summary,
+            "cloud": cloud_status()
+        })
+
+    if window == "preclose":
+        scan_market(strategy=active_strat)
+        portfolio_mgr.update_live_quotes()
+        regime = get_market_regime()
+        summary = portfolio_mgr.get_summary()
+        candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+        alert = dispatch_1635_preclose_alert(regime, summary, candidates)
+        return jsonify({"status": "success", "window": "preclose", "alert": alert, "summary": summary})
+
+    if window == "fixing":
+        portfolio_mgr.update_live_quotes()
+        summary = portfolio_mgr.get_summary()
+        sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
+        vacant_after_sells = summary.get("vacant_slots", 3) + len(sells)
+        buys = []
+        if vacant_after_sells > 0 and get_market_regime().get("regime") != "RED":
+            candidates = get_latest_buy_candidates(active_strat, limit=vacant_after_sells)
+            buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
+            if not buys and candidates:
+                buys = candidates[:vacant_after_sells]
+        alert = dispatch_1650_fixing_action_sheet(summary, buys, sells)
+        return jsonify({"status": "success", "window": "fixing", "alert": alert, "summary": summary})
+
+    return jsonify({"status": "error", "message": f"Unknown cron window '{window}'."}), 400
 
 # -------------------------------------------------------------
 # Asynchronous Background Market Scanner Engine

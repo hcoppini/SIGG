@@ -147,11 +147,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function fetchCloudStatus() {
+        try {
+            const res = await fetch('/api/cloud/status');
+            const json = await res.json();
+            const cloud = json.cloud || {};
+            const el = document.getElementById('cloudSyncHint');
+            if (!el) return;
+            if (cloud.enabled) {
+                el.textContent = `Cloud sync ON · ${cloud.positions_count || 0} pos · ${cloud.updated_at || 'ready'}`;
+                el.style.color = '#34d399';
+            } else {
+                el.textContent = 'Cloud sync OFF — set SIGG_STATE_GIST_ID + SIGG_GITHUB_TOKEN on Render';
+                el.style.color = '#fb7185';
+            }
+        } catch (_) { /* ignore */ }
+    }
+
     async function fetchPortfolio() {
         const grid = document.getElementById('portfolioSlotsGrid');
         const cashBadge = document.getElementById('portfolioCashBadge');
         const sidebarEquity = document.getElementById('sidebarEquity');
         const sidebarSlots = document.getElementById('sidebarSlots');
+        fetchCloudStatus();
 
         try {
             const res = await fetch('/api/portfolio');
@@ -188,6 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const timePart = cs.last_synced ? cs.last_synced.split(' ')[1] : '';
                     contestStatusText.textContent = `Contest: Synced ${timePart}`;
                     contestBadge.title = `Verified with sigg.gpw.pl: ${Number(cs.contest_equity || summary.total_equity).toLocaleString('pl-PL')} PLN at ${cs.last_synced}`;
+                } else if (cs.status === 'synced_partial' || cs.status === 'manual') {
+                    contestBadge.className = 'contest-badge error';
+                    contestStatusText.textContent = cs.status === 'manual' ? 'Contest: Manual Holdings' : 'Contest: Partial Sync';
+                    contestBadge.title = cs.error_message || 'Cash synced; register holdings manually if positions are missing.';
                 } else if (cs.status === 'expired') {
                     contestBadge.className = 'contest-badge expired';
                     contestStatusText.textContent = 'Contest: Session Expired';
@@ -738,6 +760,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Contest Synced', json.message || 'Holding positions and equity synchronized.', 'success');
                     playChime();
                     fetchPortfolio();
+                } else if (json.status === 'partial') {
+                    showToast('Partial Sync', json.message || 'Cash synced; register holdings manually.', 'warning');
+                    fetchPortfolio();
+                    const panel = document.getElementById('registerHoldingsPanel');
+                    if (panel) panel.style.display = 'block';
                 } else {
                     const msg = json.message || 'Could not connect to contest. Verify cURL.';
                     showToast('Sync Failed', msg, 'error');
@@ -756,6 +783,70 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 syncContestBtn.disabled = false;
                 if (btnText) btnText.textContent = 'Sync Contest';
+            }
+        });
+    }
+
+    // Manual holdings registration (fallback when contest HTML omits positions)
+    const registerHoldingsPanel = document.getElementById('registerHoldingsPanel');
+    const toggleRegisterHoldingsBtn = document.getElementById('toggleRegisterHoldingsBtn');
+    const cancelRegisterHoldingsBtn = document.getElementById('cancelRegisterHoldingsBtn');
+    const saveRegisterHoldingsBtn = document.getElementById('saveRegisterHoldingsBtn');
+    const refreshPortfolioBtn = document.getElementById('refreshPortfolioBtn');
+
+    if (toggleRegisterHoldingsBtn && registerHoldingsPanel) {
+        toggleRegisterHoldingsBtn.addEventListener('click', () => {
+            const open = registerHoldingsPanel.style.display !== 'none';
+            registerHoldingsPanel.style.display = open ? 'none' : 'block';
+        });
+    }
+    if (cancelRegisterHoldingsBtn && registerHoldingsPanel) {
+        cancelRegisterHoldingsBtn.addEventListener('click', () => {
+            registerHoldingsPanel.style.display = 'none';
+        });
+    }
+    if (refreshPortfolioBtn) {
+        refreshPortfolioBtn.addEventListener('click', () => fetchPortfolio());
+    }
+    if (saveRegisterHoldingsBtn) {
+        saveRegisterHoldingsBtn.addEventListener('click', async () => {
+            const holdings = [];
+            for (const idx of [1, 2]) {
+                const ticker = (document.getElementById(`regTicker${idx}`)?.value || '').trim();
+                const shares = parseFloat(document.getElementById(`regShares${idx}`)?.value || '0');
+                const entry_price = parseFloat(document.getElementById(`regPrice${idx}`)?.value || '0');
+                const entry_date = document.getElementById(`regDate${idx}`)?.value || '';
+                if (ticker && shares > 0 && entry_price > 0) {
+                    holdings.push({ ticker, shares, entry_price, entry_date });
+                }
+            }
+            if (!holdings.length) {
+                showToast('Missing Data', 'Enter at least one ticker with shares and entry price.', 'error');
+                return;
+            }
+            const cashRaw = document.getElementById('regCash')?.value;
+            const payload = { holdings, replace: true };
+            if (cashRaw !== undefined && cashRaw !== '') payload.cash = parseFloat(cashRaw);
+
+            saveRegisterHoldingsBtn.disabled = true;
+            try {
+                const res = await fetch('/api/portfolio/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showToast('Holdings Registered', json.message || 'Exit signals updated.', 'success');
+                    if (registerHoldingsPanel) registerHoldingsPanel.style.display = 'none';
+                    fetchPortfolio();
+                } else {
+                    showToast('Import Failed', json.message || 'Could not register holdings.', 'error');
+                }
+            } catch (e) {
+                showToast('Import Error', String(e), 'error');
+            } finally {
+                saveRegisterHoldingsBtn.disabled = false;
             }
         });
     }

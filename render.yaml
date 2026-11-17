@@ -9,3 +9,18 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      # Multi-device durable state (required for phone + PC sync across Render sleeps)
+      - key: SIGG_STATE_GIST_ID
+        sync: false
+      - key: SIGG_GITHUB_TOKEN
+        sync: false
+      # Shared with GitHub Actions secret CRON_SECRET so scheduled jobs can wake this dyno
+      - key: CRON_SECRET
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      # Optional contest auth fallback
+      - key: SIGG_PORTFOLIO_CURL
+        sync: false
+      - key: SIGG_RANKING_CURL
+        sync: false

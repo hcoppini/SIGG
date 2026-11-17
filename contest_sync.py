@@ -21,6 +21,7 @@ from typing import Dict, List, Optional, Any, Tuple
 
 from sigg_universe import SIGG_TO_TICKER, get_sigg_symbol, get_sigg_name
 from notifications import push_in_app_notification
+from remote_store import load_json_file, save_json_file
 
 CONTEST_CONFIG_FILE = os.path.join("Input", "contest_curl.json")
 
@@ -237,27 +238,198 @@ def _clean_currency_str(val_str: str) -> float:
         return 0.0
 
 
+def _strip_html_cell(raw: str) -> str:
+    return re.sub(r'&nbsp;|<[^>]+>', ' ', raw or '').strip()
+
+
+def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
+    """Parse a single HTML table into position dicts when it looks like open holdings."""
+    headers_raw = re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)
+    headers_text = " ".join(_strip_html_cell(h).lower() for h in headers_raw)
+    headers_joined = " ".join(headers_text.split())
+
+    # Skip order / history tables
+    if any(x in headers_joined for x in ("typ zlecenia", "data z", "status zlecenia", "ostatnie zlecenia")):
+        return []
+
+    looks_like_positions = (
+        "otw" in headers_joined
+        or ("ilo" in headers_joined and ("kurs" in headers_joined or "cena" in headers_joined))
+        or ("instrument" in headers_joined and ("ilo" in headers_joined or "szt" in headers_joined))
+        or ("symbol" in headers_joined and ("quantity" in headers_joined or "shares" in headers_joined))
+        or ("pozycj" in headers_joined)
+    )
+    if not looks_like_positions:
+        return []
+
+    # Map column roles from headers when possible
+    roles = []
+    for h in headers_raw:
+        hl = _strip_html_cell(h).lower()
+        if any(k in hl for k in ("instrument", "symbol", "ticker", "nazwa", "walor")):
+            roles.append("symbol")
+        elif any(k in hl for k in ("ilo", "szt", "quantity", "shares", "volume", "wolumen")):
+            roles.append("shares")
+        elif "otw" in hl or "zakup" in hl or "wej" in hl or "buy" in hl or "entry" in hl:
+            roles.append("entry")
+        elif any(k in hl for k in ("kurs", "cena", "market", "last", "bież", "bierz")):
+            roles.append("current")
+        else:
+            roles.append("other")
+
+    body = tbl
+    tbody_m = re.search(r'<tbody>(.*?)</tbody>', tbl, re.DOTALL | re.I)
+    if tbody_m:
+        body = tbody_m.group(1)
+
+    positions: List[Dict[str, Any]] = []
+    for r_html in re.findall(r'<tr[^>]*>(.*?)</tr>', body, re.DOTALL | re.I):
+        cols = [_strip_html_cell(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', r_html, re.DOTALL | re.I)]
+        if len(cols) < 2:
+            continue
+
+        raw_sym = raw_vol = raw_price = raw_open = ""
+        if roles and len(roles) >= 2:
+            for i, role in enumerate(roles):
+                if i >= len(cols):
+                    break
+                if role == "symbol" and not raw_sym:
+                    raw_sym = cols[i]
+                elif role == "shares" and not raw_vol:
+                    raw_vol = cols[i]
+                elif role == "current" and not raw_price:
+                    raw_price = cols[i]
+                elif role == "entry" and not raw_open:
+                    raw_open = cols[i]
+        if not raw_sym:
+            raw_sym = cols[0]
+        if not raw_vol and len(cols) > 1:
+            raw_vol = cols[1]
+        if not raw_price and len(cols) > 2:
+            raw_price = cols[2]
+        if not raw_open and len(cols) > 4:
+            raw_open = cols[4]
+        elif not raw_open and len(cols) > 3:
+            raw_open = cols[3]
+
+        # First token often contains ticker + company name
+        sym_token = re.split(r'\s{2,}|\n', raw_sym)[0].strip()
+        sym_token = re.sub(r'[^A-Za-z0-9._-]', '', sym_token.split()[0]) if sym_token else ""
+        if not sym_token:
+            continue
+
+        sym = get_sigg_symbol(sym_token)
+        vol = int(_clean_currency_str(raw_vol)) if raw_vol else 0
+        c_price = _clean_currency_str(raw_price) if raw_price else 0.0
+        o_price = _clean_currency_str(raw_open) if raw_open else 0.0
+        if sym and vol > 0 and (o_price > 0 or c_price > 0):
+            positions.append({
+                "symbol": sym,
+                "ticker": SIGG_TO_TICKER.get(sym, f"{sym}.WA"),
+                "name": get_sigg_name(sym),
+                "shares": vol,
+                "entry_price": o_price or c_price,
+                "current_price": c_price or o_price
+            })
+    return positions
+
+
+def _normalize_raw_position(raw_p: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Normalize a single raw contest position dict into hub format."""
+    if not isinstance(raw_p, dict):
+        return None
+    sym = None
+    for sk in ["symbol", "ticker", "instrument", "nazwa", "kod", "isin"]:
+        if sk in raw_p and raw_p[sk]:
+            sym = str(raw_p[sk]).strip()
+            break
+    if not sym:
+        return None
+    normalized_sym = get_sigg_symbol(sym)
+    shares = 0
+    for qk in ["shares", "volume", "quantity", "ilosc", "liczba", "count", "vol"]:
+        if qk in raw_p and raw_p[qk] is not None:
+            try:
+                shares = int(float(raw_p[qk]))
+                break
+            except (ValueError, TypeError):
+                pass
+    entry_price = 0.0
+    for epk in ["entry_price", "open_price", "avg_buy_price", "kurs_zakupu", "cena_otwarcia", "cena_zakupu", "buy_price"]:
+        if epk in raw_p and raw_p[epk] is not None:
+            try:
+                entry_price = float(raw_p[epk])
+                break
+            except (ValueError, TypeError):
+                pass
+    curr_price = entry_price
+    for cpk in ["market_price", "current_price", "last_price", "kurs_biezacy", "cena", "last"]:
+        if cpk in raw_p and raw_p[cpk] is not None:
+            try:
+                curr_price = float(raw_p[cpk])
+                break
+            except (ValueError, TypeError):
+                pass
+    if shares <= 0 or (entry_price <= 0 and curr_price <= 0):
+        return None
+    return {
+        "symbol": normalized_sym,
+        "ticker": SIGG_TO_TICKER.get(normalized_sym, f"{normalized_sym}.WA"),
+        "name": get_sigg_name(normalized_sym),
+        "shares": shares,
+        "entry_price": round(entry_price or curr_price, 2),
+        "current_price": round(curr_price or entry_price, 2)
+    }
+
+
+def _extract_embedded_json_positions(html_str: str) -> List[Dict[str, Any]]:
+    """Pull holdings from JSON blobs embedded in SSR pages / XHR prefetch scripts."""
+    found: List[Dict[str, Any]] = []
+    for m in re.finditer(r'(\{(?:[^{}]|\{[^{}]*\}){20,}\})', html_str):
+        chunk = m.group(1)
+        if not any(k in chunk.lower() for k in ("pozycj", "holding", "position", "instrument", "ilosc", "quantity")):
+            continue
+        try:
+            payload = json.loads(chunk)
+        except Exception:
+            continue
+        for raw_p in _find_positions_list(payload):
+            norm = _normalize_raw_position(raw_p)
+            if norm:
+                found.append(norm)
+    by_sym = {}
+    for p in found:
+        by_sym[p["symbol"]] = p
+    return list(by_sym.values())
+
+
 def _extract_from_html(html_str: str) -> Dict[str, Any]:
     """
     Parses server-side rendered (SSR) HTML pages from GPWTr@der / sigg.gpw.pl
     Extracts portfolio equity, wolne środki, należności (T+2), live ranking, and positions.
     """
     # 1. Portfolio Equity (e.g. '19,700.48' in wallet-chart__title or 'PORTFEL')
-    port_m = re.search(r'class="wallet-chart__title"[^>]*>\s*<span[^>]*>([\d\s,.]+)</span>', html_str, re.I)
+    port_m = re.search(r'class=["\']wallet-chart__title["\'][^>]*>\s*<span[^>]*>([\d\s,.]+)</span>', html_str, re.I)
     if not port_m:
         port_m = re.search(r'([\d\s,.]+?)\s*(?:<[^>]+>\s*)*(?:PORTFEL|warto[sś][cć]\s+portfela)', html_str, re.I)
     portfolio_value = _clean_currency_str(port_m.group(1)) if port_m else None
 
     # 2. Wolne środki (Cash)
-    cash_m = re.search(r'data-item-label="WOLNE[^"]*"[^>]*data-item-value="([\d.]+)"', html_str, re.I)
+    cash_explicit = False
+    cash_m = re.search(r'data-item-label=["\']WOLNE[^"\']*["\'][^>]*data-item-value=["\']([\d.]+)["\']', html_str, re.I)
     if not cash_m:
-        cash_m = re.search(r'WOLNE\s*ŚRODKI[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
-        cash = _clean_currency_str(cash_m.group(1)) if cash_m else None
+        cash_m = re.search(r'WOLNE\s*(?:Ś|S)RODKI[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+        if cash_m:
+            cash = _clean_currency_str(cash_m.group(1))
+            cash_explicit = True
+        else:
+            cash = None
     else:
         cash = float(cash_m.group(1))
+        cash_explicit = True
 
     # 3. Należności T+2 (Settlement proceeds from recent stock sales, immediately available for trading)
-    nal_m = re.search(r'data-item-label="NALE[ŻZ]NO[^"]*"[^>]*data-item-value="([\d.]+)"', html_str, re.I)
+    nal_m = re.search(r'data-item-label=["\']NALE[ŻZ]NO[^"\']*["\'][^>]*data-item-value=["\']([\d.]+)["\']', html_str, re.I)
     if not nal_m:
         nal_m = re.search(r'nale[żz]no(?:[sś]ci)?(?:\s*\(T\+2\))?[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
         receivables = _clean_currency_str(nal_m.group(1)) if nal_m else 0.0
@@ -266,6 +438,7 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
 
     if receivables > 0:
         cash = round((cash or 0.0) + receivables, 2)
+        cash_explicit = True
 
     # 4. Rank (e.g. '9,779. miejsce')
     rank_m = re.search(r'<b>([\d\s,.]+?)\.\s*miejsce</b>', html_str, re.I)
@@ -277,38 +450,25 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     teams_m = re.search(r'(?:z|spośród)\s*([\d\s,.]+?)\s*(?:uczestników|zespołów|drużyn)', html_str, re.I)
     total_teams = int(re.sub(r'[^\d]', '', teams_m.group(1))) if teams_m else None
 
-    # 6. Positions table (Table containing open positions, distinguishing from 'ostatnie zlecenia')
-    positions = []
+    # 6. Positions — tables first, then embedded JSON fallback
+    positions: List[Dict[str, Any]] = []
+    positions_table_seen = False
     all_tables = re.findall(r'<table[^>]*>(.*?)</table>', html_str, re.DOTALL | re.I)
     for tbl in all_tables:
-        headers_text = " ".join(re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)).lower()
-        # Must be positions table: has 'otw' (kurs otwarcia pozycji) and not 'typ zlecenia'
-        if 'otw' in headers_text and 'typ zlecenia' not in headers_text and 'data z' not in headers_text:
-            tbody_m = re.search(r'<tbody>(.*?)</tbody>', tbl, re.DOTALL | re.I)
-            if tbody_m:
-                row_matches = re.findall(r'<tr[^>]*>(.*?)</tr>', tbody_m.group(1), re.DOTALL | re.I)
-                for r_html in row_matches:
-                    cols = re.findall(r'<td[^>]*>(.*?)</td>', r_html, re.DOTALL | re.I)
-                    if len(cols) >= 5:
-                        raw_sym = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[0]).strip()
-                        raw_vol = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[1]).strip()
-                        raw_price = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[2]).strip()
-                        raw_open_price = re.sub(r'&nbsp;|<[^>]+>', ' ', cols[4]).strip() if len(cols) > 4 else raw_price
-                        
-                        sym = get_sigg_symbol(raw_sym)
-                        vol = int(_clean_currency_str(raw_vol)) if raw_vol else 0
-                        c_price = _clean_currency_str(raw_price)
-                        o_price = _clean_currency_str(raw_open_price)
-                        if sym and vol > 0 and (o_price > 0 or c_price > 0):
-                            positions.append({
-                                "symbol": sym,
-                                "ticker": SIGG_TO_TICKER.get(sym, f"{sym}.WA"),
-                                "name": get_sigg_name(sym),
-                                "shares": vol,
-                                "entry_price": o_price or c_price,
-                                "current_price": c_price or o_price
-                            })
+        parsed = _parse_positions_from_table(tbl)
+        if parsed:
+            positions = parsed
+            positions_table_seen = True
             break
+        headers_text = " ".join(re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)).lower()
+        if 'otw' in headers_text or ('instrument' in headers_text and 'ilo' in headers_text):
+            positions_table_seen = True
+
+    if not positions:
+        embedded = _extract_embedded_json_positions(html_str)
+        if embedded:
+            positions = embedded
+            positions_table_seen = True
 
     # Check if page is unauthenticated login/landing page
     if portfolio_value is None and cash is None and rank is None:
@@ -330,13 +490,26 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     if cash is None:
         cash = portfolio_value
 
+    # If equity clearly exceeds free cash but no rows parsed, do NOT pretend holdings are empty
+    invested_gap = float(portfolio_value) - float(cash)
+    positions_reliable = True
+    if not positions and invested_gap > 100.0:
+        positions_reliable = False
+    elif not positions and not positions_table_seen and cash_explicit and invested_gap > 1.0:
+        positions_reliable = False
+    elif not positions and not positions_table_seen and not cash_explicit and float(portfolio_value) > 0:
+        # Wallet found but neither cash breakdown nor holdings table — treat as unreliable
+        # only when page looks invested (rank present alone is not enough to wipe)
+        positions_reliable = invested_gap <= 100.0
+
     return {
         "valid": True,
         "portfolio_value": round(float(portfolio_value), 2),
         "cash": round(float(cash), 2),
         "rank": rank,
         "total_teams": total_teams,
-        "positions": positions
+        "positions": positions,
+        "positions_reliable": positions_reliable
     }
 
 
@@ -399,61 +572,9 @@ def extract_contest_payload(data: Any) -> Dict[str, Any]:
     extracted_positions: List[Dict[str, Any]] = []
 
     for raw_p in raw_positions:
-        if not isinstance(raw_p, dict):
-            continue
-            
-        # Identify symbol
-        sym = None
-        for sk in ["symbol", "ticker", "instrument", "nazwa", "kod", "isin"]:
-            if sk in raw_p and raw_p[sk]:
-                sym = str(raw_p[sk]).strip()
-                break
-                
-        if not sym:
-            continue
-
-        normalized_sym = get_sigg_symbol(sym)
-        company_name = get_sigg_name(normalized_sym)
-        yahoo_ticker = SIGG_TO_TICKER.get(normalized_sym, f"{normalized_sym}.WA")
-
-        # Quantity / Shares
-        shares = 0
-        for qk in ["shares", "volume", "quantity", "ilosc", "liczba", "count", "vol"]:
-            if qk in raw_p and raw_p[qk] is not None:
-                try:
-                    shares = int(float(raw_p[qk]))
-                    break
-                except (ValueError, TypeError):
-                    pass
-
-        # Entry Price
-        entry_price = 0.0
-        for epk in ["entry_price", "open_price", "avg_buy_price", "kurs_zakupu", "cena_otwarcia", "cena_zakupu", "buy_price"]:
-            if epk in raw_p and raw_p[epk] is not None:
-                try:
-                    entry_price = float(raw_p[epk])
-                    break
-                except (ValueError, TypeError):
-                    pass
-
-        # Current Price
-        curr_price = entry_price
-        for cpk in ["market_price", "current_price", "last_price", "kurs_biezacy", "cena", "last"]:
-            if cpk in raw_p and raw_p[cpk] is not None:
-                try:
-                    curr_price = float(raw_p[cpk])
-                    break
-                except (ValueError, TypeError):
-                    pass
-
-        extracted_positions.append({
-            "symbol": normalized_sym,
-            "ticker": yahoo_ticker,
-            "name": company_name,
-            "shares": shares,
-            "entry_price": round(entry_price, 2),
-            "current_price": round(curr_price, 2)
-        })
+        norm = _normalize_raw_position(raw_p)
+        if norm:
+            extracted_positions.append(norm)
 
     # If portfolio value was not explicitly found, calculate cash + sum of positions
     if portfolio_value is None and cash is not None:
@@ -466,13 +587,20 @@ def extract_contest_payload(data: Any) -> Dict[str, Any]:
     if cash is None:
         cash = portfolio_value
 
+    invested_gap = float(portfolio_value) - float(cash) if portfolio_value is not None and cash is not None else 0.0
+    positions_reliable = True
+    if not extracted_positions and invested_gap > 100.0:
+        # JSON payload had equity in stocks but no parsable holdings list
+        positions_reliable = False
+
     return {
         "valid": True,
         "portfolio_value": round(float(portfolio_value), 2),
         "cash": round(float(cash), 2),
         "rank": rank,
         "total_teams": total_teams,
-        "positions": extracted_positions
+        "positions": extracted_positions,
+        "positions_reliable": positions_reliable
     }
 
 
@@ -483,19 +611,47 @@ def reconcile_portfolio_with_contest(contest_data: Dict[str, Any], portfolio_mgr
     - Synchronizes positions (updates shares, entry prices, keeps/recalculates ATR stops).
     - Detects positions closed on the contest and moves them to closed_trades.
     - Updates contest sync status metadata.
+    - NEVER wipes local open positions when contest payload could not reliably parse holdings.
     """
     if not contest_data or not isinstance(contest_data, dict) or not contest_data.get("valid", True):
         return {"status": "error", "message": "Invalid contest data."}
 
     contest_cash = float(contest_data.get("cash", 0.0))
-    contest_positions = contest_data.get("positions", [])
+    contest_positions = contest_data.get("positions", []) or []
+    positions_reliable = contest_data.get("positions_reliable", True)
     current_positions = portfolio_mgr.state.get("positions", [])
+    today_str = date.today().strftime("%Y-%m-%d")
+
+    # Partial sync: equity/cash/rank OK but holdings missing from HTML/JSON parse.
+    # Keep local open positions so the dashboard does not "forget" what you bought.
+    if not positions_reliable and len(contest_positions) == 0:
+        portfolio_mgr.state["cash"] = round(contest_cash, 2)
+        portfolio_mgr.state["contest_sync"] = {
+            "status": "synced_partial",
+            "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "rank": contest_data.get("rank"),
+            "total_teams": contest_data.get("total_teams"),
+            "contest_equity": contest_data.get("portfolio_value"),
+            "contest_cash": round(contest_cash, 2),
+            "positions_count": len(current_positions),
+            "error_message": (
+                "Cash/equity synced, but open positions were missing from the contest page parse. "
+                "Local holdings were preserved. Re-sync with a holdings/portfolio cURL, or use "
+                "Register Holdings to enter ONDE/SNTVERSE manually."
+            )
+        }
+        portfolio_mgr.update_live_quotes()
+        portfolio_mgr.save_state()
+        return {
+            "status": "partial",
+            "message": portfolio_mgr.state["contest_sync"]["error_message"],
+            "summary": portfolio_mgr.get_summary()
+        }
     
     # Track existing positions by symbol
     existing_by_sym = {p["ticker"]: p for p in current_positions}
     
     new_positions_list = []
-    today_str = date.today().strftime("%Y-%m-%d")
 
     # Reconcile incoming contest positions
     for cp in contest_positions:
@@ -503,37 +659,40 @@ def reconcile_portfolio_with_contest(contest_data: Dict[str, Any], portfolio_mgr
         shares = cp["shares"]
         entry_price = cp["entry_price"]
         curr_price = cp.get("current_price", entry_price)
+        entry_date = cp.get("entry_date") or today_str
 
         if sym in existing_by_sym:
-            # Update existing position
+            # Update existing position — preserve original entry_date / ATR for stop math
             p = existing_by_sym[sym]
             p["shares"] = shares
             if entry_price > 0:
                 p["entry_price"] = entry_price
             p["current_price"] = curr_price
             p["highest_price"] = max(p.get("highest_price", entry_price), curr_price)
-            gross = shares * curr_price
             p["gross_cost"] = round(shares * p["entry_price"], 2)
+            if p.get("entry_date"):
+                p["sessions_held"] = portfolio_mgr.calculate_trading_days_held(p["entry_date"])
             new_positions_list.append(p)
         else:
             # Newly imported position from contest
-            atr_est = curr_price * 0.03
-            stop_price = round(curr_price - (2.2 * atr_est), 2)
+            atr_est = float(cp.get("entry_atr") or (curr_price * 0.03))
+            stop_price = round(max(entry_price, curr_price) - (2.2 * atr_est), 2)
             gross_cost = round(shares * entry_price, 2)
             comm = round(gross_cost * portfolio_mgr.commission_pct, 2)
             total_cost = round(gross_cost + comm, 2)
+            sessions = portfolio_mgr.calculate_trading_days_held(entry_date)
             
             new_pos = {
                 "ticker": sym,
                 "name": cp.get("name", get_sigg_name(sym)),
-                "entry_date": today_str,
+                "entry_date": entry_date,
                 "entry_price": entry_price,
                 "shares": shares,
                 "entry_atr": round(atr_est, 2),
                 "current_price": curr_price,
                 "highest_price": max(entry_price, curr_price),
                 "stop_loss_price": stop_price,
-                "sessions_held": 1,
+                "sessions_held": sessions,
                 "entry_commission": comm,
                 "gross_cost": gross_cost,
                 "total_entry_cost": total_cost,
@@ -599,19 +758,25 @@ class ContestSyncEngine:
         self.config_file = config_file
 
     def load_config(self) -> Dict[str, Any]:
-        os.makedirs(os.path.dirname(self.config_file) if os.path.dirname(self.config_file) else ".", exist_ok=True)
-        if os.path.exists(self.config_file):
-            try:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            except Exception:
-                pass
-        return {
+        cfg = {
             "portfolio_curl": "",
             "ranking_curl": "",
             "enabled": False,
             "last_status": "unconfigured"
         }
+        loaded = load_json_file(self.config_file, "contest_curl", None)
+        if isinstance(loaded, dict):
+            cfg.update(loaded)
+        # Render / cloud fallback: paste curls once into env vars so redeploys don't wipe auth
+        env_port = os.environ.get("SIGG_PORTFOLIO_CURL", "").strip()
+        env_rank = os.environ.get("SIGG_RANKING_CURL", "").strip()
+        if env_port and not cfg.get("portfolio_curl"):
+            cfg["portfolio_curl"] = env_port
+            cfg["enabled"] = True
+            cfg["last_status"] = "configured_from_env"
+        if env_rank and not cfg.get("ranking_curl"):
+            cfg["ranking_curl"] = env_rank
+        return cfg
 
     def save_config(self, portfolio_curl: str, ranking_curl: str = "", enabled: bool = True) -> Dict[str, Any]:
         cfg = {
@@ -621,9 +786,7 @@ class ContestSyncEngine:
             "last_status": "configured",
             "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        os.makedirs(os.path.dirname(self.config_file) if os.path.dirname(self.config_file) else ".", exist_ok=True)
-        with open(self.config_file, 'w', encoding='utf-8') as f:
-            json.dump(cfg, f, indent=2)
+        save_json_file(self.config_file, "contest_curl", cfg)
         return cfg
 
     def _execute_curl_request(self, parsed: Dict[str, Any], timeout: int = 12) -> Tuple[int, Any, Optional[str]]:
@@ -726,10 +889,23 @@ class ContestSyncEngine:
                 if rank_extracted.get("total_teams") is not None:
                     extracted["total_teams"] = rank_extracted["total_teams"]
 
-        # Reconcile portfolio
-        reconcile_portfolio_with_contest(extracted, portfolio_mgr)
+        # Reconcile portfolio (may return partial if holdings could not be parsed)
+        recon = reconcile_portfolio_with_contest(extracted, portfolio_mgr)
         
         rank_str = f"Rank #{extracted['rank']}" if extracted.get("rank") else "Rank N/A"
+        if recon.get("status") == "partial":
+            push_in_app_notification(
+                "Contest Partial Sync",
+                recon.get("message") or "Cash synced; open positions could not be parsed from contest page.",
+                level="warning"
+            )
+            return {
+                "status": "partial",
+                "message": recon.get("message"),
+                "data": extracted,
+                "summary": portfolio_mgr.get_summary()
+            }
+
         push_in_app_notification(
             "Contest Synced", 
             f"Successfully updated from SIGG: {extracted['portfolio_value']:.2f} PLN ({rank_str})", 

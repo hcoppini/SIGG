@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGG Etap 1 Trading Hub & Command Center</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js for Visual Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -108,6 +108,80 @@
                     </button>
                 </div>
             </header>
+
+            <!-- LIVE OPEN POSITIONS (tracked holdings + exit signals) -->
+            <div id="portfolioCommandSection" class="glass-card portfolio-command-card">
+                <div class="card-header-flex">
+                    <div class="podium-title-group">
+                        <div class="podium-badge-icon">📦</div>
+                        <div>
+                            <h3>Open Positions Command Center</h3>
+                            <p class="chart-subtitle">Live holdings with Day 1–3 countdown, 2.2× ATR stops, and sell signals. Sync from contest or register manually if cURL misses positions.</p>
+                            <p id="cloudSyncHint" class="chart-subtitle" style="margin-top:0.25rem;font-size:0.75rem;color:#94a3b8;">Checking cloud sync…</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button id="refreshPortfolioBtn" class="btn secondary btn-sm" type="button">
+                            <i data-lucide="refresh-cw" class="btn-icon"></i> Refresh Quotes
+                        </button>
+                        <button id="toggleRegisterHoldingsBtn" class="btn secondary btn-sm" type="button">
+                            <i data-lucide="plus-square" class="btn-icon"></i> Register Holdings
+                        </button>
+                    </div>
+                </div>
+
+                <div id="registerHoldingsPanel" class="contest-setting-box" style="display:none; margin-top:0.75rem;">
+                    <p class="setting-hint" style="margin-bottom:0.65rem;">
+                        Enter what you actually hold on GPWTr@der (e.g. ONDE from yesterday, SNTVERSE from today). This drives stop / 3-day exit tracking even when contest sync cannot parse the positions table.
+                    </p>
+                    <div class="param-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem;">
+                        <div class="param-field">
+                            <label for="regTicker1">Ticker 1</label>
+                            <input type="text" id="regTicker1" placeholder="ONDE" value="ONDE">
+                        </div>
+                        <div class="param-field">
+                            <label for="regShares1">Shares</label>
+                            <input type="number" id="regShares1" placeholder="1000" step="1">
+                        </div>
+                        <div class="param-field">
+                            <label for="regPrice1">Entry Price</label>
+                            <input type="number" id="regPrice1" placeholder="8.65" step="0.01" value="8.65">
+                        </div>
+                        <div class="param-field">
+                            <label for="regDate1">Entry Date</label>
+                            <input type="date" id="regDate1" value="2026-11-16">
+                        </div>
+                        <div class="param-field">
+                            <label for="regTicker2">Ticker 2</label>
+                            <input type="text" id="regTicker2" placeholder="SNTVERSE" value="SNTVERSE">
+                        </div>
+                        <div class="param-field">
+                            <label for="regShares2">Shares</label>
+                            <input type="number" id="regShares2" placeholder="0" step="1">
+                        </div>
+                        <div class="param-field">
+                            <label for="regPrice2">Entry Price</label>
+                            <input type="number" id="regPrice2" placeholder="2.80" step="0.01" value="2.80">
+                        </div>
+                        <div class="param-field">
+                            <label for="regDate2">Entry Date</label>
+                            <input type="date" id="regDate2" value="2026-11-17">
+                        </div>
+                        <div class="param-field">
+                            <label for="regCash">Cash left (PLN)</label>
+                            <input type="number" id="regCash" placeholder="optional" step="0.01">
+                        </div>
+                    </div>
+                    <div style="margin-top:0.75rem; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button id="saveRegisterHoldingsBtn" class="btn primary btn-sm" type="button">Save &amp; Compute Exits</button>
+                        <button id="cancelRegisterHoldingsBtn" class="btn secondary btn-sm" type="button">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="portfolioSlotsGrid" class="portfolio-slots-grid">
+                    <!-- Populated by main.js fetchPortfolio() -->
+                </div>
+            </div>
 
             <!-- DAILY STRATEGY ALLOCATION SECTION (3 SLOTS) -->
             <div id="podiumSection" class="glass-card podium-section">
@@ -650,6 +724,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=5"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=6"></script>
 </body>
 </html>

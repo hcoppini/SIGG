@@ -111,6 +111,39 @@ class TestContestEndpoints(unittest.TestCase):
         self.assertEqual(status_data["contest_sync"]["rank"], 22)
         self.assertEqual(status_data["contest_sync"]["total_teams"], 3150)
 
+    def test_portfolio_import_endpoint(self):
+        payload = {
+            "cash": 350.0,
+            "holdings": [
+                {
+                    "ticker": "ONDE",
+                    "shares": 800,
+                    "entry_price": 8.74,
+                    "entry_date": "2026-11-16",
+                    "atr": 0.26
+                },
+                {
+                    "ticker": "SNTVERSE",
+                    "shares": 400,
+                    "entry_price": 2.84,
+                    "entry_date": "2026-11-17",
+                    "atr": 0.10
+                }
+            ]
+        }
+        res = self.client.post(
+            '/api/portfolio/import',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(len(data["summary"]["positions"]), 2)
+        tickers = {p["ticker"] for p in data["summary"]["positions"]}
+        self.assertIn("ONDE", tickers)
+        self.assertIn("SNTVERSE", tickers)
+
 
 if __name__ == '__main__':
     unittest.main()

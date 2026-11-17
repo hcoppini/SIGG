@@ -712,6 +712,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const timePart = cs.last_synced ? cs.last_synced.split(' ')[1] : '';
                     mobileStatusText.textContent = `Contest: Synced ${timePart}`;
                     mobileStatusText.style.color = '#34d399';
+                } else if (cs.status === 'synced_partial' || cs.status === 'manual') {
+                    mobileDot.style.background = '#fbbf24';
+                    mobileDot.style.boxShadow = 'none';
+                    mobileStatusText.textContent = cs.status === 'manual' ? 'Contest: Manual' : 'Contest: Partial';
+                    mobileStatusText.style.color = '#fbbf24';
                 } else if (cs.status === 'expired') {
                     mobileDot.style.background = '#fb7185';
                     mobileDot.style.boxShadow = 'none';
@@ -916,6 +921,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMobileToast('Contest Synced', json.message || 'Holding positions and equity synchronized.', 'success');
                     playMobileChime();
                     fetchMobilePortfolio();
+                } else if (json.status === 'partial') {
+                    showMobileToast('Partial Sync', json.message || 'Cash synced — register holdings.', 'warning');
+                    fetchMobilePortfolio();
+                    const panel = document.getElementById('mobileRegisterHoldingsPanel');
+                    if (panel) panel.style.display = 'block';
                 } else {
                     const msg = json.message || 'Could not connect to contest. Verify cURL in settings.';
                     showMobileToast('Sync Failed', msg, 'error');
@@ -935,6 +945,57 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 mobileSyncContestBtn.disabled = false;
                 if (syncTxt) syncTxt.textContent = 'Sync';
+            }
+        });
+    }
+
+    const mobileRegisterHoldingsBtn = document.getElementById('mobileRegisterHoldingsBtn');
+    const mobileRegisterHoldingsPanel = document.getElementById('mobileRegisterHoldingsPanel');
+    const mobileSaveRegisterHoldingsBtn = document.getElementById('mobileSaveRegisterHoldingsBtn');
+    if (mobileRegisterHoldingsBtn && mobileRegisterHoldingsPanel) {
+        mobileRegisterHoldingsBtn.addEventListener('click', () => {
+            const open = mobileRegisterHoldingsPanel.style.display !== 'none';
+            mobileRegisterHoldingsPanel.style.display = open ? 'none' : 'block';
+        });
+    }
+    if (mobileSaveRegisterHoldingsBtn) {
+        mobileSaveRegisterHoldingsBtn.addEventListener('click', async () => {
+            const holdings = [];
+            for (const idx of [1, 2]) {
+                const ticker = (document.getElementById(`mRegTicker${idx}`)?.value || '').trim();
+                const shares = parseFloat(document.getElementById(`mRegShares${idx}`)?.value || '0');
+                const entry_price = parseFloat(document.getElementById(`mRegPrice${idx}`)?.value || '0');
+                const entry_date = document.getElementById(`mRegDate${idx}`)?.value || '';
+                if (ticker && shares > 0 && entry_price > 0) {
+                    holdings.push({ ticker, shares, entry_price, entry_date });
+                }
+            }
+            if (!holdings.length) {
+                showMobileToast('Missing Data', 'Enter ticker, shares, and entry price.', 'error');
+                return;
+            }
+            const cashRaw = document.getElementById('mRegCash')?.value;
+            const payload = { holdings, replace: true };
+            if (cashRaw !== undefined && cashRaw !== '') payload.cash = parseFloat(cashRaw);
+            mobileSaveRegisterHoldingsBtn.disabled = true;
+            try {
+                const res = await fetch('/api/portfolio/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showMobileToast('Holdings Registered', json.message || 'Exit signals updated.', 'success');
+                    if (mobileRegisterHoldingsPanel) mobileRegisterHoldingsPanel.style.display = 'none';
+                    fetchMobilePortfolio();
+                } else {
+                    showMobileToast('Import Failed', json.message || 'Could not register holdings.', 'error');
+                }
+            } catch (e) {
+                showMobileToast('Import Error', String(e), 'error');
+            } finally {
+                mobileSaveRegisterHoldingsBtn.disabled = false;
             }
         });
     }

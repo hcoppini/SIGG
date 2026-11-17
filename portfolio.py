@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Any
 import pandas as pd
 import yfinance as yf
 from sigg_universe import SIGG_TO_TICKER, get_sigg_symbol, get_sigg_name
+from remote_store import load_json_file, save_json_file
 
 PORTFOLIO_FILE = os.path.join("Output", "portfolio_state.json")
 
@@ -30,15 +31,6 @@ class PortfolioManager:
         self.state = self.load_state()
 
     def load_state(self) -> Dict[str, Any]:
-        os.makedirs(os.path.dirname(self.state_file) if os.path.dirname(self.state_file) else ".", exist_ok=True)
-        if os.path.exists(self.state_file):
-            try:
-                with open(self.state_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    return data
-            except Exception:
-                pass
-        
         # Default fresh state
         initial_state = {
             "initial_capital": self.initial_capital,
@@ -47,6 +39,10 @@ class PortfolioManager:
             "closed_trades": [],
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+        # Cloud Gist first (multi-device), then local mirror
+        data = load_json_file(self.state_file, "portfolio", None)
+        if isinstance(data, dict) and data:
+            return data
         self.save_state(initial_state)
         return initial_state
 
@@ -54,9 +50,7 @@ class PortfolioManager:
         if state is not None:
             self.state = state
         self.state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        os.makedirs(os.path.dirname(self.state_file) if os.path.dirname(self.state_file) else ".", exist_ok=True)
-        with open(self.state_file, 'w', encoding='utf-8') as f:
-            json.dump(self.state, f, indent=2)
+        save_json_file(self.state_file, "portfolio", self.state)
 
     def calculate_trading_days_held(self, entry_date_str: str, today_date: Optional[date] = None) -> int:
         """
@@ -195,6 +189,97 @@ class PortfolioManager:
         self.save_state()
         
         return {"status": "success", "message": f"Bought {shares} shares of {ticker} at {price:.2f} PLN", "position": pos}
+
+    def import_holdings(self, holdings: List[Dict[str, Any]], cash: Optional[float] = None, replace: bool = True) -> Dict[str, Any]:
+        """
+        Manually register contest holdings when cURL sync cannot parse open positions.
+        holdings: [{ticker, shares, entry_price, entry_date?, atr?}, ...]
+        """
+        if not isinstance(holdings, list) or not holdings:
+            return {"status": "error", "message": "Provide at least one holding with ticker, shares, and entry_price."}
+
+        new_positions: List[Dict[str, Any]] = [] if replace else list(self.state.get("positions", []))
+        existing = {p["ticker"]: i for i, p in enumerate(new_positions)}
+        today_str = date.today().strftime("%Y-%m-%d")
+
+        for h in holdings:
+            if not isinstance(h, dict):
+                continue
+            raw_ticker = str(h.get("ticker") or h.get("symbol") or "").strip()
+            if not raw_ticker:
+                continue
+            sym = get_sigg_symbol(raw_ticker)
+            try:
+                shares = int(float(h.get("shares") or h.get("quantity") or 0))
+                entry_price = float(h.get("entry_price") or h.get("price") or 0)
+            except (TypeError, ValueError):
+                return {"status": "error", "message": f"Invalid shares/price for {raw_ticker}."}
+            if shares <= 0 or entry_price <= 0:
+                return {"status": "error", "message": f"Shares and entry_price must be > 0 for {raw_ticker}."}
+
+            entry_date = str(h.get("entry_date") or today_str)[:10]
+            curr_price = float(h.get("current_price") or entry_price)
+            atr = float(h.get("atr") or h.get("entry_atr") or (entry_price * 0.03))
+            gross_cost = round(shares * entry_price, 2)
+            comm = round(gross_cost * self.commission_pct, 2)
+            total_cost = round(gross_cost + comm, 2)
+            sessions = self.calculate_trading_days_held(entry_date)
+            highest = max(entry_price, curr_price)
+            stop_price = round(highest - (2.2 * atr), 2)
+
+            pos = {
+                "ticker": sym,
+                "name": get_sigg_name(sym),
+                "entry_date": entry_date,
+                "entry_price": round(entry_price, 2),
+                "shares": shares,
+                "entry_atr": round(atr, 2),
+                "current_price": round(curr_price, 2),
+                "highest_price": round(highest, 2),
+                "stop_loss_price": stop_price,
+                "sessions_held": sessions,
+                "entry_commission": comm,
+                "gross_cost": gross_cost,
+                "total_entry_cost": total_cost,
+                "pnl_pln": 0.0,
+                "pnl_pct": 0.0,
+                "exit_signal": "HOLD",
+                "exit_reason": "Manually registered contest holding"
+            }
+
+            if sym in existing:
+                new_positions[existing[sym]] = pos
+            else:
+                existing[sym] = len(new_positions)
+                new_positions.append(pos)
+
+        if len(new_positions) > self.max_positions:
+            return {
+                "status": "error",
+                "message": f"Cannot register more than {self.max_positions} concurrent positions (got {len(new_positions)})."
+            }
+
+        if cash is not None:
+            try:
+                self.state["cash"] = round(float(cash), 2)
+            except (TypeError, ValueError):
+                return {"status": "error", "message": "Invalid cash value."}
+
+        self.state["positions"] = new_positions
+        self.state["contest_sync"] = {
+            **(self.state.get("contest_sync") or {}),
+            "status": "manual",
+            "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "positions_count": len(new_positions),
+            "error_message": None
+        }
+        self.update_live_quotes()
+        self.save_state()
+        return {
+            "status": "success",
+            "message": f"Registered {len(new_positions)} holding(s). Exit signals refreshed from live quotes.",
+            "summary": self.get_summary()
+        }
 
     def sell_position(self, ticker: str, exit_price: float, reason: str = "Manual_Exit", exit_date: Optional[str] = None) -> Dict[str, Any]:
         ticker = ticker.upper().strip()

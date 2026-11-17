@@ -164,6 +164,9 @@
                 Active Slots (<span id="portActiveCount">0</span>/3)
             </span>
             <div style="display: flex; gap: 6px;">
+                <button id="mobileRegisterHoldingsBtn" class="btn-card-copy" style="padding: 4px 8px; font-size: 0.72rem;" title="Manually register open contest positions">
+                    <i data-lucide="plus-square" style="width: 12px; height: 12px;"></i> Register
+                </button>
                 <button id="mobileResetPortBtn" class="btn-card-copy" style="padding: 4px 8px; font-size: 0.72rem; color: #f87171; border-color: rgba(248,113,113,0.3);" title="Reset portfolio to clean 20,000 PLN">
                     <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset
                 </button>
@@ -171,6 +174,32 @@
                     <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Refresh
                 </button>
             </div>
+        </div>
+
+        <div id="mobileRegisterHoldingsPanel" class="alert-card" style="display:none; margin-bottom: 0.75rem;">
+            <div class="alert-card-title">
+                <i data-lucide="plus-square" style="width: 16px; height: 16px; color: #facc15;"></i>
+                <span>Register Open Holdings</span>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; margin-bottom: 0.5rem;">
+                If Sync shows cash but empty slots, enter what you hold on GPWTr@der (ticker, shares, entry, date).
+            </p>
+            <input type="text" id="mRegTicker1" class="mobile-input" placeholder="Ticker 1 e.g. ONDE" value="ONDE">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px; margin-top:6px;">
+                <input type="number" id="mRegShares1" class="mobile-input" placeholder="Shares">
+                <input type="number" id="mRegPrice1" class="mobile-input" placeholder="Entry" value="8.65" step="0.01">
+                <input type="date" id="mRegDate1" class="mobile-input" value="2026-11-16">
+            </div>
+            <input type="text" id="mRegTicker2" class="mobile-input" placeholder="Ticker 2 e.g. SNTVERSE" value="SNTVERSE" style="margin-top:8px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px; margin-top:6px;">
+                <input type="number" id="mRegShares2" class="mobile-input" placeholder="Shares">
+                <input type="number" id="mRegPrice2" class="mobile-input" placeholder="Entry" value="2.80" step="0.01">
+                <input type="date" id="mRegDate2" class="mobile-input" value="2026-11-17">
+            </div>
+            <input type="number" id="mRegCash" class="mobile-input" placeholder="Cash left PLN (optional)" step="0.01" style="margin-top:8px;">
+            <button id="mobileSaveRegisterHoldingsBtn" class="scan-action-btn" style="padding: 0.65rem; font-size: 0.8rem; margin-top: 0.6rem;">
+                Save &amp; Compute Exits
+            </button>
         </div>
 
         <div id="mobileSlotsFeed">
@@ -375,6 +404,6 @@
         </button>
     </nav>
 
-    <script src="{{ url_for('static', filename='js/mobile.js') }}?v=1"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}?v=6"></script>
 </body>
 </html>
