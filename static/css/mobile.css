@@ -1174,3 +1174,89 @@ body {
     color: #fff !important;
     border-color: var(--accent) !important;
 }
+
+/* One-tap Sync / Refresh */
+.mobile-cmd-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+}
+
+.mobile-cmd-btn {
+    min-height: 48px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.65rem 0.5rem;
+}
+
+.mobile-cmd-btn.primary {
+    background: rgba(143, 188, 176, 0.14);
+    border-color: rgba(143, 188, 176, 0.45);
+    color: #8fbcb0;
+}
+
+.mobile-cmd-btn:disabled {
+    opacity: 0.5;
+}
+
+.mobile-open-book {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin: 0.35rem 0 0.85rem;
+}
+
+.mobile-open-chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.82rem;
+}
+
+.mobile-open-chip strong {
+    font-family: var(--font-mono);
+}
+
+.mobile-open-chip.tone-hold { color: #8fbcb0; border-color: rgba(143, 188, 176, 0.35); }
+.mobile-open-chip.tone-sell { color: #c4929a; border-color: rgba(196, 146, 154, 0.45); }
+.mobile-open-chip.tone-runner { color: #c4b49a; border-color: rgba(196, 180, 154, 0.45); }
+
+.mobile-risk-tape {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 0.55rem;
+    margin: 0.55rem 0 0.65rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.mobile-risk-tape span:last-child {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.mobile-risk-tape.risk-hot {
+    border-color: rgba(196, 146, 154, 0.5);
+    background: rgba(196, 146, 154, 0.08);
+}
+
+.mobile-risk-tape.risk-hot span:last-child { color: #c4929a; }

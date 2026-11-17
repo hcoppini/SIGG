@@ -744,97 +744,128 @@ function initSiggMobile() {
                 }
             }
 
+            // Open-book action strip (HOLD / SELL)
+            const mobileActions = document.getElementById('mobileOpenBookActions');
+            if (mobileActions) {
+                if (!positions.length) {
+                    mobileActions.hidden = true;
+                    mobileActions.innerHTML = '';
+                } else {
+                    mobileActions.hidden = false;
+                    mobileActions.innerHTML = positions.map((pos) => {
+                        const sig = pos.exit_signal || 'HOLD';
+                        let verb = `HOLD — Day ${pos.sessions_held || 1}/3`;
+                        let tone = 'hold';
+                        if (sig === 'STOP_TRIGGERED') { verb = 'SELL — STOP HIT'; tone = 'sell'; }
+                        else if (sig === '3D_EXIT_TODAY') { verb = 'SELL — DAY 3 EXIT'; tone = 'sell'; }
+                        else if (sig === 'RUNNER_HOLD') { verb = 'HOLD — RUNNER'; tone = 'runner'; }
+                        return `<div class="mobile-open-chip tone-${tone}"><strong>${pos.ticker}</strong><span>${verb}</span></div>`;
+                    }).join('');
+                }
+            }
+
             if (!mobileSlotsFeed) return;
             mobileSlotsFeed.innerHTML = '';
 
-            for (let i = 0; i < maxSlots; i++) {
-                const pos = positions[i];
-                const slotNum = `SLOT ${i + 1}`;
-
-                if (pos) {
-                    const isPositive = (pos.pnl_pln >= 0);
-                    const pnlClass = isPositive ? 'text-green' : 'text-red';
-                    const pnlSign = isPositive ? '+' : '';
-                    const held = pos.sessions_held || 1;
-
-                    let cardClass = 'mobile-slot-card occupied';
-                    let badgeClass = 'slot-status-badge badge-signal-buy';
-                    let badgeText = `DAY ${held} OF 3`;
-
-                    if (pos.exit_signal === 'STOP_TRIGGERED') {
-                        cardClass = 'mobile-slot-card breached';
-                        badgeClass = 'slot-status-badge text-red';
-                        badgeText = 'STOP BREACHED';
-                    } else if (pos.exit_signal === '3D_EXIT_TODAY') {
-                        cardClass = 'mobile-slot-card warning';
-                        badgeClass = 'slot-status-badge text-amber';
-                        badgeText = '3D EXIT TODAY';
-                    } else if (pos.exit_signal === 'RUNNER_HOLD') {
-                        cardClass = 'mobile-slot-card occupied';
-                        badgeClass = 'slot-status-badge text-green font-bold';
-                        badgeText = 'RUNNER EXCEPTION';
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = cardClass;
-                    card.innerHTML = `
-                        <div class="slot-top-row">
-                            <span class="slot-tag">${slotNum}</span>
-                            <span class="${badgeClass}">${badgeText}</span>
-                        </div>
-
-                        <div class="slot-ticker-pnl-row">
-                            <span class="slot-pos-ticker">${pos.ticker}</span>
-                            <span class="slot-pos-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% (${pnlSign}${Number(pos.pnl_pln || 0).toFixed(0)} PLN)</span>
-                        </div>
-
-                        <!-- 3-Day Countdown Step Bar -->
-                        <div class="hold-progress-bar">
-                            <div class="hold-step active"></div>
-                            <div class="hold-step ${held >= 2 ? 'active' : ''}"></div>
-                            <div class="hold-step ${held >= 3 ? (pos.exit_signal === 'RUNNER_HOLD' ? 'active' : 'exit-day') : ''}"></div>
-                        </div>
-
-                        <div class="slot-details-grid">
-                            <div class="slot-detail-item">
-                                <span class="slot-detail-label">Shares</span>
-                                <span class="slot-detail-val">${pos.shares} szt.</span>
-                            </div>
-                            <div class="slot-detail-item">
-                                <span class="slot-detail-label">Entry</span>
-                                <span class="slot-detail-val">${Number(pos.entry_price || 0).toFixed(2)} PLN</span>
-                            </div>
-                            <div class="slot-detail-item">
-                                <span class="slot-detail-label">Current</span>
-                                <span class="slot-detail-val">${Number(pos.current_price || pos.entry_price || 0).toFixed(2)} PLN</span>
-                            </div>
-                            <div class="slot-detail-item">
-                                <span class="slot-detail-label">2.2x Stop</span>
-                                <span class="slot-detail-val ${pos.current_price <= pos.stop_loss_price ? 'text-red font-bold' : ''}">${Number(pos.stop_loss_price || 0).toFixed(2)} PLN</span>
-                            </div>
-                        </div>
-
-                        <button class="btn-close-pos mobile-close-pos-btn" data-ticker="${pos.ticker}" data-price="${pos.current_price || pos.entry_price}">
-                            <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i> Close Position (Liquidate)
-                        </button>
-                    `;
-                    mobileSlotsFeed.appendChild(card);
-                } else {
-                    const card = document.createElement('div');
-                    card.className = 'mobile-slot-card vacant';
-                    card.innerHTML = `
-                        <div class="slot-top-row">
-                            <span class="slot-tag">${slotNum}</span>
-                            <span class="slot-status-badge" style="color: var(--text-muted); background: var(--bg-card-subtle);">VACANT</span>
-                        </div>
+            if (!positions.length) {
+                mobileSlotsFeed.innerHTML = `
+                    <div class="mobile-slot-card vacant">
                         <div class="slot-vacant-content">
-                            <div class="slot-vacant-title">Slot Available for Breakout</div>
-                            <div class="slot-vacant-sub">Allocated: ~${Number(cashPerSlot).toLocaleString('pl-PL', { maximumFractionDigits: 0 })} PLN</div>
+                            <div class="slot-vacant-title">No open positions</div>
+                            <div class="slot-vacant-sub">Tap Sync Contest to pull GPW holdings.</div>
                         </div>
-                    `;
-                    mobileSlotsFeed.appendChild(card);
-                }
+                    </div>`;
             }
+
+            positions.forEach((pos, i) => {
+                const slotNum = `SLOT ${i + 1}`;
+                const isPositive = (pos.pnl_pln >= 0);
+                const pnlClass = isPositive ? 'text-green' : 'text-red';
+                const pnlSign = isPositive ? '+' : '';
+                const held = pos.sessions_held || 1;
+                const currPx = Number(pos.current_price || pos.entry_price || 0);
+                const stopPx = Number(pos.stop_loss_price || 0);
+                const sharesN = Number(pos.shares || 0);
+                const daysLeft = Math.max(0, 3 - held);
+                const cushionPct = currPx > 0 ? ((currPx - stopPx) / currPx) * 100 : 0;
+                const cushionPln = sharesN * (currPx - stopPx);
+                const gap3Pln = sharesN * currPx * -0.03;
+                const gap5Pln = sharesN * currPx * -0.05;
+                const riskClass = cushionPct <= 1.5 ? 'risk-hot' : '';
+
+                let cardClass = 'mobile-slot-card occupied';
+                let badgeClass = 'slot-status-badge badge-signal-buy';
+                let badgeText = `DAY ${held} OF 3`;
+
+                if (pos.exit_signal === 'STOP_TRIGGERED') {
+                    cardClass = 'mobile-slot-card breached';
+                    badgeClass = 'slot-status-badge text-red';
+                    badgeText = 'STOP HIT';
+                } else if (pos.exit_signal === '3D_EXIT_TODAY') {
+                    cardClass = 'mobile-slot-card warning';
+                    badgeClass = 'slot-status-badge text-amber';
+                    badgeText = 'DAY 3 EXIT';
+                } else if (pos.exit_signal === 'RUNNER_HOLD') {
+                    cardClass = 'mobile-slot-card occupied';
+                    badgeClass = 'slot-status-badge text-green font-bold';
+                    badgeText = 'RUNNER';
+                }
+
+                const entryPx = Number(pos.entry_price || 0);
+                const entryFmt = entryPx >= 10 ? entryPx.toFixed(2) : entryPx.toFixed(4);
+                const currFmt = currPx >= 10 ? currPx.toFixed(2) : currPx.toFixed(4);
+
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="slot-top-row">
+                        <span class="slot-tag">${slotNum}</span>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+
+                    <div class="slot-ticker-pnl-row">
+                        <span class="slot-pos-ticker">${pos.ticker}</span>
+                        <span class="slot-pos-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% (${pnlSign}${Number(pos.pnl_pln || 0).toFixed(0)} PLN)</span>
+                    </div>
+
+                    <div class="hold-progress-bar">
+                        <div class="hold-step active"></div>
+                        <div class="hold-step ${held >= 2 ? 'active' : ''}"></div>
+                        <div class="hold-step ${held >= 3 ? (pos.exit_signal === 'RUNNER_HOLD' ? 'active' : 'exit-day') : ''}"></div>
+                    </div>
+
+                    <div class="mobile-risk-tape ${riskClass}">
+                        <span>To stop</span><span>${cushionPct.toFixed(1)}% · ${cushionPln >= 0 ? '+' : ''}${cushionPln.toFixed(0)} PLN</span>
+                        <span>Left</span><span>${daysLeft} of 3 sessions</span>
+                        <span>Gap −3%</span><span>${gap3Pln.toFixed(0)} PLN</span>
+                        <span>Gap −5%</span><span>${gap5Pln.toFixed(0)} PLN</span>
+                    </div>
+
+                    <div class="slot-details-grid">
+                        <div class="slot-detail-item">
+                            <span class="slot-detail-label">Shares</span>
+                            <span class="slot-detail-val">${pos.shares} szt.</span>
+                        </div>
+                        <div class="slot-detail-item">
+                            <span class="slot-detail-label">Entry</span>
+                            <span class="slot-detail-val">${entryFmt}</span>
+                        </div>
+                        <div class="slot-detail-item">
+                            <span class="slot-detail-label">Last</span>
+                            <span class="slot-detail-val">${currFmt}</span>
+                        </div>
+                        <div class="slot-detail-item">
+                            <span class="slot-detail-label">Stop</span>
+                            <span class="slot-detail-val ${currPx <= stopPx ? 'text-red font-bold' : ''}">${stopPx.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-close-pos mobile-close-pos-btn" data-ticker="${pos.ticker}" data-price="${currPx}">
+                        Close
+                    </button>
+                `;
+                mobileSlotsFeed.appendChild(card);
+            });
 
             // Wire position close buttons
             mobileSlotsFeed.querySelectorAll('.mobile-close-pos-btn').forEach(btn => {

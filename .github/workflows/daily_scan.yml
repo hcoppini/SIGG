@@ -1,11 +1,13 @@
-name: Daily SIGG Cloud Scanner & Alert Dispatcher
+name: Daily SIGG Cloud Scanner & Health
 
-# Free Render dynos sleep. This workflow wakes the LIVE hub and runs open/close
-# jobs there so phone + PC see the same cloud state (GitHub Gist).
+# Free Render dynos sleep. This workflow wakes the LIVE hub, health-checks
+# auto-login + Gist sync, and runs open/close jobs so phone + PC share state.
 
 on:
   schedule:
-    # 08:05 UTC = 09:05 CET (winter) — market open
+    # 07:05 UTC = 08:05 CET — morning health (wake + sync truth check)
+    - cron: '5 7 * * 1-5'
+    # 08:05 UTC = 09:05 CET — market open scan
     - cron: '5 8 * * 1-5'
     # 15:30 UTC = 16:30 CET — pre-close
     - cron: '30 15 * * 1-5'
@@ -16,10 +18,11 @@ on:
       window:
         description: 'Cron window to run on Render hub'
         required: true
-        default: 'preclose'
+        default: 'health'
         type: choice
         options:
           - ping
+          - health
           - open
           - preclose
           - fixing
@@ -39,7 +42,9 @@ jobs:
           else
             HOUR=$(date -u +%H)
             MINUTE=$(date -u +%M)
-            if [ "$HOUR" = "08" ]; then
+            if [ "$HOUR" = "07" ]; then
+              echo "name=health" >> "$GITHUB_OUTPUT"
+            elif [ "$HOUR" = "08" ]; then
               echo "name=open" >> "$GITHUB_OUTPUT"
             elif [ "$MINUTE" -ge 40 ]; then
               echo "name=fixing" >> "$GITHUB_OUTPUT"
@@ -100,4 +105,17 @@ jobs:
             "$BASE/api/cron/$WINDOW")
           echo "HTTP $CODE"
           cat /tmp/sigg_cron.json
+          echo ""
+          if [ "$WINDOW" = "health" ]; then
+            # Red X on Actions = morning alarm (no Discord). Body must say healthy:true.
+            python3 -c '
+          import json,sys
+          d=json.load(open("/tmp/sigg_cron.json"))
+          print("healthy=", d.get("healthy"))
+          print("checks=", json.dumps(d.get("checks") or {}, indent=2))
+          if not d.get("healthy"):
+              print("::error::Hub health FAILED — fix auto-login / Gist / contest sync before the open")
+              sys.exit(1)
+          '
+          fi
           test "$CODE" = "200"

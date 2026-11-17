@@ -532,16 +532,63 @@ def cron_window(window: str):
             "status": "success",
             "message": "pong",
             "cloud": cloud_status(),
+            "auto_login": {"configured": credentials_configured()},
             "time_cet": datetime.now(WARSAW_TZ).strftime("%Y-%m-%d %H:%M:%S")
         })
+
+    if window == "health":
+        # Morning / on-demand truth check for GitHub Actions (no Discord).
+        # Fails with HTTP 503 when the hub cannot sync contest state.
+        cloud = cloud_status()
+        auto_ok = credentials_configured()
+        sync_res = None
+        sync_err = None
+        try:
+            sync_res = contest_sync_engine.sync_now(portfolio_mgr)
+        except Exception as e:
+            sync_err = str(e)
+            print(f"[cron] health sync error: {e}")
+
+        summary = portfolio_mgr.update_live_quotes()
+        cs = (summary or {}).get("contest_sync") or {}
+        sync_status = (sync_res or {}).get("status") or cs.get("status") or "unknown"
+        positions_count = len((summary or {}).get("positions") or [])
+        equity = (summary or {}).get("total_equity")
+
+        checks = {
+            "auto_login_configured": auto_ok,
+            "cloud_enabled": bool(cloud.get("enabled")),
+            "contest_sync_ok": sync_status in (
+                "synced", "synced_partial", "manual", "success", "partial"
+            ),
+            "sync_status": sync_status,
+            "positions_count": positions_count,
+            "equity": equity,
+            "last_synced": cs.get("last_synced"),
+            "sync_error": sync_err or (sync_res or {}).get("message") if sync_status in ("error", "expired") else None,
+        }
+        healthy = (
+            checks["auto_login_configured"]
+            and checks["cloud_enabled"]
+            and checks["contest_sync_ok"]
+        )
+        payload = {
+            "status": "success" if healthy else "unhealthy",
+            "healthy": healthy,
+            "window": "health",
+            "checks": checks,
+            "cloud": cloud,
+            "time_cet": datetime.now(WARSAW_TZ).strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return jsonify(payload), (200 if healthy else 503)
 
     settings = load_settings()
     active_strat = settings.get("active_strategy", "breakout_trend")
 
-    # Refresh contest + quotes first
+    # Refresh contest + quotes first (auto-login or cURL)
     try:
         contest_cfg = contest_sync_engine.load_config()
-        if contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl"):
+        if credentials_configured() or (contest_cfg.get("enabled") and contest_cfg.get("portfolio_curl")):
             contest_sync_engine.sync_now(portfolio_mgr)
     except Exception as e:
         print(f"[cron] contest sync error: {e}")

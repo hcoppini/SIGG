@@ -770,6 +770,31 @@ td strong {
 .slot-action.sell { color: var(--negative); background: rgba(196, 146, 154, 0.12); border-color: rgba(196, 146, 154, 0.4); }
 .slot-action.runner { color: var(--gold); background: rgba(196, 180, 154, 0.12); }
 
+.risk-tape {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem 0.75rem;
+    margin: 0.15rem 0 0.65rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--contour);
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 0.72rem;
+}
+
+.risk-tape-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    color: var(--text-muted);
+}
+
+.risk-tape-row .font-mono { color: var(--text-color); font-size: 0.72rem; }
+.risk-tape.risk-ok { border-color: rgba(143, 188, 176, 0.28); }
+.risk-tape.risk-warm { border-color: rgba(196, 180, 154, 0.45); }
+.risk-tape.risk-hot { border-color: rgba(196, 146, 154, 0.55); background: rgba(196, 146, 154, 0.08); }
+.risk-tape.risk-hot .font-mono { color: var(--negative); }
+
 .trade-history-panel {
     border: 1px solid var(--contour);
     border-radius: 12px;

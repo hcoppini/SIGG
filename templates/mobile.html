@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#090d16">
     <title>SIGG Hub Mobile</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v=10">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -145,23 +145,33 @@
                 </div>
             </div>
 
-            <!-- CONTEST SYNC STATUS BAR -->
+            <!-- CONTEST SYNC STATUS -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span id="mobileContestDot" class="contest-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
                     <span id="mobileContestStatusText" style="font-size: 0.75rem; font-family: var(--font-mono); color: #cbd5e1;">Contest: Offline</span>
                     <span id="mobileContestRankPill" class="contest-rank-badge hidden" style="padding: 2px 6px; font-size: 0.7rem;">#--</span>
                 </div>
-                <button id="mobileSyncContestBtn" class="btn-card-copy" style="padding: 3px 8px; font-size: 0.72rem; display: flex; align-items: center; gap: 4px;">
-                    <i data-lucide="cloud-lightning" style="width: 12px; height: 12px; color: #facc15;"></i>
-                    <span id="mobileSyncContestText">Sync</span>
+            </div>
+
+            <!-- ONE-TAP COMMAND BAR -->
+            <div class="mobile-cmd-bar">
+                <button id="mobileSyncContestBtn" class="mobile-cmd-btn primary" type="button">
+                    <i data-lucide="cloud-lightning" style="width: 16px; height: 16px;"></i>
+                    <span id="mobileSyncContestText">Sync Contest</span>
+                </button>
+                <button id="mobileRefreshPortBtn" class="mobile-cmd-btn" type="button">
+                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                    <span>Refresh Quotes</span>
                 </button>
             </div>
         </div>
 
+        <div id="mobileOpenBookActions" class="mobile-open-book" hidden></div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding: 0 0.25rem;">
             <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                Active Slots (<span id="portActiveCount">0</span>/3)
+                Open (<span id="portActiveCount">0</span>/3)
             </span>
             <div style="display: flex; gap: 6px;">
                 <button id="mobileRegisterHoldingsBtn" class="btn-card-copy" style="padding: 4px 8px; font-size: 0.72rem;" title="Manually register open contest positions">
@@ -169,9 +179,6 @@
                 </button>
                 <button id="mobileResetPortBtn" class="btn-card-copy" style="padding: 4px 8px; font-size: 0.72rem; color: #f87171; border-color: rgba(248,113,113,0.3);" title="Reset portfolio to clean 20,000 PLN">
                     <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset
-                </button>
-                <button id="mobileRefreshPortBtn" class="btn-card-copy" style="padding: 4px 10px; font-size: 0.75rem;">
-                    <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i> Refresh
                 </button>
             </div>
         </div>
@@ -404,6 +411,6 @@
         </button>
     </nav>
 
-    <script src="{{ url_for('static', filename='js/mobile.js') }}?v=8"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}?v=10"></script>
 </body>
 </html>

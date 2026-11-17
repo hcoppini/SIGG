@@ -341,6 +341,15 @@ function initSiggHub() {
 
                 const entryPx = Number(pos.entry_price || 0);
                 const currPx = Number(pos.current_price || pos.entry_price || 0);
+                const stopPx = Number(pos.stop_loss_price || 0);
+                const sharesN = Number(pos.shares || 0);
+                const held = Number(pos.sessions_held || 1);
+                const daysLeft = Math.max(0, 3 - held);
+                const cushionPct = currPx > 0 ? ((currPx - stopPx) / currPx) * 100 : 0;
+                const cushionPln = sharesN * (currPx - stopPx);
+                const gap3Pln = sharesN * currPx * -0.03;
+                const gap5Pln = sharesN * currPx * -0.05;
+                const cushionClass = cushionPct <= 1.5 ? 'risk-hot' : (cushionPct <= 3 ? 'risk-warm' : 'risk-ok');
                 const entryFmt = entryPx >= 10 ? entryPx.toFixed(2) : entryPx.toFixed(4);
                 const currFmt = currPx >= 10 ? currPx.toFixed(2) : currPx.toFixed(4);
 
@@ -356,11 +365,17 @@ function initSiggHub() {
                         <span class="slot-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% · ${pnlSign}${Number(pos.pnl_pln || 0).toFixed(2)} PLN</span>
                     </div>
                     <div class="${actionClass}">${actionLabel}</div>
+                    <div class="risk-tape ${cushionClass}">
+                        <div class="risk-tape-row"><span>To stop</span><span class="font-mono">${cushionPct.toFixed(1)}% · ${cushionPln >= 0 ? '+' : ''}${cushionPln.toFixed(0)} PLN</span></div>
+                        <div class="risk-tape-row"><span>Sessions left</span><span class="font-mono">${daysLeft} of 3</span></div>
+                        <div class="risk-tape-row"><span>Gap −3%</span><span class="font-mono">${gap3Pln.toFixed(0)} PLN</span></div>
+                        <div class="risk-tape-row"><span>Gap −5%</span><span class="font-mono">${gap5Pln.toFixed(0)} PLN</span></div>
+                    </div>
                     <div class="slot-stats-grid">
                         <div class="slot-stat-row"><span>Shares</span><span>${pos.shares} szt.</span></div>
                         <div class="slot-stat-row"><span>Entry</span><span>${entryFmt} PLN</span></div>
                         <div class="slot-stat-row"><span>Last</span><span>${currFmt} PLN</span></div>
-                        <div class="slot-stat-row"><span>Stop 2.2×ATR</span><span class="${currPx <= pos.stop_loss_price ? 'text-red font-bold' : ''}">${Number(pos.stop_loss_price || 0).toFixed(2)} PLN</span></div>
+                        <div class="slot-stat-row"><span>Stop 2.2×ATR</span><span class="${currPx <= stopPx ? 'text-red font-bold' : ''}">${stopPx.toFixed(2)} PLN</span></div>
                     </div>
                     <div class="slot-footer-action">
                         <span class="text-xs text-muted" title="${pos.exit_reason || ''}">${pos.exit_reason || 'Holding'}</span>
