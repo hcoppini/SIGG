@@ -19,7 +19,15 @@ services:
         sync: false
       - key: DISCORD_WEBHOOK_URL
         sync: false
-      # Optional contest auth fallback
+      # Auto-login (recommended) — no more pasting cURL every session
+      - key: SIGG_EMAIL
+        sync: false
+      - key: SIGG_PASSWORD
+        sync: false
+      # Optional: override portfolio page URL (default tries /main and /portfolio)
+      - key: SIGG_PORTFOLIO_URL
+        sync: false
+      # Optional contest auth fallback (only if auto-login not set)
       - key: SIGG_PORTFOLIO_CURL
         sync: false
       - key: SIGG_RANKING_CURL

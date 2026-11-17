@@ -62,6 +62,7 @@ from notifications import (
 )
 from contest_sync import contest_sync_engine, parse_curl_command
 from remote_store import cloud_status, cloud_enabled
+from sigg_auth import credentials_configured
 
 app = Flask(__name__)
 
@@ -506,7 +507,14 @@ def manual_dispatch_alert():
 @app.route('/api/cloud/status', methods=['GET'])
 def api_cloud_status():
     """Shows whether multi-device Gist sync is configured on this Render instance."""
-    return jsonify({"status": "success", "cloud": cloud_status()})
+    return jsonify({
+        "status": "success",
+        "cloud": cloud_status(),
+        "auto_login": {
+            "configured": credentials_configured(),
+            "hint": "Set SIGG_EMAIL + SIGG_PASSWORD on Render to stop pasting cURL."
+        }
+    })
 
 @app.route('/api/cron/<window>', methods=['POST', 'GET'])
 def cron_window(window: str):

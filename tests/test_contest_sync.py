@@ -322,8 +322,9 @@ class TestContestSyncEngine(unittest.TestCase):
         self.assertEqual(cfg["portfolio_curl"], curl_str)
         self.assertTrue(cfg["enabled"])
 
+    @patch("contest_sync.credentials_configured", return_value=False)
     @patch("requests.Session.request")
-    def test_sync_now_success(self, mock_request):
+    def test_sync_now_success(self, mock_request, _no_auto):
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.json.return_value = {
@@ -345,8 +346,9 @@ class TestContestSyncEngine(unittest.TestCase):
         self.assertEqual(len(self.portfolio_mgr.state["positions"]), 1)
         self.assertEqual(self.portfolio_mgr.state["positions"][0]["ticker"], "KGHM")
 
+    @patch("contest_sync.credentials_configured", return_value=False)
     @patch("requests.Session.request")
-    def test_sync_now_session_expired(self, mock_request):
+    def test_sync_now_session_expired(self, mock_request, _no_auto):
         mock_resp = MagicMock()
         mock_resp.status_code = 401
         mock_request.return_value = mock_resp

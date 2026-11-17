@@ -154,9 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const cloud = json.cloud || {};
             const el = document.getElementById('cloudSyncHint');
             if (!el) return;
+            const auto = json.auto_login || {};
             if (cloud.enabled) {
-                el.textContent = `Cloud sync ON · ${cloud.positions_count || 0} pos · ${cloud.updated_at || 'ready'}`;
-                el.style.color = '#34d399';
+                const loginBit = auto.configured ? ' · auto-login ON' : ' · auto-login OFF (set SIGG_EMAIL/PASSWORD)';
+                el.textContent = `Cloud sync ON · ${cloud.positions_count || 0} pos · ${cloud.updated_at || 'ready'}${loginBit}`;
+                el.style.color = auto.configured ? '#34d399' : '#fbbf24';
             } else {
                 el.textContent = 'Cloud sync OFF — set SIGG_STATE_GIST_ID + SIGG_GITHUB_TOKEN on Render';
                 el.style.color = '#fb7185';

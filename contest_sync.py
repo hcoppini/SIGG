@@ -17,11 +17,12 @@ import json
 import os
 import requests
 from datetime import datetime, date
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple  # Tuple used by _fetch_contest_payload
 
 from sigg_universe import SIGG_TO_TICKER, get_sigg_symbol, get_sigg_name
 from notifications import push_in_app_notification
 from remote_store import load_json_file, save_json_file
+from sigg_auth import credentials_configured, fetch_portfolio_html_auto
 
 CONTEST_CONFIG_FILE = os.path.join("Input", "contest_curl.json")
 
@@ -962,43 +963,42 @@ class ContestSyncEngine:
         except requests.exceptions.RequestException as e:
             return 0, None, f"Network error connecting to contest: {str(e)}"
 
-    def sync_now(self, portfolio_mgr: Any) -> Dict[str, Any]:
+    def _fetch_contest_payload(self) -> Tuple[Optional[Dict[str, Any]], Optional[str], Optional[int]]:
         """
-        Fetches live contest data using saved cURL, parses metrics, and reconciles portfolio.
+        Prefer auto-login (SIGG_EMAIL/PASSWORD) so cURL never needs refreshing.
+        Fall back to saved DevTools cURL when credentials are not configured.
+        Returns (extracted_payload | None, error_message | None, http_status | None)
         """
+        # 1) Automatic login path — no DevTools required
+        if credentials_configured():
+            status_code, html, err = fetch_portfolio_html_auto()
+            if err or status_code != 200 or not html:
+                return None, err or "Auto-login portfolio fetch failed.", status_code
+            extracted = extract_contest_payload(html)
+            if not extracted.get("valid"):
+                return None, extracted.get("error", "Unable to extract contest metrics from auto-login page."), status_code
+            extracted["auth_mode"] = "auto_login"
+            return extracted, None, status_code
+
+        # 2) Legacy cURL path
         cfg = self.load_config()
         port_curl = cfg.get("portfolio_curl", "")
         if not port_curl:
-            return {"status": "error", "message": "No portfolio cURL command configured in settings."}
+            return None, (
+                "No auto-login credentials and no portfolio cURL. "
+                "Set SIGG_EMAIL + SIGG_PASSWORD on Render (recommended), or paste a cURL in Settings."
+            ), None
 
         parsed_port = parse_curl_command(port_curl)
         status_code, raw_port_data, err = self._execute_curl_request(parsed_port)
-
         if err or status_code != 200:
-            # Update sync status to error
-            portfolio_mgr.state["contest_sync"] = {
-                "status": "expired" if status_code in (401, 403) else "error",
-                "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "error_message": err
-            }
-            portfolio_mgr.save_state()
-            push_in_app_notification("Contest Sync Failed", err or "Unknown sync error", level="error")
-            return {"status": "error", "message": err, "http_status": status_code}
+            return None, err, status_code
 
         extracted = extract_contest_payload(raw_port_data)
         if not extracted.get("valid"):
-            err_msg = extracted.get("error", "Unable to extract contest metrics.")
-            is_expired = "expired" in err_msg.lower() or "login" in err_msg.lower()
-            portfolio_mgr.state["contest_sync"] = {
-                "status": "expired" if is_expired else "error",
-                "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "error_message": err_msg
-            }
-            portfolio_mgr.save_state()
-            push_in_app_notification("Contest Sync Failed", err_msg, level="error")
-            return {"status": "error", "message": err_msg}
+            return None, extracted.get("error", "Unable to extract contest metrics."), status_code
 
-        # Check for optional ranking cURL if rank was not found in portfolio payload
+        # Optional ranking cURL
         rank_curl = cfg.get("ranking_curl", "")
         if rank_curl and extracted.get("rank") is None:
             parsed_rank = parse_curl_command(rank_curl)
@@ -1010,10 +1010,39 @@ class ContestSyncEngine:
                 if rank_extracted.get("total_teams") is not None:
                     extracted["total_teams"] = rank_extracted["total_teams"]
 
+        extracted["auth_mode"] = "curl"
+        return extracted, None, status_code
+
+    def sync_now(self, portfolio_mgr: Any) -> Dict[str, Any]:
+        """
+        Fetches live contest data (auto-login preferred, cURL fallback),
+        parses metrics, and reconciles portfolio.
+        """
+        extracted, err, status_code = self._fetch_contest_payload()
+
+        if err or not extracted:
+            is_expired = status_code in (401, 403) or (err and ("expired" in err.lower() or "login" in err.lower()))
+            portfolio_mgr.state["contest_sync"] = {
+                "status": "expired" if is_expired else "error",
+                "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "error_message": err,
+                "auth_mode": "auto_login" if credentials_configured() else "curl",
+            }
+            portfolio_mgr.save_state()
+            push_in_app_notification("Contest Sync Failed", err or "Unknown sync error", level="error")
+            return {"status": "error", "message": err, "http_status": status_code}
+
         # Reconcile portfolio (may return partial if holdings could not be parsed)
         recon = reconcile_portfolio_with_contest(extracted, portfolio_mgr)
+
+        # Annotate auth mode on sync metadata
+        cs = portfolio_mgr.state.get("contest_sync") or {}
+        cs["auth_mode"] = extracted.get("auth_mode", "unknown")
+        portfolio_mgr.state["contest_sync"] = cs
+        portfolio_mgr.save_state()
         
         rank_str = f"Rank #{extracted['rank']}" if extracted.get("rank") else "Rank N/A"
+        mode = "auto-login" if extracted.get("auth_mode") == "auto_login" else "cURL"
         if recon.get("status") == "partial":
             push_in_app_notification(
                 "Contest Partial Sync",
@@ -1029,12 +1058,12 @@ class ContestSyncEngine:
 
         push_in_app_notification(
             "Contest Synced", 
-            f"Successfully updated from SIGG: {extracted['portfolio_value']:.2f} PLN ({rank_str})", 
+            f"Updated via {mode}: {extracted['portfolio_value']:.2f} PLN ({rank_str})", 
             level="success"
         )
         return {
             "status": "success",
-            "message": "Contest portfolio and ranking synchronized successfully.",
+            "message": f"Contest synchronized via {mode}.",
             "data": extracted,
             "summary": portfolio_mgr.get_summary()
         }
