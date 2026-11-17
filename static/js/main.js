@@ -162,7 +162,7 @@ function initSiggHub() {
             if (cloud.enabled) {
                 const loginBit = auto.configured ? ' · auto-login ON' : ' · auto-login OFF (set SIGG_EMAIL/PASSWORD)';
                 el.textContent = `Cloud sync ON · ${cloud.positions_count || 0} pos · ${cloud.updated_at || 'ready'}${loginBit}`;
-                el.style.color = auto.configured ? '#34d399' : '#fbbf24';
+                el.style.color = auto.configured ? '#8fbcb0' : '#c4b49a';
             } else {
                 el.textContent = 'Cloud sync OFF — set SIGG_STATE_GIST_ID + SIGG_GITHUB_TOKEN on Render';
                 el.style.color = '#fb7185';
@@ -798,7 +798,6 @@ function initSiggHub() {
     const toggleRegisterHoldingsBtn = document.getElementById('toggleRegisterHoldingsBtn');
     const cancelRegisterHoldingsBtn = document.getElementById('cancelRegisterHoldingsBtn');
     const saveRegisterHoldingsBtn = document.getElementById('saveRegisterHoldingsBtn');
-    const refreshPortfolioBtn = document.getElementById('refreshPortfolioBtn');
 
     if (toggleRegisterHoldingsBtn && registerHoldingsPanel) {
         toggleRegisterHoldingsBtn.addEventListener('click', () => {
@@ -810,9 +809,6 @@ function initSiggHub() {
         cancelRegisterHoldingsBtn.addEventListener('click', () => {
             registerHoldingsPanel.style.display = 'none';
         });
-    }
-    if (refreshPortfolioBtn) {
-        refreshPortfolioBtn.addEventListener('click', () => fetchPortfolio());
     }
     if (saveRegisterHoldingsBtn) {
         saveRegisterHoldingsBtn.addEventListener('click', async () => {
@@ -1358,7 +1354,7 @@ function initSiggHub() {
 
                         if (runScanBtn) {
                             runScanBtn.disabled = false;
-                            if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                            if (runScanBtnText) runScanBtnText.textContent = "Run Scanner";
                         }
                         setTimeout(() => {
                             if (scanProgressCard) scanProgressCard.classList.add('hidden');
@@ -1369,7 +1365,7 @@ function initSiggHub() {
                         showToast('Scan Error', sData.error_message || 'Scan failed', 'error', 4500);
                         if (runScanBtn) {
                             runScanBtn.disabled = false;
-                            if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                            if (runScanBtnText) runScanBtnText.textContent = "Run Scanner";
                         }
                     }
                 } catch (pollErr) {

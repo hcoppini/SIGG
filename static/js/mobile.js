@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initSiggMobile() {
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -1310,4 +1310,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(pollMobileNotifications, 12000);
     setInterval(fetchMobilePortfolio, 25000);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSiggMobile);
+} else {
+    initSiggMobile();
+}

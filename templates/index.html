@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGG Etap 1 Trading Hub & Command Center</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=8">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js for Visual Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Marked.js for rendering Strategy.md -->
@@ -102,9 +102,9 @@
                         <span class="chip-label">CASH:</span>
                         <span id="portfolioCashBadge" class="chip-val font-mono">20,000 PLN</span>
                     </div>
-                    <button id="runScanBtn" class="btn primary btn-scan-live">
+                    <button id="runScanBtn" class="btn primary">
                         <i data-lucide="play" class="btn-icon"></i>
-                        <span id="runScanBtnText">Run Live Scanner</span>
+                        <span id="runScanBtnText">Run Scanner</span>
                     </button>
                 </div>
             </header>
@@ -113,9 +113,9 @@
             <div id="portfolioCommandSection" class="glass-card portfolio-command-card">
                 <div class="card-header-flex">
                     <div class="podium-title-group">
-                        <div class="podium-badge-icon">📦</div>
+                        <div class="podium-badge-icon" aria-hidden="true"><i data-lucide="layers" class="icon"></i></div>
                         <div>
-                            <h3>Open Positions Command Center</h3>
+                            <h3>Open Positions</h3>
                             <p class="chart-subtitle">Live holdings with Day 1–3 countdown, 2.2× ATR stops, and sell signals. Sync from contest or register manually if cURL misses positions.</p>
                             <p id="cloudSyncHint" class="chart-subtitle" style="margin-top:0.25rem;font-size:0.75rem;color:#94a3b8;">Checking cloud sync…</p>
                         </div>
@@ -187,9 +187,9 @@
             <div id="podiumSection" class="glass-card podium-section">
                 <div class="card-header-flex">
                     <div class="podium-title-group">
-                        <div class="podium-badge-icon">🎯</div>
+                        <div class="podium-badge-icon" aria-hidden="true"><i data-lucide="crosshair" class="icon"></i></div>
                         <div>
-                            <h3>Daily Strategy Allocation (3 Slots)</h3>
+                            <h3>Daily Allocation</h3>
                             <p class="chart-subtitle" id="podiumSubtitle">Stocks enter a slot only if they strictly meet the strategy's buy criteria. Unallocated slots remain 100% cash.</p>
                         </div>
                     </div>
@@ -725,6 +725,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=7"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=8"></script>
 </body>
 </html>
