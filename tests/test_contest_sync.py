@@ -269,6 +269,38 @@ class TestPortfolioReconciliation(unittest.TestCase):
         self.assertFalse(res.get("positions_reliable", True))
         self.assertEqual(res["positions"], [])
 
+    def test_otwarte_pozycje_table_and_not_wolne_as_equity(self):
+        """Real GPWTr@der open-positions layout: must not treat ~46 PLN cash as portfolio."""
+        sample_html = (
+            "<html><body>"
+            "<div data-item-label='WOLNE ŚRODKI' data-item-value='46.12'></div>"
+            "<h2>Otwarte pozycje</h2>"
+            "<table><thead><tr>"
+            "<th>instrumenty</th><th>wolumen</th><th>kurs</th>"
+            "<th>zmiana kursu</th><th>śr. kurs otw. pozycji</th>"
+            "<th>wartość</th><th>zysk/strata</th>"
+            "</tr></thead><tbody>"
+            "<tr><td>ONDE</td><td>1,150 szt.</td><td>8.4200</td><td>-3.66%</td>"
+            "<td>8.6500</td><td>9,683.00</td><td>-264.50</td></tr>"
+            "<tr><td>SNTVERSE</td><td>3,350 szt.</td><td>2.6800</td><td>-5.63%</td>"
+            "<td>2.8441</td><td>8,978.00</td><td>-549.79</td></tr>"
+            "</tbody></table>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertTrue(res.get("positions_reliable", True))
+        self.assertEqual(len(res["positions"]), 2)
+        by_sym = {p["symbol"]: p for p in res["positions"]}
+        self.assertEqual(by_sym["ONDE"]["shares"], 1150)
+        self.assertAlmostEqual(by_sym["ONDE"]["entry_price"], 8.65, places=2)
+        self.assertEqual(by_sym["SNTVERSE"]["shares"], 3350)
+        self.assertAlmostEqual(by_sym["SNTVERSE"]["entry_price"], 2.8441, places=3)
+        # Equity = cash + mark-to-market, NOT 46 PLN
+        self.assertGreater(res["portfolio_value"], 18000)
+        self.assertAlmostEqual(res["cash"], 46.12, places=1)
+        self.assertLess(res["cash"], 100)
+
 
 class TestContestSyncEngine(unittest.TestCase):
     def setUp(self):

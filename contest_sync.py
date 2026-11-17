@@ -218,20 +218,28 @@ def _find_positions_list(data: Any) -> List[Dict[str, Any]]:
 
 
 def _clean_currency_str(val_str: str) -> float:
-    """Helper to clean Polish / Anglo formatted currency strings (e.g. '19,700.48' or '19 218,54')."""
+    """Helper to clean Polish / Anglo formatted currency strings (e.g. '19,700.48' or '1,150 szt.')."""
     if not val_str:
         return 0.0
-    s = val_str.strip().replace(' ', '')
+    # Keep digits, separators, minus — drop units like szt. / PLN / %
+    s = re.sub(r'[^\d,.\-\s]', '', str(val_str)).strip().replace(' ', '').replace('\xa0', '')
+    if not s or s in ('-', '.', ','):
+        return 0.0
     if ',' in s and '.' in s:
         if s.rfind('.') > s.rfind(','): # 19,700.48
             s = s.replace(',', '')
         else: # 19.700,48
             s = s.replace('.', '').replace(',', '.')
     elif ',' in s:
-        if len(s.split(',')[-1]) == 2:
+        frac = s.split(',')[-1]
+        if len(frac) in (1, 2, 3, 4) and len(s.split(',')) == 2 and len(frac) <= 4 and not re.match(r'^\d{3}$', frac):
+            # decimal comma: 8,65 or 2,8441
             s = s.replace(',', '.')
-        else:
+        elif len(frac) == 3 and s.count(',') == 1:
+            # thousands: 1,150
             s = s.replace(',', '')
+        else:
+            s = s.replace(',', '.')
     try:
         return float(s)
     except (ValueError, TypeError):
@@ -243,21 +251,32 @@ def _strip_html_cell(raw: str) -> str:
 
 
 def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
-    """Parse a single HTML table into position dicts when it looks like open holdings."""
+    """Parse a single HTML table into position dicts when it looks like open holdings.
+
+    Matches GPWTr@der 'Otwarte pozycje' columns:
+    instrumenty | wolumen | kurs | zmiana kursu | śr. kurs otw. pozycji | wartość | zysk/strata
+    """
     headers_raw = re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)
+    if not headers_raw:
+        # Some SIGG pages render header cells as <td> inside thead / first row
+        thead = re.search(r'<thead[^>]*>(.*?)</thead>', tbl, re.DOTALL | re.I)
+        if thead:
+            headers_raw = re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>', thead.group(1), re.DOTALL | re.I)
     headers_text = " ".join(_strip_html_cell(h).lower() for h in headers_raw)
     headers_joined = " ".join(headers_text.split())
 
     # Skip order / history tables
-    if any(x in headers_joined for x in ("typ zlecenia", "data z", "status zlecenia", "ostatnie zlecenia")):
+    if any(x in headers_joined for x in ("typ zlecenia", "data założ", "data zalo", "status zlecenia", "ostatnie zlecenia", "środki zablok", "srodki zablok", "limit aktyw")):
         return []
 
     looks_like_positions = (
         "otw" in headers_joined
+        or "wolumen" in headers_joined
         or ("ilo" in headers_joined and ("kurs" in headers_joined or "cena" in headers_joined))
-        or ("instrument" in headers_joined and ("ilo" in headers_joined or "szt" in headers_joined))
+        or ("instrument" in headers_joined and ("ilo" in headers_joined or "szt" in headers_joined or "wolumen" in headers_joined))
         or ("symbol" in headers_joined and ("quantity" in headers_joined or "shares" in headers_joined))
         or ("pozycj" in headers_joined)
+        or ("warto" in headers_joined and "zysk" in headers_joined)
     )
     if not looks_like_positions:
         return []
@@ -268,9 +287,15 @@ def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
         hl = _strip_html_cell(h).lower()
         if any(k in hl for k in ("instrument", "symbol", "ticker", "nazwa", "walor")):
             roles.append("symbol")
-        elif any(k in hl for k in ("ilo", "szt", "quantity", "shares", "volume", "wolumen")):
+        elif any(k in hl for k in ("wolumen", "ilo", "szt", "quantity", "shares", "volume")):
             roles.append("shares")
-        elif "otw" in hl or "zakup" in hl or "wej" in hl or "buy" in hl or "entry" in hl:
+        elif "zmiana" in hl:
+            roles.append("change")
+        elif "zysk" in hl or "strat" in hl or "pnl" in hl:
+            roles.append("pnl")
+        elif "warto" in hl:
+            roles.append("value")
+        elif "otw" in hl or "zakup" in hl or "wej" in hl or "buy" in hl or "entry" in hl or "śred" in hl or "sred" in hl or "śr." in hl or "sr." in hl:
             roles.append("entry")
         elif any(k in hl for k in ("kurs", "cena", "market", "last", "bież", "bierz")):
             roles.append("current")
@@ -288,7 +313,7 @@ def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
         if len(cols) < 2:
             continue
 
-        raw_sym = raw_vol = raw_price = raw_open = ""
+        raw_sym = raw_vol = raw_price = raw_open = raw_value = ""
         if roles and len(roles) >= 2:
             for i, role in enumerate(roles):
                 if i >= len(cols):
@@ -301,6 +326,8 @@ def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
                     raw_price = cols[i]
                 elif role == "entry" and not raw_open:
                     raw_open = cols[i]
+                elif role == "value" and not raw_value:
+                    raw_value = cols[i]
         if not raw_sym:
             raw_sym = cols[0]
         if not raw_vol and len(cols) > 1:
@@ -322,14 +349,19 @@ def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
         vol = int(_clean_currency_str(raw_vol)) if raw_vol else 0
         c_price = _clean_currency_str(raw_price) if raw_price else 0.0
         o_price = _clean_currency_str(raw_open) if raw_open else 0.0
+        # Fallback: derive price from wartość / wolumen when needed
+        if vol > 0 and c_price <= 0 and raw_value:
+            mkt = _clean_currency_str(raw_value)
+            if mkt > 0:
+                c_price = round(mkt / vol, 4)
         if sym and vol > 0 and (o_price > 0 or c_price > 0):
             positions.append({
                 "symbol": sym,
                 "ticker": SIGG_TO_TICKER.get(sym, f"{sym}.WA"),
                 "name": get_sigg_name(sym),
                 "shares": vol,
-                "entry_price": o_price or c_price,
-                "current_price": c_price or o_price
+                "entry_price": round(o_price or c_price, 4),
+                "current_price": round(c_price or o_price, 4)
             })
     return positions
 
@@ -382,6 +414,60 @@ def _normalize_raw_position(raw_p: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     }
 
 
+def _extract_entry_dates_from_history(html_str: str) -> Dict[str, str]:
+    """
+    From 'historia operacji' / orders table, find first executed BUY date per symbol.
+    Returns { 'ONDE': '2026-11-16', ... }
+    """
+    dates: Dict[str, str] = {}
+    all_tables = re.findall(r'<table[^>]*>(.*?)</table>', html_str, re.DOTALL | re.I)
+    for tbl in all_tables:
+        headers = " ".join(_strip_html_cell(h).lower() for h in re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I))
+        if "status" not in headers and "zrealiz" not in tbl.lower():
+            continue
+        if "wolumen" not in headers and "instrument" not in headers:
+            continue
+        tbody_m = re.search(r'<tbody>(.*?)</tbody>', tbl, re.DOTALL | re.I)
+        body = tbody_m.group(1) if tbody_m else tbl
+        for r_html in re.findall(r'<tr[^>]*>(.*?)</tr>', body, re.DOTALL | re.I):
+            cols = [_strip_html_cell(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', r_html, re.DOTALL | re.I)]
+            if len(cols) < 4:
+                continue
+            row_txt = " ".join(cols).lower()
+            if "odrzucon" in row_txt:
+                continue
+            if "zrealiz" not in row_txt:
+                continue
+            # buy marker: column k/s == k, or 'kupno'
+            is_buy = False
+            for c in cols[:4]:
+                cl = c.strip().lower()
+                if cl in ("k", "kupno", "buy"):
+                    is_buy = True
+                    break
+            if not is_buy and " stop" in row_txt:
+                continue
+            if not is_buy:
+                continue
+            sym_token = re.sub(r'[^A-Za-z0-9._-]', '', cols[0].split()[0]) if cols[0] else ""
+            if not sym_token:
+                continue
+            sym = get_sigg_symbol(sym_token)
+            # date like 11/17/26, 8:06 AM or 2026-11-17
+            date_str = None
+            for c in cols[1:3]:
+                m = re.search(r'(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})', c)
+                if m:
+                    mm, dd, yy = m.group(1), m.group(2), m.group(3)
+                    # US-style from screenshot: 11/17/26 = Nov 17
+                    year = int(yy) if len(yy) == 4 else 2000 + int(yy)
+                    date_str = f"{year:04d}-{int(mm):02d}-{int(dd):02d}"
+                    break
+            if sym and date_str and sym not in dates:
+                dates[sym] = date_str
+    return dates
+
+
 def _extract_embedded_json_positions(html_str: str) -> List[Dict[str, Any]]:
     """Pull holdings from JSON blobs embedded in SSR pages / XHR prefetch scripts."""
     found: List[Dict[str, Any]] = []
@@ -407,14 +493,27 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     """
     Parses server-side rendered (SSR) HTML pages from GPWTr@der / sigg.gpw.pl
     Extracts portfolio equity, wolne środki, należności (T+2), live ranking, and positions.
-    """
-    # 1. Portfolio Equity (e.g. '19,700.48' in wallet-chart__title or 'PORTFEL')
-    port_m = re.search(r'class=["\']wallet-chart__title["\'][^>]*>\s*<span[^>]*>([\d\s,.]+)</span>', html_str, re.I)
-    if not port_m:
-        port_m = re.search(r'([\d\s,.]+?)\s*(?:<[^>]+>\s*)*(?:PORTFEL|warto[sś][cć]\s+portfela)', html_str, re.I)
-    portfolio_value = _clean_currency_str(port_m.group(1)) if port_m else None
 
-    # 2. Wolne środki (Cash)
+    IMPORTANT: wolne środki (free cash) is NEVER used as portfolio equity.
+    """
+    # 1. Portfolio Equity (PORTFEL / wartość portfela) — NOT wolne środki
+    portfolio_value = None
+    port_patterns = [
+        r'class=["\']wallet-chart__title["\'][^>]*>\s*<span[^>]*>([\d\s,.]+)</span>',
+        r'data-item-label=["\'](?:PORTFEL|WARTO[ŚS][ĆC]\s*PORTFELA)["\'][^>]*data-item-value=["\']([\d.]+)["\']',
+        # Number immediately before PORTFEL label (do NOT scan forward into WOLNE ŚRODKI)
+        r'([\d\s,.]+)\s*(?:PLN)?\s*(?:<[^>]+>\s*)*(?:PORTFEL|warto[sś][cć]\s+portfela)',
+        r'(?:PORTFEL|warto[sś][cć]\s+portfela)\s*[:\-]?\s*([\d\s,.]+)',
+    ]
+    for pat in port_patterns:
+        port_m = re.search(pat, html_str, re.I)
+        if port_m:
+            portfolio_value = _clean_currency_str(port_m.group(1))
+            if portfolio_value and portfolio_value > 0:
+                break
+            portfolio_value = None
+
+    # 2. Wolne środki (Cash only — buying power, not equity)
     cash_explicit = False
     cash_m = re.search(r'data-item-label=["\']WOLNE[^"\']*["\'][^>]*data-item-value=["\']([\d.]+)["\']', html_str, re.I)
     if not cash_m:
@@ -470,8 +569,14 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
             positions = embedded
             positions_table_seen = True
 
+    # Attach entry dates from executed buy history when available
+    entry_dates = _extract_entry_dates_from_history(html_str)
+    for p in positions:
+        if p["symbol"] in entry_dates:
+            p["entry_date"] = entry_dates[p["symbol"]]
+
     # Check if page is unauthenticated login/landing page
-    if portfolio_value is None and cash is None and rank is None:
+    if portfolio_value is None and cash is None and rank is None and not positions:
         lower_html = html_str.lower()
         if "zaloguj" in lower_html or "login" in lower_html or "logowanie" in lower_html:
             return {
@@ -480,15 +585,30 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
             }
         return {"valid": False, "error": "Could not identify contest wallet metrics in page HTML."}
 
-    if portfolio_value is None and cash is not None:
-        portfolio_value = cash
-    elif portfolio_value is not None and cash is None:
-        cash = portfolio_value
+    # Rebuild equity from open positions when PORTFEL label missing.
+    # NEVER copy wolne środki (~46 PLN) into portfolio_value.
+    pos_mkt = sum(p["shares"] * p["current_price"] for p in positions) if positions else 0.0
+    if portfolio_value is None and positions:
+        portfolio_value = round((cash or 0.0) + pos_mkt, 2)
+    elif portfolio_value is not None and positions and cash is not None:
+        # If "PORTFEL" was misread as tiny cash-like number, prefer cash + holdings
+        implied = round(float(cash) + pos_mkt, 2)
+        if portfolio_value < implied * 0.5 and implied > 500:
+            portfolio_value = implied
+    elif portfolio_value is None and cash is not None and not positions:
+        # Cash-only account (flat) — equity equals cash only when no holdings parsed
+        # and we are not in a partial/unreliable holdings state below
+        portfolio_value = float(cash)
+
+    if cash is None and portfolio_value is not None and positions:
+        cash = max(0.0, float(portfolio_value) - pos_mkt)
+    elif cash is None and portfolio_value is not None:
+        cash = 0.0
 
     if portfolio_value is None:
-        portfolio_value = 20000.0
+        portfolio_value = 0.0
     if cash is None:
-        cash = portfolio_value
+        cash = 0.0
 
     # If equity clearly exceeds free cash but no rows parsed, do NOT pretend holdings are empty
     invested_gap = float(portfolio_value) - float(cash)
@@ -498,9 +618,10 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     elif not positions and not positions_table_seen and cash_explicit and invested_gap > 1.0:
         positions_reliable = False
     elif not positions and not positions_table_seen and not cash_explicit and float(portfolio_value) > 0:
-        # Wallet found but neither cash breakdown nor holdings table — treat as unreliable
-        # only when page looks invested (rank present alone is not enough to wipe)
         positions_reliable = invested_gap <= 100.0
+    # Tiny "equity" that equals cash while page has otwarte pozycje markers → unreliable
+    if not positions and cash_explicit and float(cash) < 200 and "otwarte" in html_str.lower():
+        positions_reliable = False
 
     return {
         "valid": True,
