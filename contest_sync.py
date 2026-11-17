@@ -410,8 +410,8 @@ def _normalize_raw_position(raw_p: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "ticker": SIGG_TO_TICKER.get(normalized_sym, f"{normalized_sym}.WA"),
         "name": get_sigg_name(normalized_sym),
         "shares": shares,
-        "entry_price": round(entry_price or curr_price, 2),
-        "current_price": round(curr_price or entry_price, 2)
+        "entry_price": round(entry_price or curr_price, 4),
+        "current_price": round(curr_price or entry_price, 4)
     }
 
 

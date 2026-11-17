@@ -720,23 +720,80 @@ td strong {
     border-color: rgba(59, 130, 246, 0.3);
 }
 
+.portfolio-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.open-book-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0.25rem;
+}
+
+.open-book-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--contour);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.78rem;
+}
+
+.open-book-chip strong {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+}
+
+.open-book-chip.tone-hold { color: var(--accent); border-color: rgba(143, 188, 176, 0.35); }
+.open-book-chip.tone-sell { color: var(--negative); border-color: rgba(196, 146, 154, 0.45); }
+.open-book-chip.tone-runner { color: var(--gold); border-color: rgba(196, 180, 154, 0.45); }
+
+.slot-action {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.55rem;
+    border-radius: 8px;
+    margin: 0.35rem 0 0.55rem;
+    border: 1px solid var(--contour);
+    text-align: center;
+}
+
+.slot-action.hold { color: var(--accent); background: var(--accent-soft); }
+.slot-action.sell { color: var(--negative); background: rgba(196, 146, 154, 0.12); border-color: rgba(196, 146, 154, 0.4); }
+.slot-action.runner { color: var(--gold); background: rgba(196, 180, 154, 0.12); }
+
+.trade-history-panel {
+    border: 1px solid var(--contour);
+    border-radius: 12px;
+    padding: 0.65rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
 .portfolio-slots-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
     margin-top: 1rem;
 }
 
 .slot-card {
-    background: #0f172a;
+    background: rgba(18, 20, 26, 0.85);
     border: 1px solid var(--contour);
     border-radius: 10px;
-    padding: 1.15rem 1.25rem;
+    padding: 1.05rem 1.15rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.2s ease;
-    min-height: 195px;
+    transition: border-color 0.15s ease;
+    min-height: 0;
 }
 
 .slot-card.vacant {
@@ -748,8 +805,8 @@ td strong {
 }
 
 .slot-card.occupied {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: none;
 }
 
 .slot-card.exit-warning {

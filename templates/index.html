@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGG Etap 1 Trading Hub & Command Center</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=10">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js for Visual Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,8 +98,8 @@
                         <i data-lucide="cloud-lightning" class="btn-icon"></i>
                         <span id="syncContestBtnText">Sync Contest</span>
                     </button>
-                    <div class="active-equity-chip">
-                        <span class="chip-label">CASH:</span>
+                    <div class="active-equity-chip" title="Mark-to-market portfolio value (cash + holdings)">
+                        <span class="chip-label">EQUITY:</span>
                         <span id="portfolioCashBadge" class="chip-val font-mono">20,000 PLN</span>
                     </div>
                     <button id="runScanBtn" class="btn primary">
@@ -116,44 +116,48 @@
                         <div class="podium-badge-icon" aria-hidden="true"><i data-lucide="layers" class="icon"></i></div>
                         <div>
                             <h3>Open Positions</h3>
-                            <p class="chart-subtitle">Live holdings with Day 1–3 countdown, 2.2× ATR stops, and sell signals. Sync from contest or register manually if cURL misses positions.</p>
-                            <p id="cloudSyncHint" class="chart-subtitle" style="margin-top:0.25rem;font-size:0.75rem;color:#94a3b8;">Checking cloud sync…</p>
+                            <p id="cloudSyncHint" class="chart-subtitle" style="margin-top:0.2rem;font-size:0.75rem;color:var(--text-muted);">Checking cloud sync…</p>
                         </div>
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <div class="portfolio-toolbar">
                         <button id="refreshPortfolioBtn" class="btn secondary btn-sm" type="button">
-                            <i data-lucide="refresh-cw" class="btn-icon"></i> Refresh Quotes
+                            <i data-lucide="refresh-cw" class="btn-icon"></i> Refresh
+                        </button>
+                        <button id="toggleHistoryBtn" class="btn secondary btn-sm" type="button">
+                            <i data-lucide="history" class="btn-icon"></i> History
                         </button>
                         <button id="toggleRegisterHoldingsBtn" class="btn secondary btn-sm" type="button">
-                            <i data-lucide="plus-square" class="btn-icon"></i> Register Holdings
+                            <i data-lucide="plus-square" class="btn-icon"></i> Register
                         </button>
                     </div>
                 </div>
 
+                <div id="openBookActions" class="open-book-actions" hidden></div>
+
                 <div id="registerHoldingsPanel" class="contest-setting-box" style="display:none; margin-top:0.75rem;">
                     <p class="setting-hint" style="margin-bottom:0.65rem;">
-                        Enter what you actually hold on GPWTr@der (e.g. ONDE from yesterday, SNTVERSE from today). This drives stop / 3-day exit tracking even when contest sync cannot parse the positions table.
+                        Manual override when contest sync misses a holding.
                     </p>
                     <div class="param-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.65rem;">
                         <div class="param-field">
                             <label for="regTicker1">Ticker 1</label>
-                            <input type="text" id="regTicker1" placeholder="ONDE" value="ONDE">
+                            <input type="text" id="regTicker1" placeholder="TICKER" autocomplete="off">
                         </div>
                         <div class="param-field">
                             <label for="regShares1">Shares</label>
-                            <input type="number" id="regShares1" placeholder="1000" step="1">
+                            <input type="number" id="regShares1" placeholder="0" step="1">
                         </div>
                         <div class="param-field">
                             <label for="regPrice1">Entry Price</label>
-                            <input type="number" id="regPrice1" placeholder="8.65" step="0.01" value="8.65">
+                            <input type="number" id="regPrice1" placeholder="0.00" step="0.0001">
                         </div>
                         <div class="param-field">
                             <label for="regDate1">Entry Date</label>
-                            <input type="date" id="regDate1" value="2026-11-16">
+                            <input type="date" id="regDate1">
                         </div>
                         <div class="param-field">
                             <label for="regTicker2">Ticker 2</label>
-                            <input type="text" id="regTicker2" placeholder="SNTVERSE" value="SNTVERSE">
+                            <input type="text" id="regTicker2" placeholder="TICKER" autocomplete="off">
                         </div>
                         <div class="param-field">
                             <label for="regShares2">Shares</label>
@@ -161,44 +165,64 @@
                         </div>
                         <div class="param-field">
                             <label for="regPrice2">Entry Price</label>
-                            <input type="number" id="regPrice2" placeholder="2.8441" step="0.0001" value="2.8441">
+                            <input type="number" id="regPrice2" placeholder="0.00" step="0.0001">
                         </div>
                         <div class="param-field">
                             <label for="regDate2">Entry Date</label>
-                            <input type="date" id="regDate2" value="2026-11-17">
+                            <input type="date" id="regDate2">
                         </div>
                         <div class="param-field">
-                            <label for="regCash">Cash left (PLN)</label>
+                            <label for="regCash">Free cash (PLN)</label>
                             <input type="number" id="regCash" placeholder="optional" step="0.01">
                         </div>
                     </div>
                     <div style="margin-top:0.75rem; display:flex; gap:8px; flex-wrap:wrap;">
-                        <button id="saveRegisterHoldingsBtn" class="btn primary btn-sm" type="button">Save &amp; Compute Exits</button>
+                        <button id="saveRegisterHoldingsBtn" class="btn primary btn-sm" type="button">Save</button>
                         <button id="cancelRegisterHoldingsBtn" class="btn secondary btn-sm" type="button">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="tradeHistoryPanel" class="trade-history-panel" style="display:none; margin-top:0.75rem;">
+                    <div class="table-container" style="max-height:280px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Entry</th>
+                                    <th>Exit</th>
+                                    <th>Shares</th>
+                                    <th>PnL</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeHistoryBody">
+                                <tr><td colspan="6" class="text-muted">No closed trades yet.</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div id="portfolioSlotsGrid" class="portfolio-slots-grid">
                     <!-- Populated by main.js fetchPortfolio() -->
                 </div>
+                <p id="portfolioFreeCashHint" class="chart-subtitle" style="margin-top:0.65rem;font-size:0.72rem;"></p>
             </div>
 
-            <!-- DAILY STRATEGY ALLOCATION SECTION (3 SLOTS) -->
+            <!-- DAILY STRATEGY ALLOCATION SECTION -->
             <div id="podiumSection" class="glass-card podium-section">
                 <div class="card-header-flex">
                     <div class="podium-title-group">
                         <div class="podium-badge-icon" aria-hidden="true"><i data-lucide="crosshair" class="icon"></i></div>
                         <div>
-                            <h3>Daily Allocation</h3>
-                            <p class="chart-subtitle" id="podiumSubtitle">Stocks enter a slot only if they strictly meet the strategy's buy criteria. Unallocated slots remain 100% cash.</p>
+                            <h3>New Entries</h3>
+                            <p class="chart-subtitle" id="podiumSubtitle">Buy candidates from today's scan (open book managed above).</p>
                         </div>
                     </div>
                     <div id="podiumStatusBadge" class="podium-status-pill unlocked">UNLOCKED</div>
                 </div>
 
-                <!-- 3 Allocation Slots Grid (Populated dynamically via JS) -->
                 <div id="podiumCardsGrid" class="podium-grid">
-                    <!-- Populated dynamically via JS: Slot 1, Slot 2, Slot 3 -->
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
@@ -220,8 +244,8 @@
             <div class="glass-card ledger-card">
                 <div class="card-header-flex ledger-controls-row">
                     <div>
-                        <h3>Live Scanned Stock Ledger</h3>
-                        <p class="chart-subtitle">Real-time ledger of every stock evaluated across the WIG140 universe</p>
+                        <h3>Scan Ledger</h3>
+                        <p class="chart-subtitle">WIG140 evaluation results</p>
                     </div>
                     <div class="ledger-actions">
                         <div class="filter-pills">
@@ -725,6 +749,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=9"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=10"></script>
 </body>
 </html>

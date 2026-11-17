@@ -231,11 +231,11 @@ class PortfolioManager:
                 "ticker": sym,
                 "name": get_sigg_name(sym),
                 "entry_date": entry_date,
-                "entry_price": round(entry_price, 2),
+                "entry_price": round(entry_price, 4),
                 "shares": shares,
-                "entry_atr": round(atr, 2),
-                "current_price": round(curr_price, 2),
-                "highest_price": round(highest, 2),
+                "entry_atr": round(atr, 4),
+                "current_price": round(curr_price, 4),
+                "highest_price": round(highest, 4),
                 "stop_loss_price": stop_price,
                 "sessions_held": sessions,
                 "entry_commission": comm,
@@ -358,13 +358,17 @@ class PortfolioManager:
                     pos["highest_price"] = round(price, 2)
             
             curr_p = pos["current_price"]
-            gross_val = pos["shares"] * curr_p
-            est_exit_comm = gross_val * self.commission_pct
-            net_val = gross_val - est_exit_comm
-            cost_basis = pos.get("total_entry_cost", 0.0)
-            pnl_pln = round(net_val - cost_basis, 2)
-            pnl_pct = round((pnl_pln / cost_basis) * 100.0, 2) if cost_basis > 0 else 0.0
-            
+            entry_p = float(pos.get("entry_price") or 0.0)
+            shares = float(pos.get("shares") or 0)
+            # Mark-to-market vs entry (contest-style). Do NOT bake estimated exit
+            # commission into open PnL — that inflated losses (e.g. SNTVERSE −6.3% vs −5.8%).
+            if entry_p > 0 and shares > 0:
+                pnl_pln = round(shares * (curr_p - entry_p), 2)
+                pnl_pct = round(((curr_p / entry_p) - 1.0) * 100.0, 2)
+            else:
+                pnl_pln = 0.0
+                pnl_pct = 0.0
+
             pos["pnl_pln"] = pnl_pln
             pos["pnl_pct"] = pnl_pct
             

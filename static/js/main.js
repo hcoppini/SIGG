@@ -184,19 +184,24 @@ function initSiggHub() {
 
             const summary = json.data;
             const positions = summary.positions || [];
+            const closedTrades = summary.closed_trades || [];
             const maxSlots = summary.max_positions || 3;
-            const vacantCount = summary.vacant_slots !== undefined ? summary.vacant_slots : (maxSlots - positions.length);
-            const cashPerSlot = summary.cash_per_vacant_slot || (summary.cash / (vacantCount || 1));
+            const equityVal = Number(summary.total_equity || summary.contest_sync?.contest_equity || 20000);
+            const freeCash = Number(summary.cash || 0);
 
-            // Update sidebar & header badges
+            // Update sidebar & header badges — header chip is portfolio EQUITY, not free cash
             if (sidebarEquity) {
-                sidebarEquity.textContent = `${Number(summary.total_equity || 20000).toLocaleString('pl-PL')} PLN`;
+                sidebarEquity.textContent = `${equityVal.toLocaleString('pl-PL')} PLN`;
             }
             if (sidebarSlots) {
                 sidebarSlots.textContent = `${positions.length} / ${maxSlots} Active`;
             }
             if (cashBadge) {
-                cashBadge.textContent = `${Number(summary.cash || 0).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
+                cashBadge.textContent = `${equityVal.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN`;
+            }
+            const freeCashHint = document.getElementById('portfolioFreeCashHint');
+            if (freeCashHint) {
+                freeCashHint.textContent = `Free cash ${freeCash.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} PLN · ${positions.length} open · ${maxSlots - positions.length} slot(s) free`;
             }
 
             // Update Contest Sync Status & Rank
@@ -244,77 +249,128 @@ function initSiggHub() {
                 sidebarContestRank.textContent = cs.rank ? `#${cs.rank}` : 'N/A';
             }
 
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            for (let i = 0; i < maxSlots; i++) {
-                const pos = positions[i];
-                const slotNum = `SLOT ${i + 1}`;
-
-                if (pos) {
-                    const isPositive = (pos.pnl_pln >= 0);
-                    const pnlClass = isPositive ? 'text-green' : 'text-red';
-                    const pnlSign = isPositive ? '+' : '';
-                    
-                    let cardClass = 'slot-card occupied';
-                    let badgeClass = 'badge badge-buy';
-                    let badgeText = `DAY ${pos.sessions_held || 1} OF 3`;
-
-                    if (pos.exit_signal === 'STOP_TRIGGERED') {
-                        cardClass += ' stop-breached';
-                        badgeClass = 'badge badge-loss font-bold';
-                        badgeText = 'STOP BREACHED';
-                    } else if (pos.exit_signal === '3D_EXIT_TODAY') {
-                        cardClass += ' exit-warning';
-                        badgeClass = 'badge badge-loss font-bold';
-                        badgeText = '3D EXIT TODAY';
-                    } else if (pos.exit_signal === 'RUNNER_HOLD') {
-                        cardClass += ' runner-hold';
-                        badgeClass = 'badge badge-buy font-bold';
-                        badgeText = 'RUNNER EXCEPTION';
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = cardClass;
-                    card.innerHTML = `
-                        <div class="slot-header">
-                            <span class="slot-num">${slotNum}</span>
-                            <span class="${badgeClass}">${badgeText}</span>
-                        </div>
-                        <div class="slot-ticker-row">
-                            <span class="slot-ticker">${pos.ticker}</span>
-                            <span class="slot-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% (${pnlSign}${Number(pos.pnl_pln || 0).toFixed(2)} PLN)</span>
-                        </div>
-                        <div class="slot-stats-grid">
-                            <div class="slot-stat-row"><span>Shares</span><span>${pos.shares} szt.</span></div>
-                            <div class="slot-stat-row"><span>Entry Price</span><span>${Number(pos.entry_price || 0).toFixed(2)} PLN</span></div>
-                            <div class="slot-stat-row"><span>Current Price</span><span>${Number(pos.current_price || pos.entry_price || 0).toFixed(2)} PLN</span></div>
-                            <div class="slot-stat-row"><span>2.2x ATR Stop</span><span class="${pos.current_price <= pos.stop_loss_price ? 'text-red font-bold' : ''}">${Number(pos.stop_loss_price || 0).toFixed(2)} PLN</span></div>
-                        </div>
-                        <div class="slot-footer-action">
-                            <span class="text-xs text-muted" title="${pos.exit_reason || ''}">${pos.exit_reason || 'Holding position'}</span>
-                            <button class="btn btn-xs secondary close-pos-btn" data-ticker="${pos.ticker}" data-price="${pos.current_price || pos.entry_price}">
-                                <i data-lucide="x" class="icon-inline" style="width:12px;height:12px;"></i> Close Position
-                            </button>
-                        </div>
-                    `;
-                    grid.appendChild(card);
+            // Tonight's actions for the open book (what to do with holdings)
+            const actionsEl = document.getElementById('openBookActions');
+            if (actionsEl) {
+                if (!positions.length) {
+                    actionsEl.hidden = true;
+                    actionsEl.innerHTML = '';
                 } else {
-                    const card = document.createElement('div');
-                    card.className = 'slot-card vacant';
-                    card.innerHTML = `
-                        <div class="slot-header">
-                            <span class="slot-num">${slotNum}</span>
-                            <span class="badge badge-hold">VACANT</span>
-                        </div>
-                        <div class="slot-body">
-                            <div class="slot-empty-title">Waiting for Breakout</div>
-                            <p class="slot-empty-desc">Allocated: ~${Number(cashPerSlot).toLocaleString('pl-PL', { maximumFractionDigits: 0 })} PLN</p>
-                        </div>
-                    `;
-                    grid.appendChild(card);
+                    actionsEl.hidden = false;
+                    actionsEl.innerHTML = positions.map((pos) => {
+                        const sig = pos.exit_signal || 'HOLD';
+                        let verb = 'HOLD';
+                        let tone = 'hold';
+                        if (sig === 'STOP_TRIGGERED') { verb = 'SELL — STOP HIT'; tone = 'sell'; }
+                        else if (sig === '3D_EXIT_TODAY') { verb = 'SELL — DAY 3 EXIT'; tone = 'sell'; }
+                        else if (sig === 'RUNNER_HOLD') { verb = 'HOLD — RUNNER'; tone = 'runner'; }
+                        else { verb = `HOLD — Day ${pos.sessions_held || 1}/3`; }
+                        return `<div class="open-book-chip tone-${tone}"><strong>${pos.ticker}</strong><span>${verb}</span></div>`;
+                    }).join('');
                 }
             }
+
+            // Closed-trade history table
+            const histBody = document.getElementById('tradeHistoryBody');
+            if (histBody) {
+                if (!closedTrades.length) {
+                    histBody.innerHTML = '<tr><td colspan="6" class="text-muted">No closed trades yet.</td></tr>';
+                } else {
+                    histBody.innerHTML = closedTrades.slice().reverse().map((t) => {
+                        const pnl = Number(t.net_pnl_pln ?? t.pnl_pln ?? 0);
+                        const pct = Number(t.net_pnl_pct ?? t.pnl_pct ?? 0);
+                        const cls = pnl >= 0 ? 'text-green' : 'text-red';
+                        const sign = pnl >= 0 ? '+' : '';
+                        return `<tr>
+                            <td class="font-mono">${t.ticker || '—'}</td>
+                            <td class="font-mono">${t.entry_date || '—'} @ ${Number(t.entry_price || 0).toFixed(4)}</td>
+                            <td class="font-mono">${t.exit_date || '—'} @ ${Number(t.exit_price || 0).toFixed(4)}</td>
+                            <td class="font-mono">${t.shares ?? '—'}</td>
+                            <td class="font-mono ${cls}">${sign}${pnl.toFixed(2)} (${sign}${pct.toFixed(2)}%)</td>
+                            <td>${t.exit_reason || t.reason || '—'}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            }
+
+            if (!grid) return;
+            grid.innerHTML = '';
+            // Only render open positions — no vacant placeholder cards
+            grid.style.gridTemplateColumns = positions.length <= 1
+                ? '1fr'
+                : `repeat(${Math.min(positions.length, 3)}, minmax(0, 1fr))`;
+
+            if (!positions.length) {
+                grid.innerHTML = `<div class="slot-card vacant" style="grid-column:1/-1;min-height:120px;">
+                    <div class="slot-empty-title">No open positions</div>
+                    <p class="slot-empty-desc">Sync contest or register holdings to track exits.</p>
+                </div>`;
+            }
+
+            positions.forEach((pos, i) => {
+                const slotNum = `SLOT ${i + 1}`;
+                const isPositive = (pos.pnl_pln >= 0);
+                const pnlClass = isPositive ? 'text-green' : 'text-red';
+                const pnlSign = isPositive ? '+' : '';
+
+                let cardClass = 'slot-card occupied';
+                let badgeClass = 'badge badge-buy';
+                let badgeText = `DAY ${pos.sessions_held || 1} OF 3`;
+                let actionLabel = 'HOLD';
+                let actionClass = 'slot-action hold';
+
+                if (pos.exit_signal === 'STOP_TRIGGERED') {
+                    cardClass += ' stop-breached';
+                    badgeClass = 'badge badge-loss font-bold';
+                    badgeText = 'STOP HIT';
+                    actionLabel = 'SELL NOW — STOP';
+                    actionClass = 'slot-action sell';
+                } else if (pos.exit_signal === '3D_EXIT_TODAY') {
+                    cardClass += ' exit-warning';
+                    badgeClass = 'badge badge-loss font-bold';
+                    badgeText = 'DAY 3 EXIT';
+                    actionLabel = 'SELL TODAY — TIME STOP';
+                    actionClass = 'slot-action sell';
+                } else if (pos.exit_signal === 'RUNNER_HOLD') {
+                    cardClass += ' runner-hold';
+                    badgeClass = 'badge badge-buy font-bold';
+                    badgeText = 'RUNNER';
+                    actionLabel = 'HOLD — RUNNER';
+                    actionClass = 'slot-action runner';
+                }
+
+                const entryPx = Number(pos.entry_price || 0);
+                const currPx = Number(pos.current_price || pos.entry_price || 0);
+                const entryFmt = entryPx >= 10 ? entryPx.toFixed(2) : entryPx.toFixed(4);
+                const currFmt = currPx >= 10 ? currPx.toFixed(2) : currPx.toFixed(4);
+
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="slot-header">
+                        <span class="slot-num">${slotNum}</span>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="slot-ticker-row">
+                        <span class="slot-ticker">${pos.ticker}</span>
+                        <span class="slot-pnl ${pnlClass}">${pnlSign}${Number(pos.pnl_pct || 0).toFixed(2)}% · ${pnlSign}${Number(pos.pnl_pln || 0).toFixed(2)} PLN</span>
+                    </div>
+                    <div class="${actionClass}">${actionLabel}</div>
+                    <div class="slot-stats-grid">
+                        <div class="slot-stat-row"><span>Shares</span><span>${pos.shares} szt.</span></div>
+                        <div class="slot-stat-row"><span>Entry</span><span>${entryFmt} PLN</span></div>
+                        <div class="slot-stat-row"><span>Last</span><span>${currFmt} PLN</span></div>
+                        <div class="slot-stat-row"><span>Stop 2.2×ATR</span><span class="${currPx <= pos.stop_loss_price ? 'text-red font-bold' : ''}">${Number(pos.stop_loss_price || 0).toFixed(2)} PLN</span></div>
+                    </div>
+                    <div class="slot-footer-action">
+                        <span class="text-xs text-muted" title="${pos.exit_reason || ''}">${pos.exit_reason || 'Holding'}</span>
+                        <button class="btn btn-xs secondary close-pos-btn" data-ticker="${pos.ticker}" data-price="${currPx}">
+                            Close
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
 
             // Bind click handlers for closing positions
             grid.querySelectorAll('.close-pos-btn').forEach(btn => {
@@ -795,7 +851,9 @@ function initSiggHub() {
 
     // Manual holdings registration (fallback when contest HTML omits positions)
     const registerHoldingsPanel = document.getElementById('registerHoldingsPanel');
+    const tradeHistoryPanel = document.getElementById('tradeHistoryPanel');
     const toggleRegisterHoldingsBtn = document.getElementById('toggleRegisterHoldingsBtn');
+    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     const cancelRegisterHoldingsBtn = document.getElementById('cancelRegisterHoldingsBtn');
     const saveRegisterHoldingsBtn = document.getElementById('saveRegisterHoldingsBtn');
 
@@ -803,6 +861,15 @@ function initSiggHub() {
         toggleRegisterHoldingsBtn.addEventListener('click', () => {
             const open = registerHoldingsPanel.style.display !== 'none';
             registerHoldingsPanel.style.display = open ? 'none' : 'block';
+            if (!open && tradeHistoryPanel) tradeHistoryPanel.style.display = 'none';
+        });
+    }
+    if (toggleHistoryBtn && tradeHistoryPanel) {
+        toggleHistoryBtn.addEventListener('click', () => {
+            const open = tradeHistoryPanel.style.display !== 'none';
+            tradeHistoryPanel.style.display = open ? 'none' : 'block';
+            if (!open && registerHoldingsPanel) registerHoldingsPanel.style.display = 'none';
+            if (!open) fetchPortfolio();
         });
     }
     if (cancelRegisterHoldingsBtn && registerHoldingsPanel) {
@@ -1348,6 +1415,7 @@ function initSiggHub() {
                         _scanPollTimer = null;
 
                         fetchScanResults();
+                        fetchPortfolio(); // refresh open-book actions with latest stops / day counts
                         showToast('Scan Complete', sData.message || 'Evaluated WIG140 universe.', 'success', 3500);
                         playChime();
 
@@ -1400,6 +1468,7 @@ function initSiggHub() {
                     if (res.market_regime) renderMarketRegime(res.market_regime);
                     renderPodium(res.top_3, res.market_regime);
                     renderLedgerTable();
+                    fetchPortfolio();
                     showToast('Scan Finished', `Evaluated ${_allScannedStocks.length} stocks.`, 'success', 3000);
                 } else {
                     showToast('Scan Error', res.message || 'Scan failed', 'error', 4000);
