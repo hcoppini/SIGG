@@ -69,7 +69,9 @@ def _cron_authorized() -> bool:
     """Shared secret so GitHub Actions can wake Render and run open/close jobs."""
     expected = (os.environ.get("CRON_SECRET") or "").strip()
     if not expected:
-        # If unset, allow only from localhost-style calls during local dev
+        # Fail closed on Render/hosted; localhost only for local dev
+        if os.environ.get("RENDER") or os.environ.get("RENDER_SERVICE_ID"):
+            return False
         return request.remote_addr in ("127.0.0.1", "::1")
     got = (request.headers.get("X-Cron-Secret") or request.args.get("secret") or "").strip()
     if not got:
