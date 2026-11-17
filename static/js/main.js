@@ -581,7 +581,7 @@ function initSiggHub() {
 
                         if (contestCurlPreview) {
                             contestCurlPreview.innerHTML = `
-                                <div style="color: #34d399; font-weight: 700; margin-bottom: 4px;">✅ Contest Connection Verified & Synced</div>
+                                <div style="color: #8fbcb0; font-weight: 700; margin-bottom: 4px;">Contest connection verified & synced</div>
                                 <div>• <b>Live Equity:</b> ${d.portfolio_value.toFixed(2)} PLN</div>
                                 <div>• <b>Available Cash:</b> ${d.cash.toFixed(2)} PLN</div>
                                 <div>• <b>Contest Rank:</b> <span class="text-gold font-bold">${rankDisplay}</span></div>
@@ -594,7 +594,7 @@ function initSiggHub() {
                     } else {
                         if (contestCurlPreview) {
                             contestCurlPreview.innerHTML = `
-                                <div style="color: #fb7185; font-weight: 700; margin-bottom: 4px;">❌ Connection Failed</div>
+                                <div style="color: #fb7185; font-weight: 700; margin-bottom: 4px;">Connection failed</div>
                                 <div>${sJson.message || 'Could not retrieve data from contest.'}</div>
                                 <div style="color: #94a3b8; margin-top: 4px; font-size: 0.72rem;">Tip: In Chrome DevTools, make sure you copy a request that happened while logged into sigg.gpw.pl.</div>
                             `;
@@ -926,7 +926,7 @@ function initSiggHub() {
 
         if (badge) {
             if (reg === 'PENDING') {
-                badge.textContent = `⏳ PENDING — Awaiting Today's Scan`;
+                badge.textContent = `PENDING — Awaiting Today's Scan`;
             } else {
                 badge.textContent = `${reg} REGIME — ${regObj.status_label || (reg === 'RED' ? 'LOCKED (Kill Switch Active)' : 'UNLOCKED')}`;
             }
@@ -961,20 +961,19 @@ function initSiggHub() {
         if (isPending) {
             if (podiumStatusBadge) {
                 podiumStatusBadge.className = 'podium-status-pill pending';
-                podiumStatusBadge.textContent = "⏳ AWAITING TODAY'S SCAN";
+                podiumStatusBadge.textContent = "AWAITING TODAY'S SCAN";
             }
             if (podiumSubtitle) {
-                podiumSubtitle.textContent = "Daily market breadth not yet evaluated today. Click \"Live Scan\" or wait for scheduled run at 16:30 CET.";
+                podiumSubtitle.textContent = "Daily market breadth not yet evaluated today. Click Run Scanner or wait for the 16:30 CET scheduled run.";
             }
             podiumCardsGrid.innerHTML = `
-                <div class="podium-empty-box" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; border: 1px dashed var(--border-color); border-radius: 12px; background: rgba(255,255,255,0.01);">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">⏳</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">Podium Awaiting Today's Scan</div>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 500px; margin: 0 auto 1.25rem;">
-                        The system has reset for the new trading day. Run a live scan to evaluate WIG140 breadth and identify the Top 3 Runner Breakouts.
+                <div class="podium-empty-box" style="grid-column: 1 / -1; padding: 2.25rem; text-align: center; border: 1px dashed var(--contour); border-radius: 12px; background: rgba(255,255,255,0.02);">
+                    <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-color); margin-bottom: 0.4rem;">Allocation awaiting today's scan</div>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 500px; margin: 0 auto 1.15rem;">
+                        Run the scanner to evaluate WIG140 breadth and fill the top 3 allocation slots.
                     </p>
-                    <button class="btn btn-primary" onclick="document.getElementById('runScanBtn')?.click()" style="padding: 0.5rem 1.25rem; font-weight: 600; font-size: 0.88rem;">
-                        ⚡ Run Live Scan Now
+                    <button class="btn primary" onclick="document.getElementById('runScanBtn')?.click()">
+                        Run Scanner
                     </button>
                 </div>
             `;
@@ -985,7 +984,7 @@ function initSiggHub() {
         if (isRed) {
             if (podiumStatusBadge) {
                 podiumStatusBadge.className = 'podium-status-pill locked';
-                podiumStatusBadge.textContent = '🔴 LOCKED (KILL SWITCH ACTIVE)';
+                podiumStatusBadge.textContent = 'LOCKED — KILL SWITCH ACTIVE';
             }
             if (podiumSubtitle) {
                 podiumSubtitle.textContent = 'Bearish market regime active — Zero stock purchases permitted. 100% Cash preserved across all 3 slots.';
@@ -1349,7 +1348,7 @@ function initSiggHub() {
                         _scanPollTimer = null;
 
                         fetchScanResults();
-                        showToast('Scan Complete 🎯', sData.message || 'Evaluated WIG140 universe.', 'success', 3500);
+                        showToast('Scan Complete', sData.message || 'Evaluated WIG140 universe.', 'success', 3500);
                         playChime();
 
                         if (runScanBtn) {
@@ -1401,7 +1400,7 @@ function initSiggHub() {
                     if (res.market_regime) renderMarketRegime(res.market_regime);
                     renderPodium(res.top_3, res.market_regime);
                     renderLedgerTable();
-                    showToast('Scan Finished 🎯', `Evaluated ${_allScannedStocks.length} stocks.`, 'success', 3000);
+                    showToast('Scan Finished', `Evaluated ${_allScannedStocks.length} stocks.`, 'success', 3000);
                 } else {
                     showToast('Scan Error', res.message || 'Scan failed', 'error', 4000);
                 }
