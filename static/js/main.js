@@ -1272,7 +1272,7 @@ function initSiggHub() {
             if (scanEmpty) {
                 scanEmpty.classList.remove('hidden');
                 if (totalScanned === 0) {
-                    scanEmpty.textContent = 'No scan data loaded. Click "Run Live Scanner" to stream stocks into this ledger.';
+                    scanEmpty.textContent = 'No scan data loaded. Click "Run Scanner" to stream stocks into this ledger.';
                 } else {
                     scanEmpty.textContent = 'No stocks match the current filter/search.';
                 }
@@ -1378,7 +1378,7 @@ function initSiggHub() {
             showToast('Scan Error', 'Could not initialize scanner: ' + err, 'error', 4000);
             if (runScanBtn) {
                 runScanBtn.disabled = false;
-                if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                if (runScanBtnText) runScanBtnText.textContent = "Run Scanner";
             }
         }
     }
@@ -1412,7 +1412,7 @@ function initSiggHub() {
             .finally(() => {
                 if (runScanBtn) {
                     runScanBtn.disabled = false;
-                    if (runScanBtnText) runScanBtnText.textContent = "Run Live Scanner";
+                    if (runScanBtnText) runScanBtnText.textContent = "Run Scanner";
                 }
                 if (scanProgressCard) scanProgressCard.classList.add('hidden');
             });
