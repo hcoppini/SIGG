@@ -375,8 +375,13 @@ class PortfolioManager:
             
             # Auto-sync sessions held with calendar trading days
             if pos.get("entry_date"):
-                cal_days = self.calculate_trading_days_held(pos["entry_date"])
-                pos["sessions_held"] = max(pos.get("sessions_held", 1), cal_days)
+                try:
+                    # Guard against bad imports like 2026-17-11
+                    datetime.strptime(str(pos["entry_date"])[:10], "%Y-%m-%d")
+                    cal_days = self.calculate_trading_days_held(pos["entry_date"])
+                    pos["sessions_held"] = max(pos.get("sessions_held", 1), cal_days)
+                except Exception:
+                    pos["sessions_held"] = max(1, int(pos.get("sessions_held", 1) or 1))
             sessions = pos.get("sessions_held", 1)
             
             # Exit Logic

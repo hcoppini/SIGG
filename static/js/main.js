@@ -1,4 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initSiggHub() {
+    if (window.__siggHubInitialized) return;
+    window.__siggHubInitialized = true;
+
+    try {
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -2313,4 +2317,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(pollNotifications, 12000);
     // Quotes / portfolio refresh every 30 seconds
     setInterval(fetchPortfolio, 30000);
-});
+    } catch (bootErr) {
+        console.error('SIGG Hub boot failure:', bootErr);
+        const hint = document.getElementById('cloudSyncHint');
+        if (hint) {
+            hint.textContent = 'Hub JS boot error — check console';
+            hint.style.color = '#fb7185';
+        }
+    }
+}
+
+// Critical: head CDN scripts can finish after DOMContentLoaded in some browsers,
+// so a DOMContentLoaded-only boot leaves every button dead.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSiggHub);
+} else {
+    initSiggHub();
+}

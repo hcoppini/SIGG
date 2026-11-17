@@ -459,10 +459,21 @@ def _extract_entry_dates_from_history(html_str: str) -> Dict[str, str]:
             for c in cols[1:3]:
                 m = re.search(r'(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})', c)
                 if m:
-                    mm, dd, yy = m.group(1), m.group(2), m.group(3)
-                    # US-style from screenshot: 11/17/26 = Nov 17
+                    a, b, yy = int(m.group(1)), int(m.group(2)), m.group(3)
                     year = int(yy) if len(yy) == 4 else 2000 + int(yy)
-                    date_str = f"{year:04d}-{int(mm):02d}-{int(dd):02d}"
+                    # Disambiguate DD/MM vs MM/DD; reject impossible months
+                    if a > 12 and 1 <= b <= 12:
+                        day, month = a, b
+                    elif b > 12 and 1 <= a <= 12:
+                        month, day = a, b
+                    elif 1 <= a <= 12 and 1 <= b <= 12:
+                        # Ambiguous: Polish SIGG UI often shows MM/DD in en-US locale
+                        month, day = a, b
+                    else:
+                        continue
+                    if not (1 <= month <= 12 and 1 <= day <= 31):
+                        continue
+                    date_str = f"{year:04d}-{month:02d}-{day:02d}"
                     break
             if sym and date_str and sym not in dates:
                 dates[sym] = date_str
@@ -782,6 +793,11 @@ def reconcile_portfolio_with_contest(contest_data: Dict[str, Any], portfolio_mgr
         entry_price = cp["entry_price"]
         curr_price = cp.get("current_price", entry_price)
         entry_date = cp.get("entry_date") or today_str
+        try:
+            datetime.strptime(str(entry_date)[:10], "%Y-%m-%d")
+            entry_date = str(entry_date)[:10]
+        except Exception:
+            entry_date = today_str
 
         if sym in existing_by_sym:
             # Update existing position — preserve original entry_date / ATR for stop math
@@ -792,8 +808,22 @@ def reconcile_portfolio_with_contest(contest_data: Dict[str, Any], portfolio_mgr
             p["current_price"] = curr_price
             p["highest_price"] = max(p.get("highest_price", entry_price), curr_price)
             p["gross_cost"] = round(shares * p["entry_price"], 2)
+            # Only adopt incoming entry_date when it is a valid ISO date
+            incoming_date = cp.get("entry_date")
+            if incoming_date:
+                try:
+                    datetime.strptime(str(incoming_date)[:10], "%Y-%m-%d")
+                    # Prefer earlier real entry date (don't reset Day counter on resync)
+                    old_d = str(p.get("entry_date") or "")[:10]
+                    if not old_d or old_d > str(incoming_date)[:10]:
+                        p["entry_date"] = str(incoming_date)[:10]
+                except Exception:
+                    pass
             if p.get("entry_date"):
-                p["sessions_held"] = portfolio_mgr.calculate_trading_days_held(p["entry_date"])
+                try:
+                    p["sessions_held"] = portfolio_mgr.calculate_trading_days_held(p["entry_date"])
+                except Exception:
+                    pass
             new_positions_list.append(p)
         else:
             # Newly imported position from contest
