@@ -47,7 +47,8 @@
         <div class="strategy-selector">
             <label for="strategySelect">Active Strategy:</label>
             <select id="strategySelect">
-                <option value="breakout_trend" selected>Breakout Trend-Rider (SIGG Champion +82.9%)</option>
+                <option value="runner_surge" selected>Runner Surge (Leaderboard Chaser +50k Target)</option>
+                <option value="breakout_trend">Breakout Trend-Rider (SIGG Champion +82.9%)</option>
                 <option value="squeeze_ignition">Squeeze-Ignition (3-Day Burst)</option>
                 <option value="breakout">High-Velocity Breakout</option>
                 <option value="home_run">Home Run Chaser (All-In Risk)</option>
@@ -66,7 +67,7 @@
             </div>
             <div class="stat-pill">
                 <span class="label">ACTIVE SLOTS</span>
-                <span id="sidebarSlots" class="val">0 / 3 Active</span>
+                <span id="sidebarSlots" class="val">0 / 2 Active</span>
             </div>
             <div class="stat-pill target">
                 <span class="label">TARGET</span>
@@ -178,6 +179,7 @@
                     </div>
                     <div style="margin-top:0.75rem; display:flex; gap:8px; flex-wrap:wrap;">
                         <button id="saveRegisterHoldingsBtn" class="btn primary btn-sm" type="button">Save</button>
+                        <button id="clearAllPositionsBtn" class="btn secondary btn-sm" type="button" title="Clear all open positions (flat / 100% cash)">Clear All (Flat)</button>
                         <button id="cancelRegisterHoldingsBtn" class="btn secondary btn-sm" type="button">Cancel</button>
                     </div>
                 </div>
@@ -223,6 +225,28 @@
 
                 <div id="podiumCardsGrid" class="podium-grid">
                     <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- AGENTIC AI CATALYST INTELLIGENCE RADAR -->
+            <div id="aiCatalystSection" class="glass-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header-flex">
+                    <div class="podium-title-group">
+                        <div class="podium-badge-icon" aria-hidden="true" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;"><i data-lucide="sparkles" class="icon"></i></div>
+                        <div>
+                            <h3>Agentic AI News & Catalyst Radar</h3>
+                            <p class="chart-subtitle">Live regulatory ESPI & financial press NLP catalyst impact analysis</p>
+                        </div>
+                    </div>
+                    <button id="refreshCatalystsBtn" class="btn btn-xs secondary">
+                        <i data-lucide="refresh-cw" class="icon"></i> Refresh AI News
+                    </button>
+                </div>
+                <div id="catalystCardsGrid" class="catalyst-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <!-- Populated dynamically via main.js fetchCatalysts() -->
+                    <div class="empty-state-card" style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.88rem;">
+                        Loading live AI news & catalyst wire...
+                    </div>
                 </div>
             </div>
 

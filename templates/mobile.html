@@ -35,7 +35,7 @@
     <!-- MARKET REGIME STATUS STRIP -->
     <div id="mobileRegimeStrip" class="regime-strip">
         <span id="mobileRegimeTag" class="regime-tag">GREEN REGIME</span>
-        <span id="mobileRegimeText" class="regime-text">WIG140 Breadth &gt; SMA20: --% | Max 3 Slots</span>
+        <span id="mobileRegimeText" class="regime-text">WIG140 Breadth &gt; SMA20: --% | Max 2 Slots (Convexity Mode)</span>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -45,17 +45,36 @@
          TAB 1: SIGNALS & LIVE SCANNER
          ========================================== -->
     <main id="signalsView" class="mobile-view active">
-        <!-- DAILY STRATEGY ALLOCATION (3 SLOTS) (MOBILE) -->
+        <!-- DAILY STRATEGY ALLOCATION (2 SLOTS) (MOBILE) -->
         <div id="mobilePodiumSection" class="feed-header-card podium-mobile-card">
             <div class="feed-header-row" style="margin-bottom: 0.5rem;">
                 <div class="feed-title">
                     <span style="font-size: 1.1rem;">🎯</span>
-                    <span>Daily Strategy Allocation (3 Slots)</span>
+                    <span>Daily Strategy Allocation (2 Slots)</span>
                 </div>
                 <span id="mobilePodiumBadge" class="feed-badge" style="background: rgba(16,185,129,0.2); color: #34d399;">UNLOCKED</span>
             </div>
             <div id="mobilePodiumGrid" class="mobile-podium-grid">
-                <!-- Populated dynamically via JS: Slot 1, Slot 2, Slot 3 -->
+                <!-- Populated dynamically via JS: Slot 1, Slot 2 -->
+            </div>
+        </div>
+
+        <!-- AGENTIC AI CATALYST RADAR (MOBILE) -->
+        <div id="mobileCatalystSection" class="feed-header-card" style="margin-bottom: 0.65rem; border-left: 3px solid #8b5cf6;">
+            <div class="feed-header-row" style="margin-bottom: 0.4rem;">
+                <div class="feed-title">
+                    <span style="font-size: 1rem;">✨</span>
+                    <span style="font-size: 0.88rem; font-weight: 700;">Agentic AI Catalyst Radar</span>
+                </div>
+                <button id="mobileRefreshCatalystsBtn" class="pill-btn-mobile" style="padding: 3px 8px; font-size: 0.7rem; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4); display: inline-flex; align-items: center; gap: 3px;">
+                    <i data-lucide="refresh-cw" style="width: 10px; height: 10px; display: inline-block;"></i> Sync
+                </button>
+            </div>
+            <div id="mobileCatalystCards" style="display: flex; flex-direction: column; gap: 0.45rem;">
+                <!-- Populated dynamically via mobile.js fetchMobileCatalysts() -->
+                <div style="font-size: 0.74rem; color: var(--text-muted); text-align: center; padding: 0.5rem;">
+                    Syncing live AI catalyst wire...
+                </div>
             </div>
         </div>
 
@@ -70,7 +89,8 @@
             
             <div style="margin: 0.5rem 0 0.35rem 0;">
                 <select id="mobileStrategySelect" class="mobile-input" style="padding: 0.5rem 0.65rem; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; width: 100%;">
-                    <option value="breakout_trend" selected>Breakout Trend-Rider (SIGG Champion +82.9%)</option>
+                    <option value="runner_surge" selected>Runner Surge (Leaderboard Chaser +50k Target)</option>
+                    <option value="breakout_trend">Breakout Trend-Rider (SIGG Champion +82.9%)</option>
                     <option value="squeeze_ignition">Squeeze-Ignition (3-Day Burst)</option>
                     <option value="breakout">High-Velocity Breakout</option>
                     <option value="home_run">Home Run Chaser (All-In Risk)</option>

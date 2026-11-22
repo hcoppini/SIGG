@@ -134,7 +134,8 @@ def load_ticker_backtest_stats(strategy: str) -> Dict[str, Dict]:
             pass
     return stats
 
-def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
+def calculate_podium(records: List[Dict], market_regime: Any, use_market_regime: bool = True, max_slots: int = 3) -> Dict:
+
     if isinstance(market_regime, str):
         regime = market_regime
     elif isinstance(market_regime, dict):
@@ -151,16 +152,17 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
             "status_label": "AWAITING TODAY'S SCAN",
             "action_msg": "Today's market scan is pending. Run the live scanner or wait for the 16:30 CET automated scan.",
             "slots": [
-                {"slot": 1, "rank": 1, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."},
-                {"slot": 2, "rank": 2, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."},
-                {"slot": 3, "rank": 3, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."}
+                {"slot": i + 1, "rank": i + 1, "is_allocated": False, "reason": "Awaiting today's scan — run live scanner to evaluate candidates."}
+                for i in range(max_slots)
             ],
             "picks": []
         }
 
-    is_red = (reg_upper == "RED")
+    is_red = (reg_upper == "RED") and use_market_regime
+    buys = [r for r in records if r.get('Strategy_Signal') == 'Buy']
+    inverse_buys = [r for r in buys if r.get('Ticker') in ('ETFBNQ2ST', 'ETFBW20ST', 'ETFBM40ST')]
     
-    if is_red:
+    if is_red and not inverse_buys:
         return {
             "is_locked": True,
             "regime": "RED",
@@ -168,24 +170,23 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
             "status_label": "ALLOCATION LOCKED (Kill Switch Active)",
             "action_msg": "Bearish market regime detected. Zero new stock purchases allowed. 100% capital preserved in cash.",
             "slots": [
-                {"slot": 1, "rank": 1, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"},
-                {"slot": 2, "rank": 2, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"},
-                {"slot": 3, "rank": 3, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"}
+                {"slot": i + 1, "rank": i + 1, "is_allocated": False, "reason": "Bearish Market Kill Switch Active (100% Cash)"}
+                for i in range(max_slots)
             ],
             "picks": []
         }
     
-    # STRICT FILTER: Only stocks that strictly meet the strategy criteria (Strategy_Signal == 'Buy') enter
-    buys = [r for r in records if r.get('Strategy_Signal') == 'Buy']
+    # In RED regime with inverse buys, trade the inverse instruments
+    active_buys = inverse_buys if (is_red and inverse_buys) else buys
     
     def get_score(r):
-        return r.get('Runner_Score') or r.get('Momentum_Score') or 0.0
+        return r.get('Composite_Score') or r.get('Runner_Score') or r.get('Momentum_Score') or 0.0
     
-    sorted_buys = sorted(buys, key=get_score, reverse=True)
+    sorted_buys = sorted(active_buys, key=get_score, reverse=True)
     
     slots = []
     picks = []
-    for i in range(3):
+    for i in range(max_slots):
         slot_num = i + 1
         if i < len(sorted_buys):
             stock = sorted_buys[i]
@@ -199,6 +200,10 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
                 "close": stock.get("Close"),
                 "day_gain_pct": stock.get("Day_Gain_Pct"),
                 "runner_score": stock.get("Runner_Score"),
+                "composite_score": stock.get("Composite_Score", stock.get("Runner_Score")),
+                "ai_score": stock.get("AI_Score", 0.0),
+                "catalyst_tag": stock.get("Catalyst_Tag", "⚡ TECHNICAL MOMENTUM"),
+                "top_headline": stock.get("Top_Headline", ""),
                 "volume_surge": stock.get("Volume_Surge"),
                 "stop_loss": stock.get("Stop_Loss"),
                 "target": stock.get("Target"),
@@ -219,12 +224,19 @@ def calculate_podium(records: List[Dict], market_regime: Any) -> Dict:
             })
     
     allocated_count = len(picks)
+    if is_red and inverse_buys:
+        action_msg = f"Bearish market regime: {allocated_count} inverse ETF(s) qualified to capture downside trend."
+        status_label = f"HEDGE UNLOCKED ({allocated_count} / {max_slots} Slots Allocated)"
+    else:
+        action_msg = f"{allocated_count} stock(s) met strict buy criteria. Remaining slots held in cash." if allocated_count > 0 else "Market conditions are favorable, but 0 stocks met strict breakout criteria today. Hold 100% cash."
+        status_label = f"UNLOCKED ({allocated_count} / {max_slots} Slots Allocated)"
+    
     return {
         "is_locked": False,
         "regime": regime,
         "status": "UNLOCKED (Allocated Breakouts)" if allocated_count > 0 else "UNLOCKED (No Qualified Breakouts Today)",
-        "status_label": f"UNLOCKED ({allocated_count} / 3 Slots Allocated)",
-        "action_msg": f"{allocated_count} stock(s) met strict buy criteria. Remaining slots held in cash." if allocated_count > 0 else "Market conditions are favorable, but 0 stocks met strict breakout criteria today. Hold 100% cash.",
+        "status_label": status_label,
+        "action_msg": action_msg,
         "slots": slots,
         "picks": picks
     }
@@ -240,11 +252,18 @@ def scan_market(
     config = load_config()
     bt_ticker_stats = load_ticker_backtest_stats(strategy)
     
+    ai_intel = {}
+    try:
+        from catalyst_engine import get_ai_catalyst_intelligence
+        ai_intel = get_ai_catalyst_intelligence()
+    except Exception as e:
+        pass
+    
     from portfolio import PortfolioManager
     pm = PortfolioManager()
-    cash_for_slot = pm.calculate_slot_allocation()
+    cash_for_slot = pm.calculate_slot_allocation(strategy=strategy)
     if cash_for_slot <= 0:
-        cash_for_slot = 6600.0
+        cash_for_slot = (pm.get_total_equity() * 0.49) if strategy == 'runner_surge' else (pm.get_total_equity() / 3.0)
     
     results = []
     daily_returns = []
@@ -392,8 +411,12 @@ def scan_market(
             vol_surge = (latest_volume / prev_sma_vol) if prev_sma_vol > 0 else 1.0
             turnover_pln = latest_close * latest_volume
             
-            # Runner Score from Blueprint
-            runner_score = round(0.4 * vol_surge + 0.4 * tr_ratio + 0.2 * close_pos, 2)
+            # Runner Score: In squeeze_ignition keeps legacy blueprint, in runner_surge/breakout_trend factors in % price velocity
+            if strategy == 'squeeze_ignition':
+                runner_score = round(0.4 * vol_surge + 0.4 * tr_ratio + 0.2 * close_pos, 2)
+            else:
+                pct_gain_factor = max(0.0, day_gain_pct * 100.0)
+                runner_score = round(0.35 * vol_surge + 0.30 * (pct_gain_factor / 2.0) + 0.20 * tr_ratio + 0.15 * close_pos, 2)
             
             # Ticker historical backtest stats
             t_bt = bt_ticker_stats.get(ticker, {'trades': 0, 'win_rate': 0.0, 'avg_pnl_pct': 0.0})
@@ -412,20 +435,101 @@ def scan_market(
             order_limit = round(latest_close * 1.005, 2)
             order_ticket = f"KUPNO | {sigg_symbol} | {calc_shares} szt. | LIMIT {order_limit:.2f} PLN"
             
+            # Agentic AI News & Catalyst Intelligence integration
+            ai_data = ai_intel.get(sigg_symbol) or {}
+            ai_score = float(ai_data.get('ai_score', 0.0))
+            catalyst_tag = ai_data.get('catalyst_tag', '⚡ TECHNICAL MOMENTUM')
+            top_headline = ai_data.get('top_headline', 'Pure technical momentum setup')
+            top_link = ai_data.get('top_link', '')
+            composite_score = round(runner_score + (ai_score * 0.25), 2)
+
             item = None
-            if strategy == 'breakout_trend':
+            if strategy == 'runner_surge':
                 high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
-                c1_coil = (atr_pct_prev >= 0.020)
-                c2_breakout = (latest_close > high_10_prev) and is_uptrend
-                c3_structure = (close_pos >= 0.70)
-                min_vol = 3.0 if regime == "YELLOW" else 1.5
-                c4_liquidity = (vol_surge >= min_vol) and (turnover_pln >= 400000.0)
+                is_breakout = (latest_close >= high_10_prev * 0.998)
+                is_momentum_ignition = (day_gain_pct >= 0.030) and (tr_ratio >= 1.25)
+                is_inverse = sigg_symbol in ('ETFBNQ2ST', 'ETFBW20ST', 'ETFBM40ST')
+                is_cash_proxy = sigg_symbol in ('ETFBCASH', 'ETFPZUCASH', 'ETFBTBSP')
+                
+                has_liquidity = turnover_pln >= 120000.0
+                has_vol = vol_surge >= 1.35
+                solid_candle = close_pos >= 0.55
+                has_runner_gain = day_gain_pct >= 0.020
+                
+                runner_pass = not is_cash_proxy and has_runner_gain and (is_breakout or is_momentum_ignition) and has_vol and solid_candle and has_liquidity
+                
+                if is_inverse and (day_gain_pct >= 0.02 or is_breakout) and has_vol:
+                    signal = "Buy"
+                    tier = "TIER 1 (INVERSE RUNNER)"
+                elif runner_pass:
+                    if ai_score >= 1.5 and (day_gain_pct >= 0.035 or is_breakout):
+                        signal = "Buy"
+                        tier = f"TIER 1 (CATALYST: {catalyst_tag})"
+                    elif (day_gain_pct >= 0.05 or is_breakout) and vol_surge >= 2.0 and close_pos >= 0.70:
+                        signal = "Buy"
+                        tier = "TIER 1 (MONSTER RUNNER)"
+                    else:
+                        signal = "Buy"
+                        tier = "TIER 2 (IGNITION BURST)"
+                else:
+                    signal = "Hold"
+                    tier = "WATCH"
+                
+                stop_loss_price = latest_close - (2.0 * latest_atr)
+                target_price = latest_close * (1.0 + max(0.12, atr_pct * 3.5))
+                risk_amt = max(0.01, latest_close - stop_loss_price)
+                reward_amt = max(0.01, target_price - latest_close)
+                rr_ratio = round(reward_amt / risk_amt, 2)
+                
+                item = {
+                    'Ticker': sigg_symbol,
+                    'Yahoo_Ticker': ticker,
+                    'Name': stock_name,
+                    'Close': round(latest_close, 2),
+                    'Day_Gain_Pct': round(day_gain_pct * 100.0, 2),
+                    'Breakout_Target': round(high_10_prev, 2),
+                    'ATR_Pct': round(atr_pct_prev * 100.0, 2),
+                    'TR_Ratio': round(tr_ratio, 2),
+                    'Close_Pos': round(close_pos, 2),
+                    'Volume_Surge': round(vol_surge, 2),
+                    'Turnover_PLN': int(turnover_pln),
+                    'Runner_Score': runner_score,
+                    'Composite_Score': composite_score,
+                    'AI_Score': ai_score,
+                    'Catalyst_Tag': catalyst_tag,
+                    'Top_Headline': top_headline,
+                    'Top_Link': top_link,
+                    'Trend_SMA50': 'Uptrend' if is_uptrend else 'Downtrend',
+                    'Stop_Loss': round(stop_loss_price, 2),
+                    'Max_Hold': 'Chandelier Trailing (2.0x ATR)',
+                    'Target': round(target_price, 2),
+                    'RR_Ratio': rr_ratio,
+                    'Order_Shares': calc_shares,
+                    'Order_Limit_Price': order_limit,
+                    'Order_Ticket': order_ticket,
+                    'Tier': tier,
+                    'BT_Stats': bt_summary_str,
+                    'Strategy_Signal': signal,
+                    'Chart': chart_link,
+                }
+                
+            elif strategy == 'breakout_trend':
+                high_10_prev = float(high_prices.rolling(window=10).max().shift(1).iloc[-1])
+                c1_coil = (atr_pct_prev >= 0.015)
+                c2_breakout = (latest_close > high_10_prev) and (is_uptrend or day_gain_pct >= 0.035)
+                c3_structure = (close_pos >= 0.65)
+                min_vol = 2.5 if regime == "YELLOW" else 1.4
+                c4_liquidity = (vol_surge >= min_vol) and (turnover_pln >= 150000.0)
                 
                 is_champion = c1_coil and c2_breakout and c3_structure and c4_liquidity
+                is_inverse = sigg_symbol in ('ETFBNQ2ST', 'ETFBW20ST', 'ETFBM40ST') and (latest_close > high_10_prev) and (vol_surge >= 1.4)
                 
-                if regime == "RED":
+                if regime == "RED" and not is_inverse:
                     signal = "Hold"
                     tier = "WATCH (KILL SWITCH ACTIVE)"
+                elif is_inverse:
+                    signal = "Buy"
+                    tier = "INVERSE BREAKOUT"
                 else:
                     signal = "Buy" if is_champion else "Hold"
                     tier = "CHAMPION BREAKOUT" if is_champion else "WATCH"
@@ -447,6 +551,11 @@ def scan_market(
                     'Volume_Surge': round(vol_surge, 2),
                     'Turnover_PLN': int(turnover_pln),
                     'Runner_Score': runner_score,
+                    'Composite_Score': composite_score,
+                    'AI_Score': ai_score,
+                    'Catalyst_Tag': catalyst_tag,
+                    'Top_Headline': top_headline,
+                    'Top_Link': top_link,
                     'Trend_SMA50': 'Uptrend' if is_uptrend else 'Downtrend',
                     'Stop_Loss': round(stop_loss_price, 2),
                     'Max_Hold': 'Chandelier Trailing (2.0x ATR)',
@@ -496,6 +605,11 @@ def scan_market(
                     'Volume_Surge': round(vol_surge, 2),
                     'Turnover_PLN': int(turnover_pln),
                     'Runner_Score': runner_score,
+                    'Composite_Score': composite_score,
+                    'AI_Score': ai_score,
+                    'Catalyst_Tag': catalyst_tag,
+                    'Top_Headline': top_headline,
+                    'Top_Link': top_link,
                     'Trend_SMA50': 'Uptrend' if is_uptrend else 'Downtrend',
                     'Stop_Loss': round(stop_loss_price, 2),
                     'Max_Hold': '3 Days',
@@ -531,6 +645,11 @@ def scan_market(
                     'ATR_Pct': round(atr_pct * 100.0, 2),
                     'Volume_Surge': round(vol_surge, 2),
                     'Runner_Score': runner_score,
+                    'Composite_Score': composite_score,
+                    'AI_Score': ai_score,
+                    'Catalyst_Tag': catalyst_tag,
+                    'Top_Headline': top_headline,
+                    'Top_Link': top_link,
                     'Trend_SMA50': 'Uptrend' if is_uptrend else 'Downtrend',
                     'Stop_Loss': round(stop_loss_price, 2),
                     'Target': round(target_price, 2),
@@ -603,8 +722,8 @@ def scan_market(
     df = pd.DataFrame(results)
     df['_sort_priority'] = df['Strategy_Signal'].apply(lambda x: 0 if x == 'Buy' else 1)
     
-    if strategy in ('breakout_trend', 'squeeze_ignition', 'breakout', 'home_run'):
-        sort_col = 'Runner_Score' if 'Runner_Score' in df.columns else 'Volume_Surge'
+    if strategy in ('runner_surge', 'breakout_trend', 'squeeze_ignition', 'breakout', 'home_run'):
+        sort_col = 'Composite_Score' if 'Composite_Score' in df.columns else ('Runner_Score' if 'Runner_Score' in df.columns else 'Volume_Surge')
         df = df.sort_values(['_sort_priority', sort_col], ascending=[True, False])
     else:
         df = df.sort_values(['_sort_priority', 'Momentum_Score'], ascending=[True, False])
@@ -612,7 +731,8 @@ def scan_market(
     df = df.drop(columns=['_sort_priority'])
     
     sorted_records = df.to_dict('records')
-    top_3 = calculate_podium(sorted_records, regime_data)
+    use_regime = (strategy not in ('runner_surge', 'home_run'))
+    top_3 = calculate_podium(sorted_records, regime_data, use_market_regime=use_regime)
     buys = df[df['Strategy_Signal'] == 'Buy']
     
     output_path = config['output_file']
@@ -637,7 +757,7 @@ def scan_market(
 
 def main():
     parser = argparse.ArgumentParser(description="Stock Scanner")
-    parser.add_argument('--strategy', type=str, default='breakout_trend', choices=['breakout_trend', 'squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
+    parser.add_argument('--strategy', type=str, default='runner_surge', choices=['runner_surge', 'breakout_trend', 'squeeze_ignition', 'breakout', 'home_run', 'macd_rsi'])
     args = parser.parse_args()
     
     print("=" * 60)

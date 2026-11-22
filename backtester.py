@@ -182,6 +182,7 @@ class TruthfulBacktester:
         self.open_positions: Dict[str, Position] = {}
         self.closed_positions: List[Dict] = []
         self.equity_curve: List[Tuple[pd.Timestamp, float]] = []
+        self.stopped_losses: Dict[str, pd.Timestamp] = {}
         
         self.trading_days: List[pd.Timestamp] = []
         self.valid_stocks: List[str] = []
@@ -233,9 +234,9 @@ class TruthfulBacktester:
             df['sma50'] = close_prices.rolling(window=50).mean()
             df['turnover'] = close_prices * volumes
             
-            if self.strategy in ('squeeze_ignition', 'breakout', 'home_run', 'breakout_trend'):
+            if self.strategy in ('squeeze_ignition', 'breakout', 'home_run', 'breakout_trend', 'runner_surge'):
                 df['donchian_high'] = high_prices.rolling(window=self.breakout_period).max().shift(1)
-                vol_window = 20 if self.strategy in ('squeeze_ignition', 'breakout_trend') else self.breakout_period
+                vol_window = 20 if self.strategy in ('squeeze_ignition', 'breakout_trend', 'runner_surge') else self.breakout_period
                 df['sma_volume'] = volumes.rolling(window=vol_window).mean().shift(1)
             elif self.strategy == 'macd_rsi':
                 macd_df = calculate_macd(close_prices, **self.macd_cfg)
@@ -398,6 +399,8 @@ class TruthfulBacktester:
         }
         
         self.closed_positions.append(trade_record)
+        if net_pnl < 0:
+            self.stopped_losses[ticker] = date
         del self.open_positions[ticker]
     
     def run(self, start_date: Optional[pd.Timestamp] = None, end_date: Optional[pd.Timestamp] = None):
@@ -412,6 +415,7 @@ class TruthfulBacktester:
             raise RuntimeError("No trading days in requested range.")
         
         self.capital = self.initial_capital
+        self.stopped_losses = {}
         pending_orders = []
         
         for i, date in enumerate(dates):
@@ -528,11 +532,14 @@ class TruthfulBacktester:
                     elif -0.012 < m_r <= -0.005:
                         regime = "YELLOW"
                 
-                if regime != "RED":
+                if regime != "RED" or self.use_market_regime:
                     candidates = []
                     for ticker in self.valid_stocks:
                         if ticker in self.open_positions: continue
                         if any(p[0] == ticker for p in pending_orders): continue
+                        if ticker in self.stopped_losses and (date - self.stopped_losses[ticker]).days < 4: continue
+                        is_inverse = ticker in ('ETFBNQ2ST.WA', 'ETFBW20ST.WA', 'ETFBM40ST.WA')
+                        if self.use_market_regime and regime == "RED" and not is_inverse: continue
                         
                         df = self.indicators[ticker]
                         if date not in df.index: continue
@@ -566,7 +573,7 @@ class TruthfulBacktester:
                                 runner_score = 0.4 * vol_surge + 0.4 * tr_rat + 0.2 * c_pos
                                 candidates.append((ticker, runner_score, atr, row))
                                 
-                        elif self.strategy in ('breakout', 'home_run', 'breakout_trend'):
+                        elif self.strategy in ('breakout', 'home_run', 'breakout_trend', 'runner_surge'):
                             dh = float(row['donchian_high'])
                             v = float(row['volume'])
                             sv = float(row['sma_volume'])
@@ -731,7 +738,24 @@ def run_5year_backtest(strategy: str = 'squeeze_ignition', config: Optional[Dict
     b_cfg['strategy'] = strategy
     b_cfg['data_period_days'] = 1825
     
-    if strategy == 'breakout_trend':
+    if strategy == 'runner_surge':
+        b_cfg.update({
+            'breakout_period': 10,
+            'atr_min_pct': 0.02,
+            'volume_surge_multiplier': 1.35,
+            'min_turnover_pln': 120000.0,
+            'max_positions': 2,
+            'target_position_pct': 0.49,
+            'min_position_pct': 0.35,
+            'trailing_stop_atr_mult': 2.0,
+            'max_hold_days_without_new_high': 10,
+            'hard_time_stop': False,
+            'use_market_regime': True,
+            'exec_timing': 'close_auction',
+            'commission_pct': 0.0029,
+            'slippage_pct': 0.0010
+        })
+    elif strategy == 'breakout_trend':
         b_cfg.update({
             'breakout_period': 10,
             'atr_min_pct': 0.02,

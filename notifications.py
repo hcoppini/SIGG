@@ -167,7 +167,7 @@ def dispatch_1635_preclose_alert(regime_data: Dict[str, Any], portfolio_summary:
     vacant_slots = portfolio_summary.get("vacant_slots", 3)
     cash_per_slot = portfolio_summary.get("cash_per_vacant_slot", 6666.0)
 
-    if candidates and vacant_slots > 0 and regime != "RED":
+    if candidates and vacant_slots > 0 and (regime != "RED" or any(c.get("Ticker") in ('ETFBNQ2ST', 'ETFBW20ST', 'ETFBM40ST') for c in candidates)):
         for i, c in enumerate(candidates[:vacant_slots]):
             ticker = c.get("Ticker", "")
             sigg_sym = get_sigg_symbol(ticker)
@@ -176,12 +176,16 @@ def dispatch_1635_preclose_alert(regime_data: Dict[str, Any], portfolio_summary:
             limit_p = float(c.get("Order_Limit_Price", price))
             order_ticket = f"KUPNO | {sigg_sym} | {shares} szt. | LIMIT {limit_p:.2f} PLN"
             tv_link = get_tradingview_link(ticker)
+            cat_tag = c.get("Catalyst_Tag", "")
+            headline = c.get("Top_Headline", "")
+            tag_str = f" | {cat_tag}" if cat_tag else ""
+            headline_str = f"\n*AI Catalyst:* {headline}" if headline and headline != "Pure technical momentum setup" else ""
             
             embed_candidates["fields"].append({
-                "name": f"#{i+1} {sigg_sym} (Runner Score: {c.get('Runner_Score', 0)})",
+                "name": f"#{i+1} {sigg_sym} (Score: {c.get('Composite_Score', c.get('Runner_Score', 0))}{tag_str})",
                 "value": (
                     f"Price: `{price:.2f} PLN` | Day Δ: `{c.get('Day_Gain_Pct', 0):+.2f}%` | Vol Surge: `{c.get('Volume_Surge', 0)}x`\n"
-                    f"**Recommended Order:** `{order_ticket}`\n"
+                    f"**Recommended Order:** `{order_ticket}`{headline_str}\n"
                     f"[TradingView Chart]({tv_link})"
                 ),
                 "inline": False

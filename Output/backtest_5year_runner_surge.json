@@ -1,0 +1,3405 @@
+{
+  "status": "success",
+  "strategy": "runner_surge",
+  "summary": {
+    "strategy": "runner_surge",
+    "initial_capital": 20000.0,
+    "target_capital": 30000.0,
+    "target_return_pct": 50.0,
+    "avg_return_pct": 2.33,
+    "overall_win_rate": 36.5,
+    "overall_sharpe_ratio": 0.44,
+    "total_trades": 52,
+    "avg_trades_per_season": 8.7,
+    "total_fees_pln": 2907.07,
+    "best_season": {
+      "season": "2025/2026",
+      "edition": "SIGG 24",
+      "year": 2026,
+      "start_date": "2025-11-17",
+      "end_date": "2026-01-16",
+      "initial_capital": 20000.0,
+      "final_capital": 27662.32,
+      "net_profit": 7662.32,
+      "return_pct": 38.31,
+      "trades_count": 5,
+      "win_rate": 80.0,
+      "profit_factor": 8.8,
+      "avg_win_pct": 22.49,
+      "avg_loss_pct": -10.08,
+      "max_drawdown": 5.3,
+      "sharpe_ratio": 8.58,
+      "total_fees_pln": 314.07,
+      "biggest_winner": {
+        "ticker": "SEL.WA",
+        "company_name": "Selena FM",
+        "pnl_pct": 44.87,
+        "pnl_pln": 4187.04,
+        "days_held": 21,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "ETFBNQ2ST.WA",
+        "company_name": "Beta ETF Nasdaq-100 2x Short",
+        "pnl_pct": -10.08,
+        "pnl_pln": -982.06,
+        "days_held": 3,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    },
+    "worst_season": {
+      "season": "2023/2024",
+      "edition": "SIGG 22",
+      "year": 2024,
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 17669.34,
+      "net_profit": -2330.66,
+      "return_pct": -11.65,
+      "trades_count": 12,
+      "win_rate": 25.0,
+      "profit_factor": 0.26,
+      "avg_win_pct": 3.16,
+      "avg_loss_pct": -3.78,
+      "max_drawdown": 12.4,
+      "sharpe_ratio": -2.86,
+      "total_fees_pln": 624.85,
+      "biggest_winner": {
+        "ticker": "TOR.WA",
+        "company_name": "Torpol",
+        "pnl_pct": 5.57,
+        "pnl_pln": 483.07,
+        "days_held": 5,
+        "exit_reason": "Contest_End"
+      },
+      "biggest_loser": {
+        "ticker": "ARH.WA",
+        "company_name": "Archicom",
+        "pnl_pct": -8.52,
+        "pnl_pln": -810.83,
+        "days_held": 1,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    },
+    "active_params": {
+      "max_hold_days": 10,
+      "hard_time_stop": false,
+      "max_positions": 2,
+      "breakout_period": 10,
+      "atr_min_pct": 2.0,
+      "atr_max_pct": 8.0,
+      "min_tr_ratio": 1.3,
+      "min_day_gain_pct": 2.5,
+      "max_day_gain_pct": 12.0,
+      "min_close_pos": 0.7,
+      "volume_surge_multiplier": 1.35,
+      "min_turnover_pln": 120000.0,
+      "trailing_stop_atr_mult": 2.0,
+      "use_market_regime": true,
+      "use_profit_ratchet": false,
+      "exec_timing": "close_auction",
+      "commission_pct": 0.29
+    },
+    "notes": "Simulated across 6 historical Nov\u2013Jan SIGG windows (171 GPW tickers) | Hold: 10d (Stagnation) | Slots: 2 | Exec: close_auction | Commission: 0.29% + 0.10% slippage."
+  },
+  "seasons": [
+    {
+      "season": "2020/2021",
+      "edition": "SIGG 19",
+      "year": 2021,
+      "start_date": "2020-11-16",
+      "end_date": "2021-01-15",
+      "initial_capital": 20000.0,
+      "final_capital": 20444.22,
+      "net_profit": 444.22,
+      "return_pct": 2.22,
+      "trades_count": 11,
+      "win_rate": 36.4,
+      "profit_factor": 1.17,
+      "avg_win_pct": 7.83,
+      "avg_loss_pct": -3.68,
+      "max_drawdown": 12.4,
+      "sharpe_ratio": 0.6,
+      "total_fees_pln": 639.67,
+      "biggest_winner": {
+        "ticker": "XTB.WA",
+        "company_name": "XTB",
+        "pnl_pct": 13.06,
+        "pnl_pln": 1309.22,
+        "days_held": 7,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "MDV.WA",
+        "company_name": "Modivo",
+        "pnl_pct": -6.95,
+        "pnl_pln": -721.98,
+        "days_held": 2,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2021/2022",
+      "edition": "SIGG 20",
+      "year": 2022,
+      "start_date": "2021-11-15",
+      "end_date": "2022-01-14",
+      "initial_capital": 20000.0,
+      "final_capital": 19715.46,
+      "net_profit": -284.54,
+      "return_pct": -1.42,
+      "trades_count": 4,
+      "win_rate": 25.0,
+      "profit_factor": 0.32,
+      "avg_win_pct": 1.36,
+      "avg_loss_pct": -1.47,
+      "max_drawdown": 4.6,
+      "sharpe_ratio": -0.85,
+      "total_fees_pln": 221.9,
+      "biggest_winner": {
+        "ticker": "ATC.WA",
+        "company_name": "Arctic Paper",
+        "pnl_pct": 1.36,
+        "pnl_pln": 133.71,
+        "days_held": 5,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "VGO.WA",
+        "company_name": "VIGO Photonics",
+        "pnl_pct": -2.77,
+        "pnl_pln": -265.94,
+        "days_held": 4,
+        "exit_reason": "Contest_End"
+      }
+    },
+    {
+      "season": "2022/2023",
+      "edition": "SIGG 21",
+      "year": 2023,
+      "start_date": "2022-11-14",
+      "end_date": "2023-01-13",
+      "initial_capital": 20000.0,
+      "final_capital": 18539.62,
+      "net_profit": -1460.38,
+      "return_pct": -7.3,
+      "trades_count": 11,
+      "win_rate": 36.4,
+      "profit_factor": 0.61,
+      "avg_win_pct": 5.93,
+      "avg_loss_pct": -5.38,
+      "max_drawdown": 15.7,
+      "sharpe_ratio": -1.29,
+      "total_fees_pln": 617.26,
+      "biggest_winner": {
+        "ticker": "SEL.WA",
+        "company_name": "Selena FM",
+        "pnl_pct": 18.87,
+        "pnl_pln": 1852.77,
+        "days_held": 19,
+        "exit_reason": "Time_Stop_Stagnation"
+      },
+      "biggest_loser": {
+        "ticker": "BMC.WA",
+        "company_name": "Bumech",
+        "pnl_pct": -9.35,
+        "pnl_pln": -997.69,
+        "days_held": 4,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2023/2024",
+      "edition": "SIGG 22",
+      "year": 2024,
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 17669.34,
+      "net_profit": -2330.66,
+      "return_pct": -11.65,
+      "trades_count": 12,
+      "win_rate": 25.0,
+      "profit_factor": 0.26,
+      "avg_win_pct": 3.16,
+      "avg_loss_pct": -3.78,
+      "max_drawdown": 12.4,
+      "sharpe_ratio": -2.86,
+      "total_fees_pln": 624.85,
+      "biggest_winner": {
+        "ticker": "TOR.WA",
+        "company_name": "Torpol",
+        "pnl_pct": 5.57,
+        "pnl_pln": 483.07,
+        "days_held": 5,
+        "exit_reason": "Contest_End"
+      },
+      "biggest_loser": {
+        "ticker": "ARH.WA",
+        "company_name": "Archicom",
+        "pnl_pct": -8.52,
+        "pnl_pln": -810.83,
+        "days_held": 1,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    },
+    {
+      "season": "2024/2025",
+      "edition": "SIGG 23",
+      "year": 2025,
+      "start_date": "2024-11-18",
+      "end_date": "2025-01-17",
+      "initial_capital": 20000.0,
+      "final_capital": 18766.01,
+      "net_profit": -1233.99,
+      "return_pct": -6.17,
+      "trades_count": 9,
+      "win_rate": 33.3,
+      "profit_factor": 0.42,
+      "avg_win_pct": 3.18,
+      "avg_loss_pct": -3.62,
+      "max_drawdown": 13.4,
+      "sharpe_ratio": -1.56,
+      "total_fees_pln": 489.32,
+      "biggest_winner": {
+        "ticker": "ATR.WA",
+        "company_name": "Atrem",
+        "pnl_pct": 7.45,
+        "pnl_pln": 713.35,
+        "days_held": 12,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "ECH.WA",
+        "company_name": "Echo Investment",
+        "pnl_pct": -5.88,
+        "pnl_pln": -595.94,
+        "days_held": 5,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2025/2026",
+      "edition": "SIGG 24",
+      "year": 2026,
+      "start_date": "2025-11-17",
+      "end_date": "2026-01-16",
+      "initial_capital": 20000.0,
+      "final_capital": 27662.32,
+      "net_profit": 7662.32,
+      "return_pct": 38.31,
+      "trades_count": 5,
+      "win_rate": 80.0,
+      "profit_factor": 8.8,
+      "avg_win_pct": 22.49,
+      "avg_loss_pct": -10.08,
+      "max_drawdown": 5.3,
+      "sharpe_ratio": 8.58,
+      "total_fees_pln": 314.07,
+      "biggest_winner": {
+        "ticker": "SEL.WA",
+        "company_name": "Selena FM",
+        "pnl_pct": 44.87,
+        "pnl_pln": 4187.04,
+        "days_held": 21,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "ETFBNQ2ST.WA",
+        "company_name": "Beta ETF Nasdaq-100 2x Short",
+        "pnl_pct": -10.08,
+        "pnl_pln": -982.06,
+        "days_held": 3,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    }
+  ],
+  "annual_breakdown": [
+    {
+      "season": "2020/2021",
+      "edition": "SIGG 19",
+      "year": 2021,
+      "start_date": "2020-11-16",
+      "end_date": "2021-01-15",
+      "initial_capital": 20000.0,
+      "final_capital": 20444.22,
+      "net_profit": 444.22,
+      "return_pct": 2.22,
+      "trades_count": 11,
+      "win_rate": 36.4,
+      "profit_factor": 1.17,
+      "avg_win_pct": 7.83,
+      "avg_loss_pct": -3.68,
+      "max_drawdown": 12.4,
+      "sharpe_ratio": 0.6,
+      "total_fees_pln": 639.67,
+      "biggest_winner": {
+        "ticker": "XTB.WA",
+        "company_name": "XTB",
+        "pnl_pct": 13.06,
+        "pnl_pln": 1309.22,
+        "days_held": 7,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "MDV.WA",
+        "company_name": "Modivo",
+        "pnl_pct": -6.95,
+        "pnl_pln": -721.98,
+        "days_held": 2,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2021/2022",
+      "edition": "SIGG 20",
+      "year": 2022,
+      "start_date": "2021-11-15",
+      "end_date": "2022-01-14",
+      "initial_capital": 20000.0,
+      "final_capital": 19715.46,
+      "net_profit": -284.54,
+      "return_pct": -1.42,
+      "trades_count": 4,
+      "win_rate": 25.0,
+      "profit_factor": 0.32,
+      "avg_win_pct": 1.36,
+      "avg_loss_pct": -1.47,
+      "max_drawdown": 4.6,
+      "sharpe_ratio": -0.85,
+      "total_fees_pln": 221.9,
+      "biggest_winner": {
+        "ticker": "ATC.WA",
+        "company_name": "Arctic Paper",
+        "pnl_pct": 1.36,
+        "pnl_pln": 133.71,
+        "days_held": 5,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "VGO.WA",
+        "company_name": "VIGO Photonics",
+        "pnl_pct": -2.77,
+        "pnl_pln": -265.94,
+        "days_held": 4,
+        "exit_reason": "Contest_End"
+      }
+    },
+    {
+      "season": "2022/2023",
+      "edition": "SIGG 21",
+      "year": 2023,
+      "start_date": "2022-11-14",
+      "end_date": "2023-01-13",
+      "initial_capital": 20000.0,
+      "final_capital": 18539.62,
+      "net_profit": -1460.38,
+      "return_pct": -7.3,
+      "trades_count": 11,
+      "win_rate": 36.4,
+      "profit_factor": 0.61,
+      "avg_win_pct": 5.93,
+      "avg_loss_pct": -5.38,
+      "max_drawdown": 15.7,
+      "sharpe_ratio": -1.29,
+      "total_fees_pln": 617.26,
+      "biggest_winner": {
+        "ticker": "SEL.WA",
+        "company_name": "Selena FM",
+        "pnl_pct": 18.87,
+        "pnl_pln": 1852.77,
+        "days_held": 19,
+        "exit_reason": "Time_Stop_Stagnation"
+      },
+      "biggest_loser": {
+        "ticker": "BMC.WA",
+        "company_name": "Bumech",
+        "pnl_pct": -9.35,
+        "pnl_pln": -997.69,
+        "days_held": 4,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2023/2024",
+      "edition": "SIGG 22",
+      "year": 2024,
+      "start_date": "2023-11-13",
+      "end_date": "2024-01-12",
+      "initial_capital": 20000.0,
+      "final_capital": 17669.34,
+      "net_profit": -2330.66,
+      "return_pct": -11.65,
+      "trades_count": 12,
+      "win_rate": 25.0,
+      "profit_factor": 0.26,
+      "avg_win_pct": 3.16,
+      "avg_loss_pct": -3.78,
+      "max_drawdown": 12.4,
+      "sharpe_ratio": -2.86,
+      "total_fees_pln": 624.85,
+      "biggest_winner": {
+        "ticker": "TOR.WA",
+        "company_name": "Torpol",
+        "pnl_pct": 5.57,
+        "pnl_pln": 483.07,
+        "days_held": 5,
+        "exit_reason": "Contest_End"
+      },
+      "biggest_loser": {
+        "ticker": "ARH.WA",
+        "company_name": "Archicom",
+        "pnl_pct": -8.52,
+        "pnl_pln": -810.83,
+        "days_held": 1,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    },
+    {
+      "season": "2024/2025",
+      "edition": "SIGG 23",
+      "year": 2025,
+      "start_date": "2024-11-18",
+      "end_date": "2025-01-17",
+      "initial_capital": 20000.0,
+      "final_capital": 18766.01,
+      "net_profit": -1233.99,
+      "return_pct": -6.17,
+      "trades_count": 9,
+      "win_rate": 33.3,
+      "profit_factor": 0.42,
+      "avg_win_pct": 3.18,
+      "avg_loss_pct": -3.62,
+      "max_drawdown": 13.4,
+      "sharpe_ratio": -1.56,
+      "total_fees_pln": 489.32,
+      "biggest_winner": {
+        "ticker": "ATR.WA",
+        "company_name": "Atrem",
+        "pnl_pct": 7.45,
+        "pnl_pln": 713.35,
+        "days_held": 12,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "ECH.WA",
+        "company_name": "Echo Investment",
+        "pnl_pct": -5.88,
+        "pnl_pln": -595.94,
+        "days_held": 5,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      }
+    },
+    {
+      "season": "2025/2026",
+      "edition": "SIGG 24",
+      "year": 2026,
+      "start_date": "2025-11-17",
+      "end_date": "2026-01-16",
+      "initial_capital": 20000.0,
+      "final_capital": 27662.32,
+      "net_profit": 7662.32,
+      "return_pct": 38.31,
+      "trades_count": 5,
+      "win_rate": 80.0,
+      "profit_factor": 8.8,
+      "avg_win_pct": 22.49,
+      "avg_loss_pct": -10.08,
+      "max_drawdown": 5.3,
+      "sharpe_ratio": 8.58,
+      "total_fees_pln": 314.07,
+      "biggest_winner": {
+        "ticker": "SEL.WA",
+        "company_name": "Selena FM",
+        "pnl_pct": 44.87,
+        "pnl_pln": 4187.04,
+        "days_held": 21,
+        "exit_reason": "ATR_Trailing_Stop_Intraday"
+      },
+      "biggest_loser": {
+        "ticker": "ETFBNQ2ST.WA",
+        "company_name": "Beta ETF Nasdaq-100 2x Short",
+        "pnl_pct": -10.08,
+        "pnl_pln": -982.06,
+        "days_held": 3,
+        "exit_reason": "ATR_Stop_Gap_Down"
+      }
+    }
+  ],
+  "equity_curves": {
+    "2020/2021": [
+      {
+        "date": "2020-11-16",
+        "value": 19923.67,
+        "day": 0
+      },
+      {
+        "date": "2020-11-17",
+        "value": 19588.77,
+        "day": 1
+      },
+      {
+        "date": "2020-11-18",
+        "value": 18654.6,
+        "day": 2
+      },
+      {
+        "date": "2020-11-19",
+        "value": 19091.33,
+        "day": 3
+      },
+      {
+        "date": "2020-11-22",
+        "value": 19161.21,
+        "day": 4
+      },
+      {
+        "date": "2020-11-23",
+        "value": 19599.94,
+        "day": 5
+      },
+      {
+        "date": "2020-11-24",
+        "value": 19997.6,
+        "day": 6
+      },
+      {
+        "date": "2020-11-25",
+        "value": 20987.17,
+        "day": 7
+      },
+      {
+        "date": "2020-11-26",
+        "value": 20351.36,
+        "day": 8
+      },
+      {
+        "date": "2020-11-29",
+        "value": 20646.0,
+        "day": 9
+      },
+      {
+        "date": "2020-11-30",
+        "value": 20114.31,
+        "day": 10
+      },
+      {
+        "date": "2020-12-01",
+        "value": 20503.51,
+        "day": 11
+      },
+      {
+        "date": "2020-12-02",
+        "value": 20987.79,
+        "day": 12
+      },
+      {
+        "date": "2020-12-03",
+        "value": 21302.79,
+        "day": 13
+      },
+      {
+        "date": "2020-12-06",
+        "value": 21797.19,
+        "day": 14
+      },
+      {
+        "date": "2020-12-07",
+        "value": 21805.85,
+        "day": 15
+      },
+      {
+        "date": "2020-12-08",
+        "value": 22321.4,
+        "day": 16
+      },
+      {
+        "date": "2020-12-09",
+        "value": 22632.6,
+        "day": 17
+      },
+      {
+        "date": "2020-12-10",
+        "value": 23138.12,
+        "day": 18
+      },
+      {
+        "date": "2020-12-13",
+        "value": 22720.26,
+        "day": 19
+      },
+      {
+        "date": "2020-12-14",
+        "value": 22954.36,
+        "day": 20
+      },
+      {
+        "date": "2020-12-15",
+        "value": 22193.31,
+        "day": 21
+      },
+      {
+        "date": "2020-12-16",
+        "value": 21691.47,
+        "day": 22
+      },
+      {
+        "date": "2020-12-17",
+        "value": 20635.21,
+        "day": 23
+      },
+      {
+        "date": "2020-12-20",
+        "value": 20596.0,
+        "day": 24
+      },
+      {
+        "date": "2020-12-21",
+        "value": 20291.73,
+        "day": 25
+      },
+      {
+        "date": "2020-12-22",
+        "value": 20310.89,
+        "day": 26
+      },
+      {
+        "date": "2020-12-27",
+        "value": 20369.35,
+        "day": 27
+      },
+      {
+        "date": "2020-12-28",
+        "value": 20510.98,
+        "day": 28
+      },
+      {
+        "date": "2020-12-29",
+        "value": 20275.47,
+        "day": 29
+      },
+      {
+        "date": "2021-01-03",
+        "value": 21850.15,
+        "day": 30
+      },
+      {
+        "date": "2021-01-04",
+        "value": 22371.66,
+        "day": 31
+      },
+      {
+        "date": "2021-01-06",
+        "value": 23152.65,
+        "day": 32
+      },
+      {
+        "date": "2021-01-07",
+        "value": 22720.62,
+        "day": 33
+      },
+      {
+        "date": "2021-01-10",
+        "value": 21767.1,
+        "day": 34
+      },
+      {
+        "date": "2021-01-11",
+        "value": 21746.95,
+        "day": 35
+      },
+      {
+        "date": "2021-01-12",
+        "value": 21232.44,
+        "day": 36
+      },
+      {
+        "date": "2021-01-13",
+        "value": 20577.69,
+        "day": 37
+      },
+      {
+        "date": "2021-01-14",
+        "value": 20444.22,
+        "day": 38
+      }
+    ],
+    "2021/2022": [
+      {
+        "date": "2021-11-15",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2021-11-16",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2021-11-17",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2021-11-18",
+        "value": 20000.0,
+        "day": 3
+      },
+      {
+        "date": "2021-11-21",
+        "value": 20000.0,
+        "day": 4
+      },
+      {
+        "date": "2021-11-22",
+        "value": 20000.0,
+        "day": 5
+      },
+      {
+        "date": "2021-11-23",
+        "value": 20000.0,
+        "day": 6
+      },
+      {
+        "date": "2021-11-24",
+        "value": 20000.0,
+        "day": 7
+      },
+      {
+        "date": "2021-11-25",
+        "value": 20000.0,
+        "day": 8
+      },
+      {
+        "date": "2021-11-28",
+        "value": 20000.0,
+        "day": 9
+      },
+      {
+        "date": "2021-11-29",
+        "value": 20000.0,
+        "day": 10
+      },
+      {
+        "date": "2021-11-30",
+        "value": 20000.0,
+        "day": 11
+      },
+      {
+        "date": "2021-12-01",
+        "value": 20000.0,
+        "day": 12
+      },
+      {
+        "date": "2021-12-02",
+        "value": 20000.0,
+        "day": 13
+      },
+      {
+        "date": "2021-12-05",
+        "value": 20000.0,
+        "day": 14
+      },
+      {
+        "date": "2021-12-06",
+        "value": 20000.0,
+        "day": 15
+      },
+      {
+        "date": "2021-12-07",
+        "value": 20000.0,
+        "day": 16
+      },
+      {
+        "date": "2021-12-08",
+        "value": 20000.0,
+        "day": 17
+      },
+      {
+        "date": "2021-12-09",
+        "value": 20000.0,
+        "day": 18
+      },
+      {
+        "date": "2021-12-12",
+        "value": 20000.0,
+        "day": 19
+      },
+      {
+        "date": "2021-12-13",
+        "value": 20000.0,
+        "day": 20
+      },
+      {
+        "date": "2021-12-14",
+        "value": 20000.0,
+        "day": 21
+      },
+      {
+        "date": "2021-12-15",
+        "value": 20000.0,
+        "day": 22
+      },
+      {
+        "date": "2021-12-16",
+        "value": 20000.0,
+        "day": 23
+      },
+      {
+        "date": "2021-12-19",
+        "value": 20000.0,
+        "day": 24
+      },
+      {
+        "date": "2021-12-20",
+        "value": 20000.0,
+        "day": 25
+      },
+      {
+        "date": "2021-12-21",
+        "value": 20000.0,
+        "day": 26
+      },
+      {
+        "date": "2021-12-22",
+        "value": 20000.0,
+        "day": 27
+      },
+      {
+        "date": "2021-12-26",
+        "value": 20000.0,
+        "day": 28
+      },
+      {
+        "date": "2021-12-27",
+        "value": 20000.0,
+        "day": 29
+      },
+      {
+        "date": "2021-12-28",
+        "value": 19964.3,
+        "day": 30
+      },
+      {
+        "date": "2021-12-29",
+        "value": 19926.18,
+        "day": 31
+      },
+      {
+        "date": "2022-01-02",
+        "value": 20284.18,
+        "day": 32
+      },
+      {
+        "date": "2022-01-03",
+        "value": 20255.54,
+        "day": 33
+      },
+      {
+        "date": "2022-01-04",
+        "value": 20656.5,
+        "day": 34
+      },
+      {
+        "date": "2022-01-06",
+        "value": 20470.34,
+        "day": 35
+      },
+      {
+        "date": "2022-01-09",
+        "value": 20060.63,
+        "day": 36
+      },
+      {
+        "date": "2022-01-10",
+        "value": 19962.01,
+        "day": 37
+      },
+      {
+        "date": "2022-01-11",
+        "value": 20101.42,
+        "day": 38
+      },
+      {
+        "date": "2022-01-12",
+        "value": 20045.14,
+        "day": 39
+      },
+      {
+        "date": "2022-01-13",
+        "value": 19715.46,
+        "day": 40
+      }
+    ],
+    "2022/2023": [
+      {
+        "date": "2022-11-14",
+        "value": 19923.73,
+        "day": 0
+      },
+      {
+        "date": "2022-11-15",
+        "value": 19875.32,
+        "day": 1
+      },
+      {
+        "date": "2022-11-16",
+        "value": 19968.18,
+        "day": 2
+      },
+      {
+        "date": "2022-11-17",
+        "value": 21037.27,
+        "day": 3
+      },
+      {
+        "date": "2022-11-20",
+        "value": 21103.9,
+        "day": 4
+      },
+      {
+        "date": "2022-11-21",
+        "value": 21112.77,
+        "day": 5
+      },
+      {
+        "date": "2022-11-22",
+        "value": 20988.86,
+        "day": 6
+      },
+      {
+        "date": "2022-11-23",
+        "value": 21204.69,
+        "day": 7
+      },
+      {
+        "date": "2022-11-24",
+        "value": 21604.0,
+        "day": 8
+      },
+      {
+        "date": "2022-11-27",
+        "value": 21991.32,
+        "day": 9
+      },
+      {
+        "date": "2022-11-28",
+        "value": 21800.77,
+        "day": 10
+      },
+      {
+        "date": "2022-11-29",
+        "value": 21742.17,
+        "day": 11
+      },
+      {
+        "date": "2022-11-30",
+        "value": 21966.03,
+        "day": 12
+      },
+      {
+        "date": "2022-12-01",
+        "value": 21917.61,
+        "day": 13
+      },
+      {
+        "date": "2022-12-04",
+        "value": 21611.36,
+        "day": 14
+      },
+      {
+        "date": "2022-12-05",
+        "value": 21514.53,
+        "day": 15
+      },
+      {
+        "date": "2022-12-06",
+        "value": 21468.45,
+        "day": 16
+      },
+      {
+        "date": "2022-12-07",
+        "value": 21443.07,
+        "day": 17
+      },
+      {
+        "date": "2022-12-08",
+        "value": 21535.23,
+        "day": 18
+      },
+      {
+        "date": "2022-12-11",
+        "value": 21784.88,
+        "day": 19
+      },
+      {
+        "date": "2022-12-12",
+        "value": 21758.09,
+        "day": 20
+      },
+      {
+        "date": "2022-12-13",
+        "value": 21595.73,
+        "day": 21
+      },
+      {
+        "date": "2022-12-14",
+        "value": 20988.94,
+        "day": 22
+      },
+      {
+        "date": "2022-12-15",
+        "value": 20423.1,
+        "day": 23
+      },
+      {
+        "date": "2022-12-18",
+        "value": 20345.16,
+        "day": 24
+      },
+      {
+        "date": "2022-12-19",
+        "value": 20115.14,
+        "day": 25
+      },
+      {
+        "date": "2022-12-20",
+        "value": 20211.68,
+        "day": 26
+      },
+      {
+        "date": "2022-12-21",
+        "value": 19854.86,
+        "day": 27
+      },
+      {
+        "date": "2022-12-22",
+        "value": 19616.52,
+        "day": 28
+      },
+      {
+        "date": "2022-12-26",
+        "value": 19552.47,
+        "day": 29
+      },
+      {
+        "date": "2022-12-27",
+        "value": 19369.96,
+        "day": 30
+      },
+      {
+        "date": "2022-12-28",
+        "value": 19369.96,
+        "day": 31
+      },
+      {
+        "date": "2022-12-29",
+        "value": 19297.97,
+        "day": 32
+      },
+      {
+        "date": "2023-01-01",
+        "value": 20457.57,
+        "day": 33
+      },
+      {
+        "date": "2023-01-02",
+        "value": 19614.17,
+        "day": 34
+      },
+      {
+        "date": "2023-01-03",
+        "value": 19730.47,
+        "day": 35
+      },
+      {
+        "date": "2023-01-04",
+        "value": 19691.47,
+        "day": 36
+      },
+      {
+        "date": "2023-01-08",
+        "value": 19707.54,
+        "day": 37
+      },
+      {
+        "date": "2023-01-09",
+        "value": 19309.64,
+        "day": 38
+      },
+      {
+        "date": "2023-01-10",
+        "value": 18726.3,
+        "day": 39
+      },
+      {
+        "date": "2023-01-11",
+        "value": 19199.57,
+        "day": 40
+      },
+      {
+        "date": "2023-01-12",
+        "value": 18539.62,
+        "day": 41
+      }
+    ],
+    "2023/2024": [
+      {
+        "date": "2023-11-13",
+        "value": 19924.16,
+        "day": 0
+      },
+      {
+        "date": "2023-11-14",
+        "value": 19985.74,
+        "day": 1
+      },
+      {
+        "date": "2023-11-15",
+        "value": 19680.72,
+        "day": 2
+      },
+      {
+        "date": "2023-11-16",
+        "value": 19609.79,
+        "day": 3
+      },
+      {
+        "date": "2023-11-19",
+        "value": 19647.0,
+        "day": 4
+      },
+      {
+        "date": "2023-11-20",
+        "value": 19731.46,
+        "day": 5
+      },
+      {
+        "date": "2023-11-21",
+        "value": 19740.17,
+        "day": 6
+      },
+      {
+        "date": "2023-11-22",
+        "value": 19563.42,
+        "day": 7
+      },
+      {
+        "date": "2023-11-23",
+        "value": 19487.11,
+        "day": 8
+      },
+      {
+        "date": "2023-11-26",
+        "value": 19334.69,
+        "day": 9
+      },
+      {
+        "date": "2023-11-27",
+        "value": 18592.48,
+        "day": 10
+      },
+      {
+        "date": "2023-11-28",
+        "value": 18299.14,
+        "day": 11
+      },
+      {
+        "date": "2023-11-29",
+        "value": 18388.83,
+        "day": 12
+      },
+      {
+        "date": "2023-11-30",
+        "value": 18029.04,
+        "day": 13
+      },
+      {
+        "date": "2023-12-03",
+        "value": 17854.58,
+        "day": 14
+      },
+      {
+        "date": "2023-12-04",
+        "value": 17513.84,
+        "day": 15
+      },
+      {
+        "date": "2023-12-05",
+        "value": 17596.48,
+        "day": 16
+      },
+      {
+        "date": "2023-12-06",
+        "value": 17668.96,
+        "day": 17
+      },
+      {
+        "date": "2023-12-07",
+        "value": 17897.8,
+        "day": 18
+      },
+      {
+        "date": "2023-12-10",
+        "value": 17809.56,
+        "day": 19
+      },
+      {
+        "date": "2023-12-11",
+        "value": 17950.96,
+        "day": 20
+      },
+      {
+        "date": "2023-12-12",
+        "value": 18173.16,
+        "day": 21
+      },
+      {
+        "date": "2023-12-13",
+        "value": 19018.06,
+        "day": 22
+      },
+      {
+        "date": "2023-12-14",
+        "value": 19361.76,
+        "day": 23
+      },
+      {
+        "date": "2023-12-17",
+        "value": 19103.26,
+        "day": 24
+      },
+      {
+        "date": "2023-12-18",
+        "value": 18454.24,
+        "day": 25
+      },
+      {
+        "date": "2023-12-19",
+        "value": 18610.98,
+        "day": 26
+      },
+      {
+        "date": "2023-12-20",
+        "value": 18325.17,
+        "day": 27
+      },
+      {
+        "date": "2023-12-21",
+        "value": 18233.08,
+        "day": 28
+      },
+      {
+        "date": "2023-12-26",
+        "value": 18685.05,
+        "day": 29
+      },
+      {
+        "date": "2023-12-27",
+        "value": 18491.48,
+        "day": 30
+      },
+      {
+        "date": "2023-12-28",
+        "value": 18309.54,
+        "day": 31
+      },
+      {
+        "date": "2024-01-01",
+        "value": 17886.88,
+        "day": 32
+      },
+      {
+        "date": "2024-01-02",
+        "value": 17669.0,
+        "day": 33
+      },
+      {
+        "date": "2024-01-03",
+        "value": 17920.16,
+        "day": 34
+      },
+      {
+        "date": "2024-01-04",
+        "value": 17604.13,
+        "day": 35
+      },
+      {
+        "date": "2024-01-07",
+        "value": 17651.74,
+        "day": 36
+      },
+      {
+        "date": "2024-01-08",
+        "value": 18041.05,
+        "day": 37
+      },
+      {
+        "date": "2024-01-09",
+        "value": 17895.07,
+        "day": 38
+      },
+      {
+        "date": "2024-01-10",
+        "value": 17787.28,
+        "day": 39
+      },
+      {
+        "date": "2024-01-11",
+        "value": 17669.34,
+        "day": 40
+      }
+    ],
+    "2024/2025": [
+      {
+        "date": "2024-11-18",
+        "value": 19962.15,
+        "day": 0
+      },
+      {
+        "date": "2024-11-19",
+        "value": 19853.65,
+        "day": 1
+      },
+      {
+        "date": "2024-11-20",
+        "value": 19689.35,
+        "day": 2
+      },
+      {
+        "date": "2024-11-21",
+        "value": 19649.05,
+        "day": 3
+      },
+      {
+        "date": "2024-11-24",
+        "value": 19435.99,
+        "day": 4
+      },
+      {
+        "date": "2024-11-25",
+        "value": 19365.25,
+        "day": 5
+      },
+      {
+        "date": "2024-11-26",
+        "value": 19225.44,
+        "day": 6
+      },
+      {
+        "date": "2024-11-27",
+        "value": 20370.13,
+        "day": 7
+      },
+      {
+        "date": "2024-11-28",
+        "value": 20638.48,
+        "day": 8
+      },
+      {
+        "date": "2024-12-01",
+        "value": 21475.18,
+        "day": 9
+      },
+      {
+        "date": "2024-12-02",
+        "value": 21410.92,
+        "day": 10
+      },
+      {
+        "date": "2024-12-03",
+        "value": 21196.1,
+        "day": 11
+      },
+      {
+        "date": "2024-12-04",
+        "value": 21037.01,
+        "day": 12
+      },
+      {
+        "date": "2024-12-05",
+        "value": 21042.38,
+        "day": 13
+      },
+      {
+        "date": "2024-12-08",
+        "value": 21322.56,
+        "day": 14
+      },
+      {
+        "date": "2024-12-09",
+        "value": 21312.93,
+        "day": 15
+      },
+      {
+        "date": "2024-12-10",
+        "value": 20597.16,
+        "day": 16
+      },
+      {
+        "date": "2024-12-11",
+        "value": 20642.16,
+        "day": 17
+      },
+      {
+        "date": "2024-12-12",
+        "value": 20672.16,
+        "day": 18
+      },
+      {
+        "date": "2024-12-15",
+        "value": 20661.2,
+        "day": 19
+      },
+      {
+        "date": "2024-12-16",
+        "value": 20508.32,
+        "day": 20
+      },
+      {
+        "date": "2024-12-17",
+        "value": 19905.62,
+        "day": 21
+      },
+      {
+        "date": "2024-12-18",
+        "value": 19732.33,
+        "day": 22
+      },
+      {
+        "date": "2024-12-19",
+        "value": 19724.41,
+        "day": 23
+      },
+      {
+        "date": "2024-12-22",
+        "value": 19552.74,
+        "day": 24
+      },
+      {
+        "date": "2024-12-26",
+        "value": 19552.74,
+        "day": 25
+      },
+      {
+        "date": "2024-12-29",
+        "value": 19478.18,
+        "day": 26
+      },
+      {
+        "date": "2025-01-01",
+        "value": 19276.42,
+        "day": 27
+      },
+      {
+        "date": "2025-01-02",
+        "value": 19250.58,
+        "day": 28
+      },
+      {
+        "date": "2025-01-06",
+        "value": 18889.7,
+        "day": 29
+      },
+      {
+        "date": "2025-01-07",
+        "value": 18822.9,
+        "day": 30
+      },
+      {
+        "date": "2025-01-08",
+        "value": 18783.7,
+        "day": 31
+      },
+      {
+        "date": "2025-01-09",
+        "value": 18897.46,
+        "day": 32
+      },
+      {
+        "date": "2025-01-12",
+        "value": 18690.28,
+        "day": 33
+      },
+      {
+        "date": "2025-01-13",
+        "value": 18692.19,
+        "day": 34
+      },
+      {
+        "date": "2025-01-14",
+        "value": 18589.07,
+        "day": 35
+      },
+      {
+        "date": "2025-01-15",
+        "value": 18826.03,
+        "day": 36
+      },
+      {
+        "date": "2025-01-16",
+        "value": 18766.01,
+        "day": 37
+      }
+    ],
+    "2025/2026": [
+      {
+        "date": "2025-11-17",
+        "value": 20000.0,
+        "day": 0
+      },
+      {
+        "date": "2025-11-18",
+        "value": 20000.0,
+        "day": 1
+      },
+      {
+        "date": "2025-11-19",
+        "value": 20000.0,
+        "day": 2
+      },
+      {
+        "date": "2025-11-20",
+        "value": 19962.13,
+        "day": 3
+      },
+      {
+        "date": "2025-11-23",
+        "value": 19377.81,
+        "day": 4
+      },
+      {
+        "date": "2025-11-24",
+        "value": 19376.05,
+        "day": 5
+      },
+      {
+        "date": "2025-11-25",
+        "value": 19017.94,
+        "day": 6
+      },
+      {
+        "date": "2025-11-26",
+        "value": 19017.94,
+        "day": 7
+      },
+      {
+        "date": "2025-11-27",
+        "value": 18945.4,
+        "day": 8
+      },
+      {
+        "date": "2025-11-30",
+        "value": 19386.13,
+        "day": 9
+      },
+      {
+        "date": "2025-12-01",
+        "value": 19084.85,
+        "day": 10
+      },
+      {
+        "date": "2025-12-02",
+        "value": 19108.09,
+        "day": 11
+      },
+      {
+        "date": "2025-12-03",
+        "value": 19394.01,
+        "day": 12
+      },
+      {
+        "date": "2025-12-04",
+        "value": 19433.45,
+        "day": 13
+      },
+      {
+        "date": "2025-12-07",
+        "value": 19336.57,
+        "day": 14
+      },
+      {
+        "date": "2025-12-08",
+        "value": 19436.09,
+        "day": 15
+      },
+      {
+        "date": "2025-12-09",
+        "value": 20076.78,
+        "day": 16
+      },
+      {
+        "date": "2025-12-10",
+        "value": 20340.74,
+        "day": 17
+      },
+      {
+        "date": "2025-12-11",
+        "value": 20511.3,
+        "day": 18
+      },
+      {
+        "date": "2025-12-14",
+        "value": 20615.7,
+        "day": 19
+      },
+      {
+        "date": "2025-12-15",
+        "value": 21165.11,
+        "day": 20
+      },
+      {
+        "date": "2025-12-16",
+        "value": 21637.8,
+        "day": 21
+      },
+      {
+        "date": "2025-12-17",
+        "value": 21646.16,
+        "day": 22
+      },
+      {
+        "date": "2025-12-18",
+        "value": 22132.88,
+        "day": 23
+      },
+      {
+        "date": "2025-12-21",
+        "value": 22375.68,
+        "day": 24
+      },
+      {
+        "date": "2025-12-22",
+        "value": 22509.51,
+        "day": 25
+      },
+      {
+        "date": "2025-12-28",
+        "value": 23152.75,
+        "day": 26
+      },
+      {
+        "date": "2025-12-29",
+        "value": 23691.9,
+        "day": 27
+      },
+      {
+        "date": "2026-01-01",
+        "value": 24147.72,
+        "day": 28
+      },
+      {
+        "date": "2026-01-04",
+        "value": 24418.33,
+        "day": 29
+      },
+      {
+        "date": "2026-01-06",
+        "value": 25062.52,
+        "day": 30
+      },
+      {
+        "date": "2026-01-07",
+        "value": 24985.96,
+        "day": 31
+      },
+      {
+        "date": "2026-01-08",
+        "value": 26509.93,
+        "day": 32
+      },
+      {
+        "date": "2026-01-11",
+        "value": 26658.97,
+        "day": 33
+      },
+      {
+        "date": "2026-01-12",
+        "value": 26763.43,
+        "day": 34
+      },
+      {
+        "date": "2026-01-13",
+        "value": 26528.65,
+        "day": 35
+      },
+      {
+        "date": "2026-01-14",
+        "value": 27095.41,
+        "day": 36
+      },
+      {
+        "date": "2026-01-15",
+        "value": 27662.32,
+        "day": 37
+      }
+    ]
+  },
+  "trades": [
+    {
+      "Ticker": "ATC.WA",
+      "Company_Name": "Arctic Paper",
+      "SIGG_Symbol": "ARCTIC",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-11-16",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-11-16 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 2417,
+      "Entry_Price": 4.054,
+      "Position_Value_PLN": 9798.64,
+      "Entry_Commission_PLN": 28.42,
+      "Exit_Date": "2020-11-18",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2020-11-18 Intraday",
+      "Exit_Price": 4.0046,
+      "Exit_Commission_PLN": 28.07,
+      "Total_Fees_PLN": 56.49,
+      "Fees_PLN": 56.49,
+      "Net_PnL": -176.1,
+      "PnL": -176.1,
+      "PnL_Pct": -1.79,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Peak_Price": 4.44,
+      "Max_Potential_Gain_Pct": 9.52,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "WLT.WA",
+      "Company_Name": "Wielton",
+      "SIGG_Symbol": "WIELTON",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-11-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-11-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 1722,
+      "Entry_Price": 5.3153,
+      "Position_Value_PLN": 9152.96,
+      "Entry_Commission_PLN": 26.54,
+      "Exit_Date": "2020-12-02",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2020-12-02 16:50 CET",
+      "Exit_Price": 5.3047,
+      "Exit_Commission_PLN": 26.49,
+      "Total_Fees_PLN": 53.03,
+      "Fees_PLN": 53.03,
+      "Net_PnL": -71.32,
+      "PnL": -71.32,
+      "PnL_Pct": -0.78,
+      "Sessions_Held": 10,
+      "Days_Held": 10,
+      "Calendar_Days": 14,
+      "Peak_Price": 5.48,
+      "Max_Potential_Gain_Pct": 3.1,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MRB.WA",
+      "Company_Name": "Mirbud",
+      "SIGG_Symbol": "MIRBUD",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-12-02",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-12-02 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 3978,
+      "Entry_Price": 2.4925,
+      "Position_Value_PLN": 9915.13,
+      "Entry_Commission_PLN": 28.75,
+      "Exit_Date": "2020-12-15",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2020-12-15 Intraday",
+      "Exit_Price": 2.6345,
+      "Exit_Commission_PLN": 30.39,
+      "Total_Fees_PLN": 59.15,
+      "Fees_PLN": 59.15,
+      "Net_PnL": 505.79,
+      "PnL": 505.79,
+      "PnL_Pct": 5.09,
+      "Sessions_Held": 9,
+      "Days_Held": 9,
+      "Calendar_Days": 13,
+      "Peak_Price": 2.89,
+      "Max_Potential_Gain_Pct": 15.95,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "JSW.WA",
+      "Company_Name": "Jastrz\u0119bska Sp\u00f3\u0142ka W\u0119glowa",
+      "SIGG_Symbol": "JSW",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-11-16",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-11-16 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 433,
+      "Entry_Price": 22.5826,
+      "Position_Value_PLN": 9778.25,
+      "Entry_Commission_PLN": 28.36,
+      "Exit_Date": "2020-12-17",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2020-12-17 Intraday",
+      "Exit_Price": 25.259,
+      "Exit_Commission_PLN": 31.72,
+      "Total_Fees_PLN": 60.07,
+      "Fees_PLN": 60.07,
+      "Net_PnL": 1098.82,
+      "PnL": 1098.82,
+      "PnL_Pct": 11.2,
+      "Sessions_Held": 23,
+      "Days_Held": 23,
+      "Calendar_Days": 31,
+      "Peak_Price": 28.32,
+      "Max_Potential_Gain_Pct": 25.41,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "MDV.WA",
+      "Company_Name": "Modivo",
+      "SIGG_Symbol": "MODIVO",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-12-15",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-12-15 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 131,
+      "Entry_Price": 79.079,
+      "Position_Value_PLN": 10359.35,
+      "Entry_Commission_PLN": 30.04,
+      "Exit_Date": "2020-12-17",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2020-12-17 Intraday",
+      "Exit_Price": 74.0116,
+      "Exit_Commission_PLN": 28.12,
+      "Total_Fees_PLN": 58.16,
+      "Fees_PLN": 58.16,
+      "Net_PnL": -721.98,
+      "PnL": -721.98,
+      "PnL_Pct": -6.95,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Peak_Price": 84.58,
+      "Max_Potential_Gain_Pct": 6.96,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ETFBW20ST.WA",
+      "Company_Name": "Beta ETF WIG20 Short",
+      "SIGG_Symbol": "ETFBW20ST",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-12-20",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-12-20 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 26,
+      "Entry_Price": 386.7864,
+      "Position_Value_PLN": 10056.45,
+      "Entry_Commission_PLN": 29.16,
+      "Exit_Date": "2020-12-27",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2020-12-27 09:00 CET",
+      "Exit_Price": 367.3323,
+      "Exit_Commission_PLN": 27.7,
+      "Total_Fees_PLN": 56.86,
+      "Fees_PLN": 56.86,
+      "Net_PnL": -562.67,
+      "PnL": -562.67,
+      "PnL_Pct": -5.58,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 7,
+      "Peak_Price": 386.7864,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "XTB.WA",
+      "Company_Name": "XTB",
+      "SIGG_Symbol": "XTB",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-12-27",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-12-27 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 911,
+      "Entry_Price": 10.971,
+      "Position_Value_PLN": 9994.54,
+      "Entry_Commission_PLN": 28.98,
+      "Exit_Date": "2021-01-10",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2021-01-10 Intraday",
+      "Exit_Price": 12.4761,
+      "Exit_Commission_PLN": 32.96,
+      "Total_Fees_PLN": 61.94,
+      "Fees_PLN": 61.94,
+      "Net_PnL": 1309.22,
+      "PnL": 1309.22,
+      "PnL_Pct": 13.06,
+      "Sessions_Held": 7,
+      "Days_Held": 7,
+      "Calendar_Days": 14,
+      "Peak_Price": 13.94,
+      "Max_Potential_Gain_Pct": 27.06,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "KTY.WA",
+      "Company_Name": "Grupa K\u0119ty",
+      "SIGG_Symbol": "KETY",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2020-12-21",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2020-12-21 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 31,
+      "Entry_Price": 312.5222,
+      "Position_Value_PLN": 9688.19,
+      "Entry_Commission_PLN": 28.1,
+      "Exit_Date": "2021-01-12",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2021-01-12 Intraday",
+      "Exit_Price": 320.5463,
+      "Exit_Commission_PLN": 28.82,
+      "Total_Fees_PLN": 56.91,
+      "Fees_PLN": 56.91,
+      "Net_PnL": 191.83,
+      "PnL": 191.83,
+      "PnL_Pct": 1.97,
+      "Sessions_Held": 11,
+      "Days_Held": 11,
+      "Calendar_Days": 22,
+      "Peak_Price": 334.37,
+      "Max_Potential_Gain_Pct": 6.99,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SLV.WA",
+      "Company_Name": "Selvita",
+      "SIGG_Symbol": "SELVITA",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2021-01-10",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2021-01-10 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 185,
+      "Entry_Price": 57.6576,
+      "Position_Value_PLN": 10666.66,
+      "Entry_Commission_PLN": 30.93,
+      "Exit_Date": "2021-01-13",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2021-01-13 Intraday",
+      "Exit_Price": 54.7595,
+      "Exit_Commission_PLN": 29.38,
+      "Total_Fees_PLN": 60.31,
+      "Fees_PLN": 60.31,
+      "Net_PnL": -596.47,
+      "PnL": -596.47,
+      "PnL_Pct": -5.58,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Peak_Price": 59.8,
+      "Max_Potential_Gain_Pct": 3.72,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "SNT.WA",
+      "Company_Name": "Synektik",
+      "SIGG_Symbol": "SYNEKTIK",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2021-01-12",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2021-01-12 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 368,
+      "Entry_Price": 28.2782,
+      "Position_Value_PLN": 10406.4,
+      "Entry_Commission_PLN": 30.18,
+      "Exit_Date": "2021-01-14",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2021-01-14 16:50 CET",
+      "Exit_Price": 27.003,
+      "Exit_Commission_PLN": 28.82,
+      "Total_Fees_PLN": 59.0,
+      "Fees_PLN": 59.0,
+      "Net_PnL": -528.3,
+      "PnL": -528.3,
+      "PnL_Pct": -5.06,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Peak_Price": 28.77,
+      "Max_Potential_Gain_Pct": 1.74,
+      "Exit_Reason": "Contest_End",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "BDX.WA",
+      "Company_Name": "Budimex",
+      "SIGG_Symbol": "BUDIMEX",
+      "Year": 2021,
+      "Edition": "SIGG 19",
+      "Entry_Date": "2021-01-13",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2021-01-13 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 44,
+      "Entry_Price": 225.6754,
+      "Position_Value_PLN": 9929.72,
+      "Entry_Commission_PLN": 28.8,
+      "Exit_Date": "2021-01-14",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2021-01-14 16:50 CET",
+      "Exit_Price": 226.8829,
+      "Exit_Commission_PLN": 28.95,
+      "Total_Fees_PLN": 57.75,
+      "Fees_PLN": 57.75,
+      "Net_PnL": -4.62,
+      "PnL": -4.62,
+      "PnL_Pct": -0.05,
+      "Sessions_Held": 1,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Peak_Price": 227.11,
+      "Max_Potential_Gain_Pct": 0.64,
+      "Exit_Reason": "Contest_End",
+      "Season": "2020/2021"
+    },
+    {
+      "Ticker": "ATC.WA",
+      "Company_Name": "Arctic Paper",
+      "SIGG_Symbol": "ARCTIC",
+      "Year": 2022,
+      "Edition": "SIGG 20",
+      "Entry_Date": "2021-12-29",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2021-12-29 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 1432,
+      "Entry_Price": 6.8268,
+      "Position_Value_PLN": 9776.01,
+      "Entry_Commission_PLN": 28.35,
+      "Exit_Date": "2022-01-09",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-01-09 Intraday",
+      "Exit_Price": 6.9602,
+      "Exit_Commission_PLN": 28.9,
+      "Total_Fees_PLN": 57.25,
+      "Fees_PLN": 57.25,
+      "Net_PnL": 133.71,
+      "PnL": 133.71,
+      "PnL_Pct": 1.36,
+      "Sessions_Held": 5,
+      "Days_Held": 5,
+      "Calendar_Days": 11,
+      "Peak_Price": 7.43,
+      "Max_Potential_Gain_Pct": 8.84,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "NEU.WA",
+      "Company_Name": "Neuca",
+      "SIGG_Symbol": "NEUCA",
+      "Year": 2022,
+      "Edition": "SIGG 20",
+      "Entry_Date": "2021-12-28",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2021-12-28 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 12,
+      "Entry_Price": 763.0723,
+      "Position_Value_PLN": 9156.87,
+      "Entry_Commission_PLN": 26.55,
+      "Exit_Date": "2022-01-10",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-01-10 Intraday",
+      "Exit_Price": 755.4581,
+      "Exit_Commission_PLN": 26.29,
+      "Total_Fees_PLN": 52.84,
+      "Fees_PLN": 52.84,
+      "Net_PnL": -144.22,
+      "PnL": -144.22,
+      "PnL_Pct": -1.57,
+      "Sessions_Held": 7,
+      "Days_Held": 7,
+      "Calendar_Days": 13,
+      "Peak_Price": 792.26,
+      "Max_Potential_Gain_Pct": 3.83,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "VGO.WA",
+      "Company_Name": "VIGO Photonics",
+      "SIGG_Symbol": "VIGOPHOTN",
+      "Year": 2022,
+      "Edition": "SIGG 20",
+      "Entry_Date": "2022-01-09",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-01-09 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 12,
+      "Entry_Price": 798.798,
+      "Position_Value_PLN": 9585.58,
+      "Entry_Commission_PLN": 27.8,
+      "Exit_Date": "2022-01-13",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2022-01-13 16:50 CET",
+      "Exit_Price": 781.218,
+      "Exit_Commission_PLN": 27.19,
+      "Total_Fees_PLN": 54.98,
+      "Fees_PLN": 54.98,
+      "Net_PnL": -265.94,
+      "PnL": -265.94,
+      "PnL_Pct": -2.77,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 4,
+      "Peak_Price": 814.0,
+      "Max_Potential_Gain_Pct": 1.9,
+      "Exit_Reason": "Contest_End",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "ALR.WA",
+      "Company_Name": "Alior Bank",
+      "SIGG_Symbol": "ALIOR",
+      "Year": 2022,
+      "Edition": "SIGG 20",
+      "Entry_Date": "2022-01-10",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-01-10 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 201,
+      "Entry_Price": 48.6286,
+      "Position_Value_PLN": 9774.34,
+      "Entry_Commission_PLN": 28.35,
+      "Exit_Date": "2022-01-13",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2022-01-13 16:50 CET",
+      "Exit_Price": 48.8711,
+      "Exit_Commission_PLN": 28.49,
+      "Total_Fees_PLN": 56.83,
+      "Fees_PLN": 56.83,
+      "Net_PnL": -8.09,
+      "PnL": -8.09,
+      "PnL_Pct": -0.08,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 3,
+      "Peak_Price": 50.63,
+      "Max_Potential_Gain_Pct": 4.12,
+      "Exit_Reason": "Contest_End",
+      "Season": "2021/2022"
+    },
+    {
+      "Ticker": "APR.WA",
+      "Company_Name": "Auto Partner",
+      "SIGG_Symbol": "AUTOPARTN",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-11-14",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-11-14 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 755,
+      "Entry_Price": 12.9429,
+      "Position_Value_PLN": 9771.91,
+      "Entry_Commission_PLN": 28.34,
+      "Exit_Date": "2022-12-04",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2022-12-04 16:50 CET",
+      "Exit_Price": 12.8172,
+      "Exit_Commission_PLN": 28.06,
+      "Total_Fees_PLN": 56.4,
+      "Fees_PLN": 56.4,
+      "Net_PnL": -151.35,
+      "PnL": -151.35,
+      "PnL_Pct": -1.54,
+      "Sessions_Held": 14,
+      "Days_Held": 14,
+      "Calendar_Days": 20,
+      "Peak_Price": 13.42,
+      "Max_Potential_Gain_Pct": 3.69,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "SEL.WA",
+      "Company_Name": "Selena FM",
+      "SIGG_Symbol": "SELENAFM",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-11-14",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-11-14 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 601,
+      "Entry_Price": 16.2888,
+      "Position_Value_PLN": 9789.59,
+      "Entry_Commission_PLN": 28.39,
+      "Exit_Date": "2022-12-11",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2022-12-11 16:50 CET",
+      "Exit_Price": 19.4754,
+      "Exit_Commission_PLN": 33.94,
+      "Total_Fees_PLN": 62.33,
+      "Fees_PLN": 62.33,
+      "Net_PnL": 1852.77,
+      "PnL": 1852.77,
+      "PnL_Pct": 18.87,
+      "Sessions_Held": 19,
+      "Days_Held": 19,
+      "Calendar_Days": 27,
+      "Peak_Price": 19.4949,
+      "Max_Potential_Gain_Pct": 19.68,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "VOX.WA",
+      "Company_Name": "Voxel",
+      "SIGG_Symbol": "VOXEL",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-04",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-04 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 256,
+      "Entry_Price": 38.9589,
+      "Position_Value_PLN": 9973.48,
+      "Entry_Commission_PLN": 28.92,
+      "Exit_Date": "2022-12-14",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-12-14 Intraday",
+      "Exit_Price": 38.0862,
+      "Exit_Commission_PLN": 28.28,
+      "Total_Fees_PLN": 57.2,
+      "Fees_PLN": 57.2,
+      "Net_PnL": -280.62,
+      "PnL": -280.62,
+      "PnL_Pct": -2.81,
+      "Sessions_Held": 8,
+      "Days_Held": 8,
+      "Calendar_Days": 10,
+      "Peak_Price": 39.83,
+      "Max_Potential_Gain_Pct": 2.24,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "BMC.WA",
+      "Company_Name": "Bumech",
+      "SIGG_Symbol": "BUMECH",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-11",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-11 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 178,
+      "Entry_Price": 59.7845,
+      "Position_Value_PLN": 10641.64,
+      "Entry_Commission_PLN": 30.86,
+      "Exit_Date": "2022-12-15",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-12-15 Intraday",
+      "Exit_Price": 54.511,
+      "Exit_Commission_PLN": 28.14,
+      "Total_Fees_PLN": 59.0,
+      "Fees_PLN": 59.0,
+      "Net_PnL": -997.69,
+      "PnL": -997.69,
+      "PnL_Pct": -9.35,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 4,
+      "Peak_Price": 60.4713,
+      "Max_Potential_Gain_Pct": 1.15,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "COG.WA",
+      "Company_Name": "Cognor Holding",
+      "SIGG_Symbol": "COGNOR",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 2432,
+      "Entry_Price": 4.1141,
+      "Position_Value_PLN": 10005.52,
+      "Entry_Commission_PLN": 29.02,
+      "Exit_Date": "2022-12-22",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-12-22 Intraday",
+      "Exit_Price": 3.899,
+      "Exit_Commission_PLN": 27.5,
+      "Total_Fees_PLN": 56.51,
+      "Fees_PLN": 56.51,
+      "Net_PnL": -579.77,
+      "PnL": -579.77,
+      "PnL_Pct": -5.78,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 4,
+      "Peak_Price": 4.19,
+      "Max_Potential_Gain_Pct": 1.84,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "XTB.WA",
+      "Company_Name": "XTB",
+      "SIGG_Symbol": "XTB",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 427,
+      "Entry_Price": 23.3834,
+      "Position_Value_PLN": 9984.69,
+      "Entry_Commission_PLN": 28.96,
+      "Exit_Date": "2022-12-27",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2022-12-27 Intraday",
+      "Exit_Price": 22.4076,
+      "Exit_Commission_PLN": 27.75,
+      "Total_Fees_PLN": 56.7,
+      "Fees_PLN": 56.7,
+      "Net_PnL": -473.37,
+      "PnL": -473.37,
+      "PnL_Pct": -4.73,
+      "Sessions_Held": 6,
+      "Days_Held": 6,
+      "Calendar_Days": 9,
+      "Peak_Price": 23.72,
+      "Max_Potential_Gain_Pct": 1.44,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "LWB.WA",
+      "Company_Name": "LW Bogdanka",
+      "SIGG_Symbol": "BOGDANKA",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-29",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-29 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 220,
+      "Entry_Price": 43.013,
+      "Position_Value_PLN": 9462.85,
+      "Entry_Commission_PLN": 27.44,
+      "Exit_Date": "2023-01-02",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-01-02 Intraday",
+      "Exit_Price": 45.2704,
+      "Exit_Commission_PLN": 28.88,
+      "Total_Fees_PLN": 56.32,
+      "Fees_PLN": 56.32,
+      "Net_PnL": 440.31,
+      "PnL": 440.31,
+      "PnL_Pct": 4.64,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Peak_Price": 49.93,
+      "Max_Potential_Gain_Pct": 16.08,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CAR.WA",
+      "Company_Name": "Inter Cars",
+      "SIGG_Symbol": "INTERCARS",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2023-01-02",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-01-02 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 20,
+      "Entry_Price": 468.1677,
+      "Position_Value_PLN": 9363.35,
+      "Entry_Commission_PLN": 27.15,
+      "Exit_Date": "2023-01-08",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2023-01-08 09:00 CET",
+      "Exit_Price": 451.3582,
+      "Exit_Commission_PLN": 26.18,
+      "Total_Fees_PLN": 53.33,
+      "Fees_PLN": 53.33,
+      "Net_PnL": -389.52,
+      "PnL": -389.52,
+      "PnL_Pct": -4.15,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 6,
+      "Peak_Price": 476.64,
+      "Max_Potential_Gain_Pct": 1.81,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "MDG.WA",
+      "Company_Name": "Medicalgorithmics",
+      "SIGG_Symbol": "MEDICALG",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2023-01-08",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-01-08 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 653,
+      "Entry_Price": 14.7948,
+      "Position_Value_PLN": 9660.99,
+      "Entry_Commission_PLN": 28.02,
+      "Exit_Date": "2023-01-10",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-01-10 Intraday",
+      "Exit_Price": 13.4984,
+      "Exit_Commission_PLN": 25.56,
+      "Total_Fees_PLN": 53.58,
+      "Fees_PLN": 53.58,
+      "Net_PnL": -900.11,
+      "PnL": -900.11,
+      "PnL_Pct": -9.29,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Peak_Price": 14.7948,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "NEU.WA",
+      "Company_Name": "Neuca",
+      "SIGG_Symbol": "NEUCA",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2022-12-29",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2022-12-29 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 15,
+      "Entry_Price": 600.0595,
+      "Position_Value_PLN": 9000.89,
+      "Entry_Commission_PLN": 26.1,
+      "Exit_Date": "2023-01-12",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-01-12 Intraday",
+      "Exit_Price": 604.2566,
+      "Exit_Commission_PLN": 26.29,
+      "Total_Fees_PLN": 52.39,
+      "Fees_PLN": 52.39,
+      "Net_PnL": 10.57,
+      "PnL": 10.57,
+      "PnL_Pct": 0.12,
+      "Sessions_Held": 9,
+      "Days_Held": 9,
+      "Calendar_Days": 14,
+      "Peak_Price": 640.96,
+      "Max_Potential_Gain_Pct": 6.82,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "ICE.WA",
+      "Company_Name": "Medinice",
+      "SIGG_Symbol": "MEDINICE",
+      "Year": 2023,
+      "Edition": "SIGG 21",
+      "Entry_Date": "2023-01-10",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-01-10 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 574,
+      "Entry_Price": 16.016,
+      "Position_Value_PLN": 9193.18,
+      "Entry_Commission_PLN": 26.66,
+      "Exit_Date": "2023-01-12",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2023-01-12 16:50 CET",
+      "Exit_Price": 16.1239,
+      "Exit_Commission_PLN": 26.84,
+      "Total_Fees_PLN": 53.5,
+      "Fees_PLN": 53.5,
+      "Net_PnL": 8.41,
+      "PnL": 8.41,
+      "PnL_Pct": 0.09,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 2,
+      "Peak_Price": 17.06,
+      "Max_Potential_Gain_Pct": 6.52,
+      "Exit_Reason": "Contest_End",
+      "Season": "2022/2023"
+    },
+    {
+      "Ticker": "CDR.WA",
+      "Company_Name": "CD Projekt",
+      "SIGG_Symbol": "CDPROJEKT",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-13",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-13 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 86,
+      "Entry_Price": 112.9729,
+      "Position_Value_PLN": 9715.67,
+      "Entry_Commission_PLN": 28.18,
+      "Exit_Date": "2023-11-23",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-11-23 Intraday",
+      "Exit_Price": 109.0623,
+      "Exit_Commission_PLN": 27.2,
+      "Total_Fees_PLN": 55.38,
+      "Fees_PLN": 55.38,
+      "Net_PnL": -391.69,
+      "PnL": -391.69,
+      "PnL_Pct": -4.02,
+      "Sessions_Held": 8,
+      "Days_Held": 8,
+      "Calendar_Days": 10,
+      "Peak_Price": 116.67,
+      "Max_Potential_Gain_Pct": 3.27,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CBF.WA",
+      "Company_Name": "Cyberfolks",
+      "SIGG_Symbol": "CYBERFLKS",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-13",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-13 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 121,
+      "Entry_Price": 80.4504,
+      "Position_Value_PLN": 9734.49,
+      "Entry_Commission_PLN": 28.23,
+      "Exit_Date": "2023-11-26",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2023-11-26 16:50 CET",
+      "Exit_Price": 78.1718,
+      "Exit_Commission_PLN": 27.43,
+      "Total_Fees_PLN": 55.66,
+      "Fees_PLN": 55.66,
+      "Net_PnL": -331.37,
+      "PnL": -331.37,
+      "PnL_Pct": -3.39,
+      "Sessions_Held": 9,
+      "Days_Held": 9,
+      "Calendar_Days": 13,
+      "Peak_Price": 81.72,
+      "Max_Potential_Gain_Pct": 1.58,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ARH.WA",
+      "Company_Name": "Archicom",
+      "SIGG_Symbol": "ARCHICOM",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-26",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-26 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 411,
+      "Entry_Price": 23.08,
+      "Position_Value_PLN": 9485.87,
+      "Entry_Commission_PLN": 27.51,
+      "Exit_Date": "2023-11-27",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2023-11-27 09:00 CET",
+      "Exit_Price": 21.2357,
+      "Exit_Commission_PLN": 25.31,
+      "Total_Fees_PLN": 52.82,
+      "Fees_PLN": 52.82,
+      "Net_PnL": -810.83,
+      "PnL": -810.83,
+      "PnL_Pct": -8.52,
+      "Sessions_Held": 1,
+      "Days_Held": 1,
+      "Calendar_Days": 1,
+      "Peak_Price": 23.08,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ZEP.WA",
+      "Company_Name": "ZE PAK",
+      "SIGG_Symbol": "ZEPAK",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-23",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-23 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 440,
+      "Entry_Price": 21.7217,
+      "Position_Value_PLN": 9557.55,
+      "Entry_Commission_PLN": 27.72,
+      "Exit_Date": "2023-11-28",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-11-28 Intraday",
+      "Exit_Price": 21.3244,
+      "Exit_Commission_PLN": 27.21,
+      "Total_Fees_PLN": 54.93,
+      "Fees_PLN": 54.93,
+      "Net_PnL": -229.75,
+      "PnL": -229.75,
+      "PnL_Pct": -2.4,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Peak_Price": 22.7,
+      "Max_Potential_Gain_Pct": 4.5,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CRI.WA",
+      "Company_Name": "Creotech Instruments",
+      "SIGG_Symbol": "CREOTECH",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-28",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-28 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 38,
+      "Entry_Price": 232.232,
+      "Position_Value_PLN": 8824.82,
+      "Entry_Commission_PLN": 25.59,
+      "Exit_Date": "2023-12-04",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-12-04 Intraday",
+      "Exit_Price": 214.6423,
+      "Exit_Commission_PLN": 23.65,
+      "Total_Fees_PLN": 49.25,
+      "Fees_PLN": 49.25,
+      "Net_PnL": -717.65,
+      "PnL": -717.65,
+      "PnL_Pct": -8.11,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 6,
+      "Peak_Price": 235.0,
+      "Max_Potential_Gain_Pct": 1.19,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ALR.WA",
+      "Company_Name": "Alior Bank",
+      "SIGG_Symbol": "ALIOR",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-11-27",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-11-27 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 143,
+      "Entry_Price": 61.6416,
+      "Position_Value_PLN": 8814.75,
+      "Entry_Commission_PLN": 25.56,
+      "Exit_Date": "2023-12-10",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2023-12-10 16:50 CET",
+      "Exit_Price": 61.8281,
+      "Exit_Commission_PLN": 25.64,
+      "Total_Fees_PLN": 51.2,
+      "Fees_PLN": 51.2,
+      "Net_PnL": -24.53,
+      "PnL": -24.53,
+      "PnL_Pct": -0.28,
+      "Sessions_Held": 9,
+      "Days_Held": 9,
+      "Calendar_Days": 13,
+      "Peak_Price": 63.8,
+      "Max_Potential_Gain_Pct": 3.5,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "BCX.WA",
+      "Company_Name": "Bioceltix",
+      "SIGG_Symbol": "BIOCELTIX",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-12-10",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-12-10 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 101,
+      "Entry_Price": 86.086,
+      "Position_Value_PLN": 8694.69,
+      "Entry_Commission_PLN": 25.21,
+      "Exit_Date": "2023-12-18",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2023-12-18 Intraday",
+      "Exit_Price": 88.1403,
+      "Exit_Commission_PLN": 25.82,
+      "Total_Fees_PLN": 51.03,
+      "Fees_PLN": 51.03,
+      "Net_PnL": 156.46,
+      "PnL": 156.46,
+      "PnL_Pct": 1.79,
+      "Sessions_Held": 6,
+      "Days_Held": 6,
+      "Calendar_Days": 8,
+      "Peak_Price": 97.2,
+      "Max_Potential_Gain_Pct": 12.91,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "CTX.WA",
+      "Company_Name": "Captor Therapeutics",
+      "SIGG_Symbol": "CAPTORTX",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-12-04",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-12-04 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 89,
+      "Entry_Price": 96.2962,
+      "Position_Value_PLN": 8570.36,
+      "Entry_Commission_PLN": 24.85,
+      "Exit_Date": "2023-12-20",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2023-12-20 09:00 CET",
+      "Exit_Price": 98.901,
+      "Exit_Commission_PLN": 25.53,
+      "Total_Fees_PLN": 50.38,
+      "Fees_PLN": 50.38,
+      "Net_PnL": 181.45,
+      "PnL": 181.45,
+      "PnL_Pct": 2.11,
+      "Sessions_Held": 12,
+      "Days_Held": 12,
+      "Calendar_Days": 16,
+      "Peak_Price": 109.5,
+      "Max_Potential_Gain_Pct": 13.71,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "BOS.WA",
+      "Company_Name": "Bank Ochrony \u015arodowiska",
+      "SIGG_Symbol": "BOS",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-12-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-12-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 827,
+      "Entry_Price": 10.9109,
+      "Position_Value_PLN": 9023.31,
+      "Entry_Commission_PLN": 26.17,
+      "Exit_Date": "2024-01-01",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-01-01 Intraday",
+      "Exit_Price": 10.9448,
+      "Exit_Commission_PLN": 26.25,
+      "Total_Fees_PLN": 52.42,
+      "Fees_PLN": 52.42,
+      "Net_PnL": -24.42,
+      "PnL": -24.42,
+      "PnL_Pct": -0.27,
+      "Sessions_Held": 7,
+      "Days_Held": 7,
+      "Calendar_Days": 14,
+      "Peak_Price": 11.8,
+      "Max_Potential_Gain_Pct": 8.15,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "RBW.WA",
+      "Company_Name": "Rainbow Tours",
+      "SIGG_Symbol": "RAINBOW",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2023-12-20",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2023-12-20 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 182,
+      "Entry_Price": 48.0344,
+      "Position_Value_PLN": 8742.26,
+      "Entry_Commission_PLN": 25.35,
+      "Exit_Date": "2024-01-04",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-01-04 Intraday",
+      "Exit_Price": 46.9898,
+      "Exit_Commission_PLN": 24.8,
+      "Total_Fees_PLN": 50.15,
+      "Fees_PLN": 50.15,
+      "Net_PnL": -240.26,
+      "PnL": -240.26,
+      "PnL_Pct": -2.74,
+      "Sessions_Held": 8,
+      "Days_Held": 8,
+      "Calendar_Days": 15,
+      "Peak_Price": 51.7151,
+      "Max_Potential_Gain_Pct": 7.66,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ZRE.WA",
+      "Company_Name": "Zremb-Chojnice",
+      "SIGG_Symbol": "ZREMB",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2024-01-01",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-01-01 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 2093,
+      "Entry_Price": 4.1942,
+      "Position_Value_PLN": 8778.44,
+      "Entry_Commission_PLN": 25.46,
+      "Exit_Date": "2024-01-11",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2024-01-11 16:50 CET",
+      "Exit_Price": 4.036,
+      "Exit_Commission_PLN": 24.5,
+      "Total_Fees_PLN": 49.95,
+      "Fees_PLN": 49.95,
+      "Net_PnL": -381.13,
+      "PnL": -381.13,
+      "PnL_Pct": -4.33,
+      "Sessions_Held": 8,
+      "Days_Held": 8,
+      "Calendar_Days": 10,
+      "Peak_Price": 4.4,
+      "Max_Potential_Gain_Pct": 4.91,
+      "Exit_Reason": "Contest_End",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "TOR.WA",
+      "Company_Name": "Torpol",
+      "SIGG_Symbol": "TORPOL",
+      "Year": 2024,
+      "Edition": "SIGG 22",
+      "Entry_Date": "2024-01-04",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-01-04 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 400,
+      "Entry_Price": 21.6063,
+      "Position_Value_PLN": 8642.5,
+      "Entry_Commission_PLN": 25.06,
+      "Exit_Date": "2024-01-11",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2024-01-11 16:50 CET",
+      "Exit_Price": 22.9431,
+      "Exit_Commission_PLN": 26.61,
+      "Total_Fees_PLN": 51.68,
+      "Fees_PLN": 51.68,
+      "Net_PnL": 483.07,
+      "PnL": 483.07,
+      "PnL_Pct": 5.57,
+      "Sessions_Held": 5,
+      "Days_Held": 5,
+      "Calendar_Days": 7,
+      "Peak_Price": 23.2251,
+      "Max_Potential_Gain_Pct": 7.49,
+      "Exit_Reason": "Contest_End",
+      "Season": "2023/2024"
+    },
+    {
+      "Ticker": "ETFBW20ST.WA",
+      "Company_Name": "Beta ETF WIG20 Short",
+      "SIGG_Symbol": "ETFBW20ST",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-11-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-11-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 31,
+      "Entry_Price": 313.1128,
+      "Position_Value_PLN": 9706.5,
+      "Entry_Commission_PLN": 28.15,
+      "Exit_Date": "2024-11-24",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-11-24 Intraday",
+      "Exit_Price": 298.9279,
+      "Exit_Commission_PLN": 26.87,
+      "Total_Fees_PLN": 55.02,
+      "Fees_PLN": 55.02,
+      "Net_PnL": -494.76,
+      "PnL": -494.76,
+      "PnL_Pct": -5.08,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 6,
+      "Peak_Price": 313.1128,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ATR.WA",
+      "Company_Name": "Atrem",
+      "SIGG_Symbol": "ATREM",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-11-24",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-11-24 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 750,
+      "Entry_Price": 12.7325,
+      "Position_Value_PLN": 9549.36,
+      "Entry_Commission_PLN": 27.69,
+      "Exit_Date": "2024-12-10",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-12-10 Intraday",
+      "Exit_Price": 13.7604,
+      "Exit_Commission_PLN": 29.93,
+      "Total_Fees_PLN": 57.62,
+      "Fees_PLN": 57.62,
+      "Net_PnL": 713.35,
+      "PnL": 713.35,
+      "PnL_Pct": 7.45,
+      "Sessions_Held": 12,
+      "Days_Held": 12,
+      "Calendar_Days": 16,
+      "Peak_Price": 15.7836,
+      "Max_Potential_Gain_Pct": 23.96,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ECH.WA",
+      "Company_Name": "Echo Investment",
+      "SIGG_Symbol": "ECHO",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-12-10",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-12-10 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 2596,
+      "Entry_Price": 3.8939,
+      "Position_Value_PLN": 10108.54,
+      "Entry_Commission_PLN": 29.31,
+      "Exit_Date": "2024-12-17",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-12-17 Intraday",
+      "Exit_Price": 3.6863,
+      "Exit_Commission_PLN": 27.75,
+      "Total_Fees_PLN": 57.07,
+      "Fees_PLN": 57.07,
+      "Net_PnL": -595.94,
+      "PnL": -595.94,
+      "PnL_Pct": -5.88,
+      "Sessions_Held": 5,
+      "Days_Held": 5,
+      "Calendar_Days": 7,
+      "Peak_Price": 3.93,
+      "Max_Potential_Gain_Pct": 0.93,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "BFT.WA",
+      "Company_Name": "Benefit Systems",
+      "SIGG_Symbol": "BENEFIT",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-11-24",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-11-24 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 3,
+      "Entry_Price": 2737.735,
+      "Position_Value_PLN": 8213.2,
+      "Entry_Commission_PLN": 23.82,
+      "Exit_Date": "2024-12-18",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2024-12-18 Intraday",
+      "Exit_Price": 2802.9086,
+      "Exit_Commission_PLN": 24.39,
+      "Total_Fees_PLN": 48.2,
+      "Fees_PLN": 48.2,
+      "Net_PnL": 147.32,
+      "PnL": 147.32,
+      "PnL_Pct": 1.79,
+      "Sessions_Held": 18,
+      "Days_Held": 18,
+      "Calendar_Days": 24,
+      "Peak_Price": 2990.0,
+      "Max_Potential_Gain_Pct": 9.21,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ETFBNQ2ST.WA",
+      "Company_Name": "Beta ETF Nasdaq-100 2x Short",
+      "SIGG_Symbol": "ETFBNQ2ST",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-12-18",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-12-18 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 66,
+      "Entry_Price": 146.2661,
+      "Position_Value_PLN": 9653.56,
+      "Entry_Commission_PLN": 28.0,
+      "Exit_Date": "2024-12-22",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2024-12-22 09:00 CET",
+      "Exit_Price": 143.816,
+      "Exit_Commission_PLN": 27.53,
+      "Total_Fees_PLN": 55.52,
+      "Fees_PLN": 55.52,
+      "Net_PnL": -217.23,
+      "PnL": -217.23,
+      "PnL_Pct": -2.24,
+      "Sessions_Held": 2,
+      "Days_Held": 2,
+      "Calendar_Days": 4,
+      "Peak_Price": 152.84,
+      "Max_Potential_Gain_Pct": 4.49,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "BRS.WA",
+      "Company_Name": "Boryszew",
+      "SIGG_Symbol": "BORYSZEW",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-12-29",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-12-29 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 1712,
+      "Entry_Price": 5.5856,
+      "Position_Value_PLN": 9562.51,
+      "Entry_Commission_PLN": 27.73,
+      "Exit_Date": "2025-01-08",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2025-01-08 16:50 CET",
+      "Exit_Price": 5.3646,
+      "Exit_Commission_PLN": 26.63,
+      "Total_Fees_PLN": 54.37,
+      "Fees_PLN": 54.37,
+      "Net_PnL": -432.63,
+      "PnL": -432.63,
+      "PnL_Pct": -4.51,
+      "Sessions_Held": 5,
+      "Days_Held": 5,
+      "Calendar_Days": 10,
+      "Peak_Price": 5.5856,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "BLO.WA",
+      "Company_Name": "Bloober Team",
+      "SIGG_Symbol": "BLOOBER",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2024-12-29",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2024-12-29 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 376,
+      "Entry_Price": 25.4254,
+      "Position_Value_PLN": 9559.95,
+      "Entry_Commission_PLN": 27.72,
+      "Exit_Date": "2025-01-12",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2025-01-12 16:50 CET",
+      "Exit_Price": 24.975,
+      "Exit_Commission_PLN": 27.23,
+      "Total_Fees_PLN": 54.96,
+      "Fees_PLN": 54.96,
+      "Net_PnL": -224.31,
+      "PnL": -224.31,
+      "PnL_Pct": -2.34,
+      "Sessions_Held": 7,
+      "Days_Held": 7,
+      "Calendar_Days": 14,
+      "Peak_Price": 25.5,
+      "Max_Potential_Gain_Pct": 0.29,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "HUG.WA",
+      "Company_Name": "Huuuge Inc.",
+      "SIGG_Symbol": "HUUUGE",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2025-01-08",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-01-08 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 478,
+      "Entry_Price": 19.2793,
+      "Position_Value_PLN": 9215.49,
+      "Entry_Commission_PLN": 26.72,
+      "Exit_Date": "2025-01-16",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2025-01-16 16:50 CET",
+      "Exit_Price": 19.0609,
+      "Exit_Commission_PLN": 26.42,
+      "Total_Fees_PLN": 53.15,
+      "Fees_PLN": 53.15,
+      "Net_PnL": -157.51,
+      "PnL": -157.51,
+      "PnL_Pct": -1.7,
+      "Sessions_Held": 6,
+      "Days_Held": 6,
+      "Calendar_Days": 8,
+      "Peak_Price": 19.38,
+      "Max_Potential_Gain_Pct": 0.52,
+      "Exit_Reason": "Contest_End",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "AGO.WA",
+      "Company_Name": "Agora",
+      "SIGG_Symbol": "AGORA",
+      "Year": 2025,
+      "Edition": "SIGG 23",
+      "Entry_Date": "2025-01-12",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-01-12 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 905,
+      "Entry_Price": 10.1301,
+      "Position_Value_PLN": 9167.76,
+      "Entry_Commission_PLN": 26.59,
+      "Exit_Date": "2025-01-16",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2025-01-16 16:50 CET",
+      "Exit_Price": 10.2198,
+      "Exit_Commission_PLN": 26.82,
+      "Total_Fees_PLN": 53.41,
+      "Fees_PLN": 53.41,
+      "Net_PnL": 27.72,
+      "PnL": 27.72,
+      "PnL_Pct": 0.3,
+      "Sessions_Held": 4,
+      "Days_Held": 4,
+      "Calendar_Days": 4,
+      "Peak_Price": 10.39,
+      "Max_Potential_Gain_Pct": 2.57,
+      "Exit_Reason": "Contest_End",
+      "Season": "2024/2025"
+    },
+    {
+      "Ticker": "ETFBNQ2ST.WA",
+      "Company_Name": "Beta ETF Nasdaq-100 2x Short",
+      "SIGG_Symbol": "ETFBNQ2ST",
+      "Year": 2026,
+      "Edition": "SIGG 24",
+      "Entry_Date": "2025-11-20",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-11-20 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 88,
+      "Entry_Price": 110.3703,
+      "Position_Value_PLN": 9712.58,
+      "Entry_Commission_PLN": 28.17,
+      "Exit_Date": "2025-11-25",
+      "Exit_Time": "09:00 CET",
+      "Exit_Timestamp": "2025-11-25 09:00 CET",
+      "Exit_Price": 99.8201,
+      "Exit_Commission_PLN": 25.47,
+      "Total_Fees_PLN": 53.64,
+      "Fees_PLN": 53.64,
+      "Net_PnL": -982.06,
+      "PnL": -982.06,
+      "PnL_Pct": -10.08,
+      "Sessions_Held": 3,
+      "Days_Held": 3,
+      "Calendar_Days": 5,
+      "Peak_Price": 110.3703,
+      "Max_Potential_Gain_Pct": 0.0,
+      "Exit_Reason": "ATR_Stop_Gap_Down",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ENT.WA",
+      "Company_Name": "Enter Air",
+      "SIGG_Symbol": "ENTER",
+      "Year": 2026,
+      "Edition": "SIGG 24",
+      "Entry_Date": "2025-11-27",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-11-27 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 180,
+      "Entry_Price": 51.6616,
+      "Position_Value_PLN": 9299.09,
+      "Entry_Commission_PLN": 26.97,
+      "Exit_Date": "2025-12-21",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2025-12-21 16:50 CET",
+      "Exit_Price": 53.4765,
+      "Exit_Commission_PLN": 27.91,
+      "Total_Fees_PLN": 54.88,
+      "Fees_PLN": 54.88,
+      "Net_PnL": 271.79,
+      "PnL": 271.79,
+      "PnL_Pct": 2.91,
+      "Sessions_Held": 16,
+      "Days_Held": 16,
+      "Calendar_Days": 24,
+      "Peak_Price": 54.86,
+      "Max_Potential_Gain_Pct": 6.19,
+      "Exit_Reason": "Time_Stop_Stagnation",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "SEL.WA",
+      "Company_Name": "Selena FM",
+      "SIGG_Symbol": "SELENAFM",
+      "Year": 2026,
+      "Edition": "SIGG 24",
+      "Entry_Date": "2025-11-27",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-11-27 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 244,
+      "Entry_Price": 38.137,
+      "Position_Value_PLN": 9305.42,
+      "Entry_Commission_PLN": 26.99,
+      "Exit_Date": "2026-01-04",
+      "Exit_Time": "Intraday",
+      "Exit_Timestamp": "2026-01-04 Intraday",
+      "Exit_Price": 55.5687,
+      "Exit_Commission_PLN": 39.32,
+      "Total_Fees_PLN": 66.31,
+      "Fees_PLN": 66.31,
+      "Net_PnL": 4187.04,
+      "PnL": 4187.04,
+      "PnL_Pct": 44.87,
+      "Sessions_Held": 21,
+      "Days_Held": 21,
+      "Calendar_Days": 38,
+      "Peak_Price": 60.5772,
+      "Max_Potential_Gain_Pct": 58.84,
+      "Exit_Reason": "ATR_Trailing_Stop_Intraday",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "DAT.WA",
+      "Company_Name": "DataWalk",
+      "SIGG_Symbol": "DATAWALK",
+      "Year": 2026,
+      "Edition": "SIGG 24",
+      "Entry_Date": "2025-12-21",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2025-12-21 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 93,
+      "Entry_Price": 106.0459,
+      "Position_Value_PLN": 9862.27,
+      "Entry_Commission_PLN": 28.6,
+      "Exit_Date": "2026-01-15",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2026-01-15 16:50 CET",
+      "Exit_Price": 150.889,
+      "Exit_Commission_PLN": 40.69,
+      "Total_Fees_PLN": 69.3,
+      "Fees_PLN": 69.3,
+      "Net_PnL": 4101.11,
+      "PnL": 4101.11,
+      "PnL_Pct": 41.46,
+      "Sessions_Held": 13,
+      "Days_Held": 13,
+      "Calendar_Days": 25,
+      "Peak_Price": 157.04,
+      "Max_Potential_Gain_Pct": 48.09,
+      "Exit_Reason": "Contest_End",
+      "Season": "2025/2026"
+    },
+    {
+      "Ticker": "ASB.WA",
+      "Company_Name": "ASBISc Enterprises",
+      "SIGG_Symbol": "ASBIS",
+      "Year": 2026,
+      "Edition": "SIGG 24",
+      "Entry_Date": "2026-01-04",
+      "Entry_Time": "16:50 CET",
+      "Entry_Timestamp": "2026-01-04 16:50 CET",
+      "Exec_Type": "Close Auction",
+      "Shares": 357,
+      "Entry_Price": 33.5635,
+      "Position_Value_PLN": 11982.18,
+      "Entry_Commission_PLN": 34.75,
+      "Exit_Date": "2026-01-15",
+      "Exit_Time": "16:50 CET",
+      "Exit_Timestamp": "2026-01-15 16:50 CET",
+      "Exit_Price": 33.996,
+      "Exit_Commission_PLN": 35.2,
+      "Total_Fees_PLN": 69.94,
+      "Fees_PLN": 69.94,
+      "Net_PnL": 84.44,
+      "PnL": 84.44,
+      "PnL_Pct": 0.7,
+      "Sessions_Held": 8,
+      "Days_Held": 8,
+      "Calendar_Days": 11,
+      "Peak_Price": 34.33,
+      "Max_Potential_Gain_Pct": 2.28,
+      "Exit_Reason": "Contest_End",
+      "Season": "2025/2026"
+    }
+  ]
+}

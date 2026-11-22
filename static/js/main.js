@@ -129,7 +129,7 @@ function initSiggHub() {
     }
 
     function getActiveStrategy() {
-        return strategySelect ? strategySelect.value : 'breakout_trend';
+        return strategySelect ? strategySelect.value : 'runner_surge';
     }
 
     if (strategySelect) {
@@ -871,6 +871,7 @@ function initSiggHub() {
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     const cancelRegisterHoldingsBtn = document.getElementById('cancelRegisterHoldingsBtn');
     const saveRegisterHoldingsBtn = document.getElementById('saveRegisterHoldingsBtn');
+    const clearAllPositionsBtn = document.getElementById('clearAllPositionsBtn');
 
     if (toggleRegisterHoldingsBtn && registerHoldingsPanel) {
         toggleRegisterHoldingsBtn.addEventListener('click', () => {
@@ -931,6 +932,34 @@ function initSiggHub() {
                 showToast('Import Error', String(e), 'error');
             } finally {
                 saveRegisterHoldingsBtn.disabled = false;
+            }
+        });
+    }
+    if (clearAllPositionsBtn) {
+        clearAllPositionsBtn.addEventListener('click', async () => {
+            if (!confirm('Clear all open positions and mark portfolio as flat (0 open positions)?')) return;
+            const payload = {};
+            const cashRaw = document.getElementById('regCash')?.value;
+            if (cashRaw !== undefined && cashRaw !== '') payload.cash = parseFloat(cashRaw);
+            clearAllPositionsBtn.disabled = true;
+            try {
+                const res = await fetch('/api/portfolio/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    showToast('Positions Cleared', json.message || 'Portfolio is now flat.', 'info');
+                    if (registerHoldingsPanel) registerHoldingsPanel.style.display = 'none';
+                    fetchPortfolio();
+                } else {
+                    showToast('Clear Failed', json.message || 'Could not clear positions.', 'error');
+                }
+            } catch (e) {
+                showToast('Clear Error', String(e), 'error');
+            } finally {
+                clearAllPositionsBtn.disabled = false;
             }
         });
     }
@@ -1093,20 +1122,21 @@ function initSiggHub() {
         } else {
             const slots = (podiumData && podiumData.slots) ? podiumData.slots : [];
             const picks = (podiumData && podiumData.picks) ? podiumData.picks : [];
+            const totalSlots = (slots && slots.length) ? slots.length : 2;
             const allocatedCount = picks.length;
 
             if (podiumStatusBadge) {
                 podiumStatusBadge.className = 'podium-status-pill unlocked';
-                podiumStatusBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / 3 ALLOCATED)`;
+                podiumStatusBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / ${totalSlots} ALLOCATED)`;
             }
             if (podiumSubtitle) {
                 podiumSubtitle.textContent = allocatedCount === 0
-                    ? 'Market healthy, but 0 stocks met strict strategy criteria today. 100% Cash preserved across all 3 slots.'
-                    : `${allocatedCount} of 3 slots allocated under strategy criteria. Remaining slots held in 100% cash.`;
+                    ? `Market healthy, but 0 stocks met strict strategy criteria today. 100% Cash preserved across both slots.`
+                    : `${allocatedCount} of ${totalSlots} slots allocated under high-conviction runner criteria. Remaining slots held in 100% cash.`;
             }
 
             let html = '';
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < totalSlots; i++) {
                 const slotNum = i + 1;
                 const slotItem = slots[i] || (picks[i] ? { ...picks[i], is_allocated: true, slot: slotNum } : { slot: slotNum, is_allocated: false });
                 const isAllocated = Boolean(slotItem && slotItem.is_allocated && slotItem.ticker);
@@ -1131,10 +1161,21 @@ function initSiggHub() {
                                 <span>${slotItem.name || ''}</span>
                                 <span class="font-mono font-bold ${dayGain >= 0 ? 'text-green' : 'text-red'}">${dayGain >= 0 ? '+' : ''}${dayGain.toFixed(2)}%</span>
                             </div>
+                            ${slotItem.catalyst_tag ? `
+                                <div style="margin: 0.4rem 0 0.25rem 0; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; background: rgba(139, 92, 246, 0.12); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.25); display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${slotItem.catalyst_tag}</span>
+                                    <span style="font-weight: 700; color: ${Number(slotItem.ai_score || 0) >= 0 ? '#10b981' : '#f43f5e'};">AI: ${(Number(slotItem.ai_score || 0) >= 0 ? '+' : '') + Number(slotItem.ai_score || 0).toFixed(1)}</span>
+                                </div>
+                            ` : ''}
+                            ${slotItem.top_headline && slotItem.top_headline !== 'Pure technical momentum setup' && slotItem.top_headline !== 'Pure price/volume momentum setup' ? `
+                                <div style="font-size: 0.70rem; color: var(--text-muted); line-height: 1.25; margin-bottom: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${slotItem.top_headline}">
+                                    &ldquo;${slotItem.top_headline}&rdquo;
+                                </div>
+                            ` : ''}
                             <div class="podium-metrics-grid">
                                 <div class="podium-metric-item">
-                                    <span>Runner Score:</span>
-                                    <span class="text-green font-bold">${Number(slotItem.runner_score || 0).toFixed(2)}</span>
+                                    <span>Composite:</span>
+                                    <span class="text-green font-bold">${Number(slotItem.composite_score || slotItem.runner_score || 0).toFixed(2)}</span>
                                 </div>
                                 <div class="podium-metric-item">
                                     <span>Vol Surge:</span>
@@ -1146,7 +1187,7 @@ function initSiggHub() {
                                 </div>
                                 <div class="podium-metric-item">
                                     <span>Max Hold:</span>
-                                    <span>3 Days</span>
+                                    <span>${slotItem.max_hold || 'Trailing'}</span>
                                 </div>
                             </div>
                             <div class="podium-ticket-container">
@@ -2352,6 +2393,116 @@ function initSiggHub() {
         }).catch(() => {});
     }
 
+    async function fetchCatalysts(force = false) {
+        const grid = document.getElementById('catalystCardsGrid');
+        const refreshBtn = document.getElementById('refreshCatalystsBtn');
+        if (!grid) return;
+
+        if (refreshBtn) {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i data-lucide="loader-2" class="icon spin"></i> Analyzing News...';
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        try {
+            const url = '/api/news/catalysts' + (force ? '?refresh=1' : '');
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                const highImpact = data.high_impact || [];
+                const articles = data.articles || [];
+
+                if (highImpact.length === 0 && articles.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state-card" style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.88rem;">
+                            No active high-impact catalysts detected in the current 24h wire. Market news is neutral.
+                        </div>
+                    `;
+                } else if (highImpact.length === 0) {
+                    let html = `
+                        <div style="grid-column: 1 / -1; padding: 0.5rem 0; font-size: 0.82rem; color: var(--text-muted);">
+                            No severe outliers detected (&gt; &plusmn;1.0 AI Score). Recent financial press wire:
+                        </div>
+                    `;
+                    articles.slice(0, 4).forEach(art => {
+                        const score = Number(art.sentiment_score || 0);
+                        const isPos = score > 0;
+                        const isNeg = score < 0;
+                        const scoreClass = isPos ? 'positive' : (isNeg ? 'negative' : '');
+                        html += `
+                            <div class="catalyst-card neutral">
+                                <div class="catalyst-card-header">
+                                    <span class="catalyst-symbol">${art.tickers && art.tickers.length ? art.tickers.join(', ') : (art.source || 'GPW')}</span>
+                                    <span class="catalyst-score-badge ${scoreClass}">${score > 0 ? '+' : ''}${score.toFixed(1)}</span>
+                                </div>
+                                <div class="catalyst-headline">
+                                    <a href="${art.link}" target="_blank" rel="noopener noreferrer">${art.title}</a>
+                                </div>
+                                <div class="catalyst-footer">
+                                    <span>${art.source || 'Bankier.pl'}</span>
+                                    <span>${art.published || ''}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    grid.innerHTML = html;
+                } else {
+                    let html = '';
+                    highImpact.forEach(item => {
+                        const score = Number(item.ai_score || 0);
+                        const isPos = score > 0;
+                        const isNeg = score < 0;
+                        const cardClass = isPos ? 'positive' : (isNeg ? 'negative' : 'neutral');
+                        const scoreClass = isPos ? 'positive' : (isNeg ? 'negative' : '');
+                        const headline = item.top_headline || (item.headlines && item.headlines[0]?.title) || 'Headline monitoring active';
+                        const link = item.top_link || (item.headlines && item.headlines[0]?.link) || '#';
+                        const catTag = item.catalyst_tag || (isPos ? '🚀 POSITIVE' : '⚠️ NEGATIVE');
+
+                        html += `
+                            <div class="catalyst-card ${cardClass}">
+                                <div class="catalyst-card-header">
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <span class="catalyst-symbol">${item.symbol}</span>
+                                        <span class="catalyst-tag-chip">${catTag}</span>
+                                    </div>
+                                    <span class="catalyst-score-badge ${scoreClass}">★ ${score > 0 ? '+' : ''}${score.toFixed(2)}</span>
+                                </div>
+                                <div class="catalyst-headline">
+                                    <a href="${link}" target="_blank" rel="noopener noreferrer" title="${headline}">${headline}</a>
+                                </div>
+                                <div class="catalyst-footer">
+                                    <span>Mentions: ${item.mention_count || 1} | Conf: ${Math.round((item.confidence || 0.8) * 100)}%</span>
+                                    <a href="https://pl.tradingview.com/symbols/GPW-${item.symbol}/" target="_blank" style="color: #a78bfa; text-decoration: none; font-weight: 600;">TV &nearr;</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    grid.innerHTML = html;
+                }
+            } else {
+                grid.innerHTML = `
+                    <div class="empty-state-card" style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: #fb7185; font-size: 0.88rem;">
+                        Failed to fetch catalyst intelligence: ${data.message || 'Unknown error'}
+                    </div>
+                `;
+            }
+        } catch (err) {
+            console.error('Error fetching catalysts:', err);
+            grid.innerHTML = `
+                <div class="empty-state-card" style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.88rem;">
+                    Could not connect to Agentic AI Catalyst engine.
+                </div>
+            `;
+        } finally {
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i data-lucide="refresh-cw" class="icon"></i> Refresh AI News';
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }
+
     // ==========================================
     // INITIAL BOOTSTRAP
     // ==========================================
@@ -2382,12 +2533,20 @@ function initSiggHub() {
         });
     }
 
+    const refreshCatalystsBtn = document.getElementById('refreshCatalystsBtn');
+    if (refreshCatalystsBtn) {
+        refreshCatalystsBtn.addEventListener('click', () => {
+            fetchCatalysts(true);
+        });
+    }
+
     setupExecuteModal();
     setupSettingsModal();
     fetchScanResults();
     fetchPortfolio();
     fetchBacktestResults();
     fetchOptResults();
+    fetchCatalysts();
     loadStrategyMarkdown();
     pollNotifications();
 
@@ -2396,6 +2555,8 @@ function initSiggHub() {
     setInterval(pollNotifications, 12000);
     // Quotes / portfolio refresh every 30 seconds
     setInterval(fetchPortfolio, 30000);
+    // Agentic AI News & Catalysts refresh every 60 seconds
+    setInterval(() => fetchCatalysts(false), 60000);
     } catch (bootErr) {
         console.error('SIGG Hub boot failure:', bootErr);
         const hint = document.getElementById('cloudSyncHint');

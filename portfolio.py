@@ -16,18 +16,18 @@ from typing import Dict, List, Optional, Any
 import pandas as pd
 import yfinance as yf
 from sigg_universe import SIGG_TO_TICKER, get_sigg_symbol, get_sigg_name
-from remote_store import load_json_file, save_json_file
+from remote_store import load_json_file, save_json_file, cloud_enabled, load_section
 
 PORTFOLIO_FILE = os.path.join("Output", "portfolio_state.json")
 
 class PortfolioManager:
-    def __init__(self, state_file: str = PORTFOLIO_FILE):
+    def __init__(self, state_file: str = PORTFOLIO_FILE, max_positions: int = 3, max_hold_days: int = 3):
         self.state_file = state_file
         self.initial_capital = 20000.0
         self.commission_pct = 0.0029 # 0.29% standard SIGG / GPW broker fee
         self.slippage_pct = 0.0010   # 0.10% execution spread slippage
-        self.max_positions = 3
-        self.max_hold_days = 3
+        self.max_positions = max_positions
+        self.max_hold_days = max_hold_days
         self.state = self.load_state()
 
     def load_state(self) -> Dict[str, Any]:
@@ -51,6 +51,38 @@ class PortfolioManager:
             self.state = state
         self.state["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         save_json_file(self.state_file, "portfolio", self.state)
+
+    def sync_from_cloud(self) -> None:
+        """Refresh in-memory state from cloud Gist when enabled so stale memory never overwrites newer state."""
+        if not cloud_enabled():
+            return
+        remote = load_section("portfolio")
+        if isinstance(remote, dict) and remote:
+            self.state = remote
+
+    def clear_positions(self, cash: Optional[float] = None) -> Dict[str, Any]:
+        """Clear all open positions (flat / 100% cash) without wiping closed trade history."""
+        self.sync_from_cloud()
+        cleared_count = len(self.state.get("positions", []))
+        self.state["positions"] = []
+        if cash is not None:
+            try:
+                self.state["cash"] = round(float(cash), 2)
+            except (TypeError, ValueError):
+                return {"status": "error", "message": "Invalid cash value."}
+        self.state["contest_sync"] = {
+            **(self.state.get("contest_sync") or {}),
+            "status": "manual",
+            "last_synced": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "positions_count": 0,
+            "error_message": None,
+        }
+        self.save_state()
+        return {
+            "status": "success",
+            "message": f"Cleared {cleared_count} open position(s). Portfolio is now flat.",
+            "summary": self.get_summary(),
+        }
 
     def calculate_trading_days_held(self, entry_date_str: str, today_date: Optional[date] = None) -> int:
         """
@@ -106,13 +138,23 @@ class PortfolioManager:
             "state": clean_state
         }
 
-    def calculate_slot_allocation(self) -> float:
+    def calculate_slot_allocation(self, strategy: Optional[str] = None) -> float:
         """Calculates cash available for next slot based on current equity / vacant slots."""
         total_equity = self.get_total_equity()
-        vacant_slots = self.max_positions - len(self.state.get("positions", []))
-        if vacant_slots <= 0:
+        open_count = len(self.state.get("positions", []))
+        if open_count >= self.max_positions:
             return 0.0
-        target_per_slot = total_equity / self.max_positions
+            
+        if strategy == 'runner_surge':
+            if open_count >= 2:
+                return 0.0
+            target_per_slot = total_equity * 0.49
+        else:
+            vacant_slots = self.max_positions - open_count
+            if vacant_slots <= 0:
+                return 0.0
+            target_per_slot = total_equity / self.max_positions
+
         available_cash = self.state.get("cash", 0.0)
         return max(0.0, min(target_per_slot, available_cash))
 
@@ -282,6 +324,7 @@ class PortfolioManager:
         }
 
     def sell_position(self, ticker: str, exit_price: float, reason: str = "Manual_Exit", exit_date: Optional[str] = None) -> Dict[str, Any]:
+        self.sync_from_cloud()
         ticker = ticker.upper().strip()
         sigg_sym = get_sigg_symbol(ticker)
         positions = self.state.get("positions", [])

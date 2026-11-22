@@ -144,6 +144,26 @@ class TestContestEndpoints(unittest.TestCase):
         self.assertIn("ONDE", tickers)
         self.assertIn("SNTVERSE", tickers)
 
+    def test_portfolio_clear_endpoint(self):
+        self.client.post(
+            '/api/portfolio/import',
+            data=json.dumps({
+                "cash": 41.90,
+                "holdings": [{"ticker": "ONDE", "shares": 100, "entry_price": 8.65}]
+            }),
+            content_type='application/json'
+        )
+        res = self.client.post(
+            '/api/portfolio/clear',
+            data=json.dumps({"cash": 18650.0}),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(len(data["summary"]["positions"]), 0)
+        self.assertAlmostEqual(data["summary"]["cash"], 18650.0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,3 +1,70 @@
+# High-Velocity Runner-Surge Strategy (Leaderboard Surge Protocol)
+
+**Objective:** Close the distance to the contest leader and reach #1 on the SIGG leaderboard by capturing explosive daily momentum runners (+8% to +25%) and leveraged trend instruments (`ETFBNQ3LV`, `ETFBNQ2ST`, `ETFBW20LV`, `ETFBW20ST`).  
+**Universe:** Full 172 SIGG Instruments (140 Equities across WIG20, mWIG40, sWIG80 + 32 GPW ETFs).  
+**Concentration Mode:** 2 focused slots ($\approx 50\%$ allocation / ~10,000 PLN each) or 3 slots, maximizing portfolio torque on high-conviction runners.  
+**Execution Windows:** Morning Radar (`10:00 CET`), Midday (`12:00 CET`), and Pre-Close (`16:35 CET`).
+
+---
+
+## 1. System Architecture: The Alpha-Runner Engine
+
+Generic trend systems and ultra-conservative kill switches fail in short competitions because they sit in cash on red days while market leaders ride explosive small-caps and inverse/leveraged ETFs. 
+
+The **Runner Surge Engine** resolves this via three core principles:
+1. **Velocity-Weighted Runner Scoring:** Rankings are driven by daily percentage price gain combined with volume surges, prioritizing the biggest movers over flat consolidation.
+2. **Inverse ETF Unlocks in RED Regimes:** When the broad Polish market or Nasdaq is falling, short ETFs (`ETFBNQ2ST`, `ETFBW20ST`, `ETFBM40ST`) are actively allocated as prime momentum buys instead of being locked out.
+3. **Calibrated Liquidity Floor (120,000 PLN):** Eliminates artificial 400k hurdles so that sWIG80 and high-beta small-cap runners are captured early without slippage.
+
+### Market Regime & Strategy Matrix
+
+| Market Regime | Index Condition | Long Equities Status | Inverse ETFs Status (`ETFBNQ2ST`, `ETFBW20ST`) | Permitted Team Action |
+| :--- | :--- | :--- | :--- | :--- |
+| **GREEN (Risk-On)** | $\text{Breadth} \ge 45\%$ **AND** $\Delta\text{Index} > -0.5\%$ | **UNLOCKED** | UNLOCKED if breaking out | Up to 2-3 positions in top momentum runners. |
+| **YELLOW (Caution)** | $\text{Breadth} \ge 45\%$ **AND** $-1.2\% < \Delta\text{Index} \le -0.5\%$ | **HIGH-CONVICTION ONLY** | **UNLOCKED** | High-volume runners ($\ge 2.0\times$ vol surge) & short ETFs. |
+| **RED (Bearish)** | $\text{Breadth} < 45\%$ **OR** $\Delta\text{Index} \le -1.2\%$ | **LOCKED (Unless Conviction Alpha)** | **ACTIVE HEDGE / BUY** | Trade inverse ETFs or hold cash. Zero blind equity chasing. |
+
+---
+
+## 2. Stock-Level Runner Entry Criteria
+
+A Buy signal is generated on the dashboard if:
+
+1. **Price Momentum Expansion:**
+   $$\Delta\text{Price}_t \ge +2.0\% \quad (\text{Standard Runners: } \ge +3.0\%, \quad \text{Inverse ETFs: } \ge +2.0\%)$$
+   *Role:* Guarantees the stock is actively moving today. No flat consolidation traps.
+
+2. **Structural Breakout or Momentum Ignition:**
+   $$\text{Close}_t \ge \max(\text{High}_{t-10 \dots t-1}) \times 0.998 \quad \text{OR} \quad (\Delta\text{Price}_t \ge +3.0\% \text{ AND } \text{TrueRange}_t \ge 1.25 \times \text{ATR}_{14})$$
+   *Role:* Catches both clean 10-day Donchian breakouts and bottom/turnaround momentum ignitions.
+
+3. **Relative Volume Surge:**
+   $$\text{Volume}_t \ge 1.35 \times \text{SMA}(\text{Volume}_{20, t-1}) \quad (\text{Monster Tier: } \ge 2.0\times)$$
+   *Role:* Confirms institutional buying pressure and momentum participation.
+
+4. **Candle Quality (Anti-Fade):**
+   $$\text{ClosePosition}_t = \frac{\text{Close}_t - \text{Low}_t}{\text{High}_t - \text{Low}_t} \ge 0.55 \quad (\text{Monster Tier: } \ge 0.70)$$
+   *Role:* Eliminates pump-and-dump candles with long upper wicks.
+
+5. **Liquidity Floor:**
+   $$\text{Turnover}_t = \text{Close}_t \times \text{Volume}_t \ge 120,000\text{ PLN}$$
+   *Role:* Ensures sufficient depth for a 10,000 PLN position with minimal market impact.
+
+### Runner Velocity Score Formula
+$$\text{RunnerScore} = 0.35 \left(\frac{\text{Volume}_t}{\text{SMA}(\text{Vol}_{20})}\right) + 0.30 \left(\frac{\Delta\text{Price}_t\%}{2.0}\right) + 0.20 \left(\frac{\text{TrueRange}_t}{\text{ATR}_{14}}\right) + 0.15 \left(\text{ClosePosition}_t \times 2.0\right)$$
+
+---
+
+## 3. Dynamic Trailing Stop & Profit Harvest
+
+1. **Chandelier Volatility Stop:**
+   $$\text{StopPrice} = \text{HighestHigh}_{\text{since entry}} - 2.0 \times \text{ATR}_{14}$$
+2. **Profit Target:**
+   $$\text{TargetPrice} = \text{Close} \times (1.0 + \max(12.0\%, 3.5 \times \text{ATR}_{\%}))$$
+3. **Execution Buffer:** Limit orders placed at $\text{Close} \times 1.005$ to guarantee fill in continuous or fixing auctions.
+
+---
+
 # High-Velocity Squeeze-Ignition Strategy (SIGG Etap 1 — Overhauled)
 
 **Objective:** Generate $>50\%$ to $60\%+$ return on $20,000\text{ PLN}$ within the Etap 1 contest window to secure a Finals qualification spot.  

@@ -284,16 +284,17 @@ function initSiggMobile() {
         } else {
             const slots = (podiumData && podiumData.slots) ? podiumData.slots : [];
             const picks = (podiumData && podiumData.picks) ? podiumData.picks : [];
+            const totalSlots = (slots && slots.length) ? slots.length : 2;
             const allocatedCount = picks.length;
 
             if (mobilePodiumBadge) {
-                mobilePodiumBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / 3)`;
+                mobilePodiumBadge.textContent = `🟢 UNLOCKED (${allocatedCount} / ${totalSlots})`;
                 mobilePodiumBadge.style.background = 'rgba(16, 185, 129, 0.2)';
                 mobilePodiumBadge.style.color = '#34d399';
             }
 
             let html = '<div style="display: flex; flex-direction: column; gap: 0.6rem;">';
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < totalSlots; i++) {
                 const slotNum = i + 1;
                 const slotItem = slots[i] || (picks[i] ? { ...picks[i], is_allocated: true, slot: slotNum } : { slot: slotNum, is_allocated: false });
                 const isAllocated = Boolean(slotItem && slotItem.is_allocated && slotItem.ticker);
@@ -328,6 +329,12 @@ function initSiggMobile() {
                                 <span>Vol: ${(slotItem.volume_surge || 1).toFixed(1)}x</span>
                                 <span>Stop: <span style="color: #f87171;">${Number(slotItem.stop_loss || 0).toFixed(2)}</span></span>
                             </div>
+                            ${slotItem.catalyst_tag ? `
+                                <div style="font-size: 0.7rem; color: #c4b5fd; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 4px;">
+                                    <span style="background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); border-radius: 4px; padding: 1px 5px; font-weight: 700;">${slotItem.catalyst_tag}</span>
+                                    ${slotItem.ai_score !== undefined ? `<span style="font-family: var(--font-mono); font-size: 0.68rem;">(AI: ${slotItem.ai_score > 0 ? '+' : ''}${slotItem.ai_score})</span>` : ''}
+                                </div>
+                            ` : ''}
                             <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
                                 <button class="btn-card-copy mobile-copy-btn" style="flex: 1; padding: 5px;" data-ticket="${encodeURIComponent(ticket)}">
                                     <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy
@@ -457,6 +464,7 @@ function initSiggMobile() {
                         <span class="signal-name">${row.Name || 'GPW Stock'}</span>
                     </div>
                     <div class="signal-badges">
+                        ${row.catalyst_tag ? `<span style="background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.4); font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 700;">${row.catalyst_tag}</span>` : ''}
                         <span class="${isBuy ? 'badge-signal-buy' : 'badge-signal-watch'}">${row.Strategy_Signal || 'Hold'}</span>
                         <span class="runner-score-pill">★ ${rScore.toFixed(2)}</span>
                     </div>
@@ -1331,16 +1339,102 @@ function initSiggMobile() {
         } catch (e) {}
     }
 
+    async function fetchMobileCatalysts(force = false) {
+        const container = document.getElementById('mobileCatalystCards');
+        const refreshBtn = document.getElementById('mobileRefreshCatalystsBtn');
+        if (!container) return;
+
+        if (refreshBtn) {
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = 'Syncing...';
+        }
+
+        try {
+            const url = '/api/news/catalysts' + (force ? '?refresh=1' : '');
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                const highImpact = data.high_impact || [];
+                const articles = data.articles || [];
+
+                if (highImpact.length === 0 && articles.length === 0) {
+                    container.innerHTML = `
+                        <div style="font-size: 0.74rem; color: var(--text-muted); text-align: center; padding: 0.4rem;">
+                            No active high-impact catalysts detected.
+                        </div>
+                    `;
+                } else if (highImpact.length === 0) {
+                    let html = '';
+                    articles.slice(0, 3).forEach(art => {
+                        const score = Number(art.sentiment_score || 0);
+                        html += `
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.5rem 0.6rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                    <strong style="font-size: 0.8rem; color: #fff;">${art.tickers && art.tickers.length ? art.tickers.join(', ') : (art.source || 'GPW')}</strong>
+                                    <span style="font-size: 0.68rem; font-family: var(--font-mono); color: ${score >= 0 ? '#34d399' : '#fb7185'}; font-weight: 700;">${score > 0 ? '+' : ''}${score.toFixed(1)}</span>
+                                </div>
+                                <a href="${art.link}" target="_blank" style="font-size: 0.72rem; color: #cbd5e1; text-decoration: none; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${art.title}</a>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    let html = '';
+                    highImpact.slice(0, 4).forEach(item => {
+                        const score = Number(item.ai_score || 0);
+                        const isPos = score > 0;
+                        const scoreColor = isPos ? '#34d399' : '#fb7185';
+                        const headline = item.top_headline || (item.headlines && item.headlines[0]?.title) || '';
+                        const link = item.top_link || (item.headlines && item.headlines[0]?.link) || '#';
+                        const catTag = item.catalyst_tag || (isPos ? '🚀 BUY' : '⚠️ SELL');
+
+                        html += `
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid ${isPos ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)'}; border-left: 3px solid ${isPos ? '#10b981' : '#f43f5e'}; border-radius: 8px; padding: 0.5rem 0.6rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <strong style="font-size: 0.82rem; color: #fff;">${item.symbol}</strong>
+                                        <span style="font-size: 0.65rem; font-weight: 700; background: rgba(139,92,246,0.2); color: #c4b5fd; padding: 1px 5px; border-radius: 4px;">${catTag}</span>
+                                    </div>
+                                    <span style="font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: ${scoreColor};">★ ${score > 0 ? '+' : ''}${score.toFixed(2)}</span>
+                                </div>
+                                <a href="${link}" target="_blank" style="font-size: 0.72rem; color: #cbd5e1; text-decoration: none; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${headline}</a>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching mobile catalysts:', e);
+        } finally {
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i data-lucide="refresh-cw" style="width: 10px; height: 10px; display: inline-block;"></i> Sync';
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }
+
+    const mobileRefreshCatalystsBtn = document.getElementById('mobileRefreshCatalystsBtn');
+    if (mobileRefreshCatalystsBtn) {
+        mobileRefreshCatalystsBtn.addEventListener('click', () => {
+            fetchMobileCatalysts(true);
+        });
+    }
+
     // ==========================================
     // 7. INITIAL BOOTSTRAP
     // ==========================================
     fetchMobileSignals();
     fetchMobilePortfolio();
+    fetchMobileCatalysts();
     loadMobileSettings();
     pollMobileNotifications();
 
     setInterval(pollMobileNotifications, 12000);
     setInterval(fetchMobilePortfolio, 25000);
+    setInterval(() => fetchMobileCatalysts(false), 60000);
 }
 
 if (document.readyState === 'loading') {

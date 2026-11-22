@@ -301,6 +301,70 @@ class TestPortfolioReconciliation(unittest.TestCase):
         self.assertAlmostEqual(res["cash"], 46.12, places=1)
         self.assertLess(res["cash"], 100)
 
+    def test_empty_open_positions_does_not_fall_through_to_history_table(self):
+        """When Otwarte pozycje is empty, must NOT parse sold stocks from Historia operacji."""
+        self.portfolio_mgr.import_holdings(
+            holdings=[
+                {"ticker": "ONDE", "shares": 1150, "entry_price": 8.65, "entry_date": "2026-11-16", "atr": 0.26},
+                {"ticker": "SNTVERSE", "shares": 3350, "entry_price": 2.8441, "entry_date": "2026-11-16", "atr": 0.09},
+            ],
+            cash=41.90,
+            replace=True,
+        )
+        sample_html = (
+            "<html><body>"
+            "<div class='wallet-chart__title'><span>18,650.00</span></div>"
+            "<div data-item-label='WOLNE ŚRODKI' data-item-value='41.90'></div>"
+            "<div data-item-label='ŚRODKI ZABLOKOWANE' data-item-value='18608.10'></div>"
+            "<h2>Otwarte pozycje</h2>"
+            "<table><thead><tr>"
+            "<th>instrumenty</th><th>wolumen</th><th>kurs</th>"
+            "<th>zmiana kursu</th><th>śr. kurs otw. pozycji</th>"
+            "<th>wartość</th><th>zysk/strata</th>"
+            "</tr></thead><tbody></tbody></table>"
+            "<h2>Historia operacji</h2>"
+            "<table><thead><tr>"
+            "<th>instrumenty</th><th>data</th><th>k/s</th><th>wolumen</th><th>kurs</th><th>status</th>"
+            "</tr></thead><tbody>"
+            "<tr><td>ONDE</td><td>11/19/26</td><td>S</td><td>1,150 szt.</td><td>8.01</td><td>Zrealizowane</td></tr>"
+            "<tr><td>SNTVERSE</td><td>11/19/26</td><td>S</td><td>3,350 szt.</td><td>2.67</td><td>Zrealizowane</td></tr>"
+            "</tbody></table>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertTrue(res["positions_reliable"])
+        self.assertEqual(res["positions"], [])
+
+        recon = reconcile_portfolio_with_contest(res, self.portfolio_mgr)
+        self.assertEqual(recon["status"], "success")
+        self.assertEqual(len(self.portfolio_mgr.state["positions"]), 0)
+        self.assertEqual(len(self.portfolio_mgr.state["closed_trades"]), 2)
+
+    def test_explicit_brak_otwartych_pozycji_clears_stuck_holdings(self):
+        """Explicit 'Brak otwartych pozycji' banner with blocked/receivables cash must clear old slots."""
+        self.portfolio_mgr.import_holdings(
+            holdings=[{"ticker": "ONDE", "shares": 1150, "entry_price": 8.65, "entry_date": "2026-11-16", "atr": 0.26}],
+            cash=41.90,
+            replace=True,
+        )
+        sample_html = (
+            "<html><body>"
+            "<div class='wallet-chart__title'><span>18,650.00</span></div>"
+            "<div data-item-label='WOLNE ŚRODKI' data-item-value='41.90'></div>"
+            "<div>Otwarte pozycje</div>"
+            "<p>Brak otwartych pozycji</p>"
+            "</body></html>"
+        )
+        res = extract_contest_payload(sample_html)
+        self.assertTrue(res["valid"])
+        self.assertTrue(res["positions_reliable"])
+        self.assertEqual(res["positions"], [])
+
+        recon = reconcile_portfolio_with_contest(res, self.portfolio_mgr)
+        self.assertEqual(recon["status"], "success")
+        self.assertEqual(len(self.portfolio_mgr.state["positions"]), 0)
+
 
 class TestContestSyncEngine(unittest.TestCase):
     def setUp(self):

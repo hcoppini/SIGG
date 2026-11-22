@@ -251,26 +251,33 @@ def _strip_html_cell(raw: str) -> str:
     return re.sub(r'&nbsp;|<[^>]+>', ' ', raw or '').strip()
 
 
-def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
-    """Parse a single HTML table into position dicts when it looks like open holdings.
-
-    Matches GPWTr@der 'Otwarte pozycje' columns:
-    instrumenty | wolumen | kurs | zmiana kursu | śr. kurs otw. pozycji | wartość | zysk/strata
-    """
+def _extract_table_headers(tbl: str) -> List[str]:
     headers_raw = re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)
     if not headers_raw:
         # Some SIGG pages render header cells as <td> inside thead / first row
         thead = re.search(r'<thead[^>]*>(.*?)</thead>', tbl, re.DOTALL | re.I)
         if thead:
             headers_raw = re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>', thead.group(1), re.DOTALL | re.I)
-    headers_text = " ".join(_strip_html_cell(h).lower() for h in headers_raw)
-    headers_joined = " ".join(headers_text.split())
+    return headers_raw
 
-    # Skip order / history tables
-    if any(x in headers_joined for x in ("typ zlecenia", "data założ", "data zalo", "status zlecenia", "ostatnie zlecenia", "środki zablok", "srodki zablok", "limit aktyw")):
-        return []
 
-    looks_like_positions = (
+def _is_positions_table_headers(headers_joined: str) -> bool:
+    """Return True iff table headers belong to an Open Positions table (not orders/history)."""
+    if not headers_joined:
+        return False
+    # Reject order, execution, and transaction history tables so sold stocks are never re-imported
+    skip_markers = (
+        "typ zlecenia", "data założ", "data zalo", "status zlecenia",
+        "ostatnie zlecenia", "środki zablok", "srodki zablok", "limit aktyw",
+        "historia", "operacj", "transakcj", "zleceni", "prowizj",
+        "rodzaj", "status", "godz",
+    )
+    if any(x in headers_joined for x in skip_markers):
+        return False
+    if re.search(r'(?:^|\s)(?:k/s|data)(?:\s|$)', headers_joined):
+        return False
+
+    return (
         "otw" in headers_joined
         or "wolumen" in headers_joined
         or ("ilo" in headers_joined and ("kurs" in headers_joined or "cena" in headers_joined))
@@ -279,7 +286,19 @@ def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
         or ("pozycj" in headers_joined)
         or ("warto" in headers_joined and "zysk" in headers_joined)
     )
-    if not looks_like_positions:
+
+
+def _parse_positions_from_table(tbl: str) -> List[Dict[str, Any]]:
+    """Parse a single HTML table into position dicts when it looks like open holdings.
+
+    Matches GPWTr@der 'Otwarte pozycje' columns:
+    instrumenty | wolumen | kurs | zmiana kursu | śr. kurs otw. pozycji | wartość | zysk/strata
+    """
+    headers_raw = _extract_table_headers(tbl)
+    headers_text = " ".join(_strip_html_cell(h).lower() for h in headers_raw)
+    headers_joined = " ".join(headers_text.split())
+
+    if not _is_positions_table_headers(headers_joined):
         return []
 
     # Map column roles from headers when possible
@@ -551,6 +570,14 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
         cash = round((cash or 0.0) + receivables, 2)
         cash_explicit = True
 
+    # 3b. Środki zablokowane (Cash reserved for pending orders — not open stock holdings)
+    blk_m = re.search(r'data-item-label=["\'](?:Ś|S)RODKI\s*ZABLOK[^"\']*["\'][^>]*data-item-value=["\']([\d.]+)["\']', html_str, re.I)
+    if not blk_m:
+        blk_m = re.search(r'(?:ś|s)rodki\s+zablokowane[^0-9]*([\d\s,.]+?)\s*(?:PLN|<)', html_str, re.I)
+        blocked_funds = _clean_currency_str(blk_m.group(1)) if blk_m else 0.0
+    else:
+        blocked_funds = float(blk_m.group(1))
+
     # 4. Rank (e.g. '9,779. miejsce')
     rank_m = re.search(r'<b>([\d\s,.]+?)\.\s*miejsce</b>', html_str, re.I)
     if not rank_m:
@@ -561,21 +588,32 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     teams_m = re.search(r'(?:z|spośród)\s*([\d\s,.]+?)\s*(?:uczestników|zespołów|drużyn)', html_str, re.I)
     total_teams = int(re.sub(r'[^\d]', '', teams_m.group(1))) if teams_m else None
 
-    # 6. Positions — tables first, then embedded JSON fallback
+    # 6. Positions — open-positions table first, then embedded JSON fallback
     positions: List[Dict[str, Any]] = []
     positions_table_seen = False
     all_tables = re.findall(r'<table[^>]*>(.*?)</table>', html_str, re.DOTALL | re.I)
     for tbl in all_tables:
-        parsed = _parse_positions_from_table(tbl)
-        if parsed:
-            positions = parsed
+        headers_raw = _extract_table_headers(tbl)
+        headers_joined = " ".join(" ".join(_strip_html_cell(h).lower() for h in headers_raw).split())
+        if _is_positions_table_headers(headers_joined):
+            positions = _parse_positions_from_table(tbl)
             positions_table_seen = True
+            # Stop at the Open Positions table even if empty (0 rows = flat account);
+            # never fall through to order/transaction history tables below it.
             break
-        headers_text = " ".join(re.findall(r'<th[^>]*>(.*?)</th>', tbl, re.DOTALL | re.I)).lower()
-        if 'otw' in headers_text or ('instrument' in headers_text and 'ilo' in headers_text):
-            positions_table_seen = True
 
-    if not positions:
+    lower_html = html_str.lower()
+    explicit_empty_positions = any(
+        phrase in lower_html
+        for phrase in (
+            "brak otwartych pozycji",
+            "nie posiadasz otwartych pozycji",
+            "brak pozycji w portfelu",
+            "no open positions",
+        )
+    )
+
+    if not positions and not positions_table_seen and not explicit_empty_positions:
         embedded = _extract_embedded_json_positions(html_str)
         if embedded:
             positions = embedded
@@ -589,7 +627,6 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
 
     # Check if page is unauthenticated login/landing page
     if portfolio_value is None and cash is None and rank is None and not positions:
-        lower_html = html_str.lower()
         if "zaloguj" in lower_html or "login" in lower_html or "logowanie" in lower_html:
             return {
                 "valid": False,
@@ -601,19 +638,18 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     # NEVER copy wolne środki (~46 PLN) into portfolio_value.
     pos_mkt = sum(p["shares"] * p["current_price"] for p in positions) if positions else 0.0
     if portfolio_value is None and positions:
-        portfolio_value = round((cash or 0.0) + pos_mkt, 2)
+        portfolio_value = round((cash or 0.0) + pos_mkt + blocked_funds, 2)
     elif portfolio_value is not None and positions and cash is not None:
         # If "PORTFEL" was misread as tiny cash-like number, prefer cash + holdings
-        implied = round(float(cash) + pos_mkt, 2)
+        implied = round(float(cash) + pos_mkt + blocked_funds, 2)
         if portfolio_value < implied * 0.5 and implied > 500:
             portfolio_value = implied
     elif portfolio_value is None and cash is not None and not positions:
-        # Cash-only account (flat) — equity equals cash only when no holdings parsed
-        # and we are not in a partial/unreliable holdings state below
-        portfolio_value = float(cash)
+        # Cash-only account (flat) — equity equals cash + blocked funds
+        portfolio_value = round(float(cash) + blocked_funds, 2)
 
     if cash is None and portfolio_value is not None and positions:
-        cash = max(0.0, float(portfolio_value) - pos_mkt)
+        cash = max(0.0, float(portfolio_value) - pos_mkt - blocked_funds)
     elif cash is None and portfolio_value is not None:
         cash = 0.0
 
@@ -622,27 +658,32 @@ def _extract_from_html(html_str: str) -> Dict[str, Any]:
     if cash is None:
         cash = 0.0
 
-    # If equity clearly exceeds free cash but no rows parsed, do NOT pretend holdings are empty
-    invested_gap = float(portfolio_value) - float(cash)
+    # Determine whether an empty positions list is authoritative or a partial HTML parse.
+    # If we saw the Open Positions table (with 0 rows) or an explicit "Brak otwartych pozycji"
+    # banner, trust that the account is flat so sold stocks are properly cleared.
+    invested_gap = float(portfolio_value) - (float(cash) + float(blocked_funds))
     positions_reliable = True
-    if not positions and invested_gap > 100.0:
-        positions_reliable = False
-    elif not positions and not positions_table_seen and cash_explicit and invested_gap > 1.0:
-        positions_reliable = False
-    elif not positions and not positions_table_seen and not cash_explicit and float(portfolio_value) > 0:
-        positions_reliable = invested_gap <= 100.0
-    # Tiny "equity" that equals cash while page has otwarte pozycje markers → unreliable
-    if not positions and cash_explicit and float(cash) < 200 and "otwarte" in html_str.lower():
-        positions_reliable = False
+    if not positions and not positions_table_seen and not explicit_empty_positions:
+        if invested_gap > 100.0:
+            positions_reliable = False
+        elif cash_explicit and invested_gap > 1.0:
+            positions_reliable = False
+        elif not cash_explicit and float(portfolio_value) > 0:
+            positions_reliable = invested_gap <= 100.0
+        # Tiny "equity" that equals cash while page has otwarte pozycje markers → unreliable
+        if cash_explicit and float(cash) < 200 and blocked_funds <= 0 and "otwarte" in lower_html:
+            positions_reliable = False
 
     return {
         "valid": True,
         "portfolio_value": round(float(portfolio_value), 2),
         "cash": round(float(cash), 2),
+        "blocked_funds": round(float(blocked_funds), 2),
         "rank": rank,
         "total_teams": total_teams,
         "positions": positions,
-        "positions_reliable": positions_reliable
+        "positions_reliable": positions_reliable,
+        "positions_table_seen": positions_table_seen,
     }
 
 
@@ -770,7 +811,7 @@ def reconcile_portfolio_with_contest(contest_data: Dict[str, Any], portfolio_mgr
             "error_message": (
                 "Cash/equity synced, but open positions were missing from the contest page parse. "
                 "Local holdings were preserved. Re-sync with a holdings/portfolio cURL, or use "
-                "Register Holdings to enter ONDE/SNTVERSE manually."
+                "Register (or Clear All if flat) to update holdings manually."
             )
         }
         portfolio_mgr.update_live_quotes()

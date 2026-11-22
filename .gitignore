@@ -39,4 +39,5 @@ Staging/*.log
 
 # Sensitive Credentials and State
 Input/contest_curl.json
+Input/sigg_auth.json
 Input/settings.json

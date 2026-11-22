@@ -230,6 +230,25 @@ def _run_scheduled_automation_loop():
                             level="warning"
                         )
 
+                # 0.5) 10:00 CET Morning Runner Radar — catches explosive momentum early in the session
+                if hh_mm == "10:00" and settings.get("auto_dispatch_1000", True):
+                    _LAST_DISPATCHED_MINUTE = minute_key
+                    active_strat = settings.get("active_strategy", "runner_surge")
+                    print(f"[{datetime.now()}] Triggering scheduled 10:00 CET morning runner scan (Strategy: {active_strat})...")
+                    scan_market(strategy=active_strat)
+                    portfolio_mgr.update_live_quotes()
+                    regime = get_market_regime()
+                    summary = portfolio_mgr.get_summary()
+                    candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+                    buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
+                    if buys:
+                        push_in_app_notification(
+                            "Morning Runner Alert",
+                            f"{len(buys)} runner(s) ignited: " + ", ".join(f"{c['Ticker']} ({c.get('Day_Gain_Pct', 0):+.1f}%)" for c in buys),
+                            level="success"
+                        )
+                        dispatch_1635_preclose_alert(regime, summary, buys)
+
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
@@ -328,8 +347,9 @@ def handle_settings():
 
 @app.route('/api/portfolio', methods=['GET'])
 def get_portfolio():
-    # Attempt quick quote refresh
+    # Pull latest cloud state first so stale memory never overwrites newer Gist updates
     try:
+        portfolio_mgr.sync_from_cloud()
         summary = portfolio_mgr.update_live_quotes()
     except Exception:
         summary = portfolio_mgr.get_summary()
@@ -390,6 +410,20 @@ def portfolio_import():
             "Holdings Registered",
             res.get("message", "Open positions registered for exit tracking."),
             level="success"
+        )
+    return jsonify(res)
+
+@app.route('/api/portfolio/clear', methods=['POST'])
+def portfolio_clear():
+    """Clear all open positions (set portfolio flat / 100% cash) without erasing trade history."""
+    data = request.get_json(silent=True) or {}
+    cash = data.get("cash", None)
+    res = portfolio_mgr.clear_positions(cash=cash)
+    if res.get("status") == "success":
+        push_in_app_notification(
+            "Positions Cleared",
+            res.get("message", "Open positions cleared."),
+            level="info"
         )
     return jsonify(res)
 
@@ -455,6 +489,33 @@ def contest_status():
         "is_enabled": cfg.get("enabled", False),
         "summary": summary
     })
+
+@app.route('/api/news/catalysts', methods=['GET'])
+def get_news_catalysts():
+    """Agentic AI News & Catalyst Intelligence feed for GPW and SIGG universe."""
+    try:
+        from catalyst_engine import get_ai_catalyst_intelligence, load_news_cache
+        target = request.args.get('symbols', None)
+        symbols = [s.strip().upper() for s in target.split(',')] if target else None
+        force = request.args.get('refresh', '0') in ('1', 'true', 'True')
+        
+        analysis = get_ai_catalyst_intelligence(target_symbols=symbols, force_refresh=force)
+        cache = load_news_cache()
+        articles = cache.get("articles", [])
+        
+        high_impact = [data for sym, data in analysis.items() if abs(data.get("ai_score", 0.0)) >= 1.0]
+        high_impact.sort(key=lambda x: x.get("ai_score", 0.0), reverse=True)
+        
+        return jsonify({
+            "status": "success",
+            "count": len(articles),
+            "catalysts_count": len(high_impact),
+            "high_impact": high_impact[:12],
+            "articles": articles[:30],
+            "ticker_analysis": analysis
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Catalyst engine error: {str(e)}"})
 
 @app.route('/api/notifications/active', methods=['GET'])
 def get_active_notifications():

@@ -263,7 +263,7 @@ def fetch_authenticated_pages(cookies: Optional[Dict[str, str]] = None) -> Tuple
                 best_html = text
             elif score >= 2 and not best_html:
                 best_html = text
-            if score >= 2 and ("onde" in low or "sntverse" in low or "instrument" in low):
+            if score >= 2 and ("otwarte pozycje" in low or "wallet-chart" in low or "instrument" in low):
                 best_html = text
                 break
         except requests.RequestException as e:
