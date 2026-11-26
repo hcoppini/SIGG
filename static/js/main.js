@@ -1067,7 +1067,7 @@ function initSiggHub() {
         if (!podiumCardsGrid) return;
         const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
         const isPending = (String(regStr).toUpperCase() === 'PENDING') || (podiumData && podiumData.regime === 'PENDING');
-        const isRed = !isPending && ((podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED'));
+        const isRed = !isPending && (podiumData && typeof podiumData.is_locked === 'boolean' ? podiumData.is_locked : (String(regStr).toUpperCase() === 'RED'));
 
         if (isPending) {
             if (podiumStatusBadge) {

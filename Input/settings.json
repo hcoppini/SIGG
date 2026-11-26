@@ -5,6 +5,7 @@
   "auto_dispatch_0905": true,
   "auto_dispatch_1635": true,
   "auto_dispatch_1650": true,
-  "slot_allocation_pct": 0.49,
-  "auto_dispatch_1000": true
+  "auto_dispatch_1000": true,
+  "auto_dispatch_1535": true,
+  "slot_allocation_pct": 0.49
 }

@@ -1,8 +1,8 @@
 {
-  "regime": "RED",
-  "status_label": "LOCKED (Kill Switch Active)",
-  "action_msg": "Zero new stock purchases. Hold 100% CASH (0 fee drag, 100% capital preserved). Wait for green ignition.",
-  "index_change_pct": -2.59,
-  "breadth_above_sma20_pct": 16.5,
-  "updated_at": "2026-11-22 22:22:23"
+  "regime": "GREEN",
+  "status_label": "UNLOCKED (Ignition Surge)",
+  "action_msg": "Broad market ignition surge (+2.14%). Momentum runners unlocked across active slots.",
+  "index_change_pct": 2.14,
+  "breadth_above_sma20_pct": 25.7,
+  "updated_at": "2026-11-26 20:11:38"
 }

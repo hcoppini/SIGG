@@ -64,6 +64,11 @@ from contest_sync import contest_sync_engine, parse_curl_command
 from remote_store import cloud_status, cloud_enabled
 from sigg_auth import credentials_configured
 
+def get_podium_for_strategy(records, regime, strategy):
+    use_reg = strategy not in ('runner_surge', 'home_run')
+    slots = 2 if strategy == 'runner_surge' else 3
+    return calculate_podium(records, regime, use_market_regime=use_reg, max_slots=slots)
+
 app = Flask(__name__)
 
 def _cron_authorized() -> bool:
@@ -206,7 +211,7 @@ def _run_scheduled_automation_loop():
                 # 0) 09:05 CET Market Open — scan + refresh exit signals on open positions
                 if hh_mm == "09:05" and settings.get("auto_dispatch_0905", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
-                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    active_strat = settings.get("active_strategy", "runner_surge")
                     print(f"[{datetime.now()}] Triggering scheduled 09:05 CET market-open scan (Strategy: {active_strat})...")
                     try:
                         contest_cfg = contest_sync_engine.load_config()
@@ -249,10 +254,31 @@ def _run_scheduled_automation_loop():
                         )
                         dispatch_1635_preclose_alert(regime, summary, buys)
 
+                # 0.75) 15:35 CET Wall Street Open & Leveraged NQ Collision — catches US tech explosion on GPW
+                if hh_mm == "15:35" and settings.get("auto_dispatch_1535", True):
+                    _LAST_DISPATCHED_MINUTE = minute_key
+                    active_strat = settings.get("active_strategy", "runner_surge")
+                    print(f"[{datetime.now()}] Triggering scheduled 15:35 CET Wall Street Open / Leveraged NQ scan...")
+                    scan_market(strategy=active_strat)
+                    portfolio_mgr.update_live_quotes()
+                    regime = get_market_regime()
+                    summary = portfolio_mgr.get_summary()
+                    candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+                    buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
+                    leveraged = [c for c in buys if c.get("Ticker") in ("ETFBNQ3LV", "ETFBNQ2ST", "ETFBW20LV", "ETFBW20ST")]
+                    if leveraged:
+                        push_in_app_notification(
+                            "Wall Street NQ Ignition",
+                            f"Leveraged ETF moving at US open: " + ", ".join(f"{c['Ticker']} ({c.get('Day_Gain_Pct', 0):+.1f}%)" for c in leveraged),
+                            level="success"
+                        )
+                    if buys:
+                        dispatch_1635_preclose_alert(regime, summary, buys)
+
                 # 1) 16:35 CET Pre-Close Window
                 if hh_mm == "16:35" and settings.get("auto_dispatch_1635", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
-                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    active_strat = settings.get("active_strategy", "runner_surge")
                     print(f"[{datetime.now()}] Triggering scheduled 16:35 CET pre-close scan & alert (Strategy: {active_strat})...")
                     
                     # Ensure latest contest positions & balance are synced first
@@ -273,7 +299,7 @@ def _run_scheduled_automation_loop():
                 # 2) 16:50 CET Closing Auction Fixing Window
                 elif hh_mm == "16:50" and settings.get("auto_dispatch_1650", True):
                     _LAST_DISPATCHED_MINUTE = minute_key
-                    active_strat = settings.get("active_strategy", "breakout_trend")
+                    active_strat = settings.get("active_strategy", "runner_surge")
                     print(f"[{datetime.now()}] Triggering scheduled 16:50 CET fixing action sheet (Strategy: {active_strat})...")
                     
                     # Ensure latest contest positions are synced first
@@ -290,7 +316,7 @@ def _run_scheduled_automation_loop():
                     sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
                     buys = []
                     vacant_after_sells = summary.get("vacant_slots", 3) + len(sells)
-                    if vacant_after_sells > 0 and get_market_regime().get("regime") != "RED":
+                    if vacant_after_sells > 0 and (get_market_regime().get("regime") != "RED" or active_strat in ("runner_surge", "home_run")):
                         candidates = get_latest_buy_candidates(active_strat, limit=vacant_after_sells)
                         buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
                         if not buys and candidates:
@@ -644,7 +670,7 @@ def cron_window(window: str):
         return jsonify(payload), (200 if healthy else 503)
 
     settings = load_settings()
-    active_strat = settings.get("active_strategy", "breakout_trend")
+    active_strat = settings.get("active_strategy", "runner_surge")
 
     # Refresh contest + quotes first (auto-login or cURL)
     try:
@@ -671,6 +697,16 @@ def cron_window(window: str):
             "cloud": cloud_status()
         })
 
+    if window in ("wallstreet", "us_open"):
+        scan_market(strategy=active_strat)
+        portfolio_mgr.update_live_quotes()
+        regime = get_market_regime()
+        summary = portfolio_mgr.get_summary()
+        candidates = get_latest_buy_candidates(active_strat, limit=summary.get("vacant_slots", 3))
+        buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
+        alert = dispatch_1635_preclose_alert(regime, summary, buys)
+        return jsonify({"status": "success", "window": "wallstreet", "alert": alert, "summary": summary})
+
     if window == "preclose":
         scan_market(strategy=active_strat)
         portfolio_mgr.update_live_quotes()
@@ -686,7 +722,7 @@ def cron_window(window: str):
         sells = [p for p in summary.get("positions", []) if p.get("exit_signal") != "HOLD"]
         vacant_after_sells = summary.get("vacant_slots", 3) + len(sells)
         buys = []
-        if vacant_after_sells > 0 and get_market_regime().get("regime") != "RED":
+        if vacant_after_sells > 0 and (get_market_regime().get("regime") != "RED" or active_strat in ("runner_surge", "home_run")):
             candidates = get_latest_buy_candidates(active_strat, limit=vacant_after_sells)
             buys = [c for c in candidates if c.get("Strategy_Signal") == "Buy"]
             if not buys and candidates:
@@ -758,7 +794,7 @@ def _bg_scan_worker(strategy):
         res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime, on_progress=on_progress)
         clean_all = sanitize_for_json(res.get("all_stocks", []))
         clean_reg = sanitize_for_json(res.get("regime", {}))
-        clean_top3 = sanitize_for_json(res.get("top_3", calculate_podium(clean_all, clean_reg)))
+        clean_top3 = sanitize_for_json(res.get("top_3", get_podium_for_strategy(clean_all, clean_reg, strategy)))
         clean_data = sanitize_for_json(res.get("data", []))
 
         with _SCAN_LOCK:
@@ -818,7 +854,7 @@ def get_scan_status():
 def run_scan():
     try:
         data = request.get_json(silent=True) or {}
-        strategy = data.get('strategy') or request.args.get('strategy', 'breakout_trend')
+        strategy = data.get('strategy') or request.args.get('strategy', load_settings().get('active_strategy', 'runner_surge'))
         
         res = scan_market(strategy=strategy)
         if res.get("status") == "error":
@@ -826,7 +862,7 @@ def run_scan():
             
         all_stocks = sanitize_for_json(res.get("all_stocks", []))
         regime = sanitize_for_json(res.get("regime", get_market_regime()))
-        top_3 = sanitize_for_json(res.get("top_3", calculate_podium(all_stocks, regime)))
+        top_3 = sanitize_for_json(res.get("top_3", get_podium_for_strategy(all_stocks, regime, strategy)))
         data_clean = sanitize_for_json(res.get("data", []))
         
         return jsonify({
@@ -878,7 +914,7 @@ def scan_stream():
             res = scan_market(strategy=strategy, on_stock=on_stock, on_regime=on_regime, on_progress=on_progress)
             clean_all = sanitize_for_json(res.get("all_stocks", []))
             clean_reg = sanitize_for_json(res.get("regime", {}))
-            clean_top3 = sanitize_for_json(res.get("top_3", calculate_podium(clean_all, clean_reg)))
+            clean_top3 = sanitize_for_json(res.get("top_3", get_podium_for_strategy(clean_all, clean_reg, strategy)))
             clean_data = sanitize_for_json(res.get("data", []))
             
             q.put({
@@ -927,13 +963,13 @@ def scan_stream():
 
 @app.route('/api/results/scan', methods=['GET'])
 def get_scan_results():
-    strategy = request.args.get('strategy', 'breakout_trend')
+    strategy = request.args.get('strategy', load_settings().get('active_strategy', 'runner_surge'))
     
     with _SCAN_LOCK:
         if _SCAN_STATE["status"] == "complete" and len(_SCAN_STATE["all_stocks"]) > 0:
             all_records = _SCAN_STATE["all_stocks"]
             regime = _SCAN_STATE["market_regime"] or get_market_regime()
-            top_3 = _SCAN_STATE["top_3"] or calculate_podium(all_records, regime)
+            top_3 = _SCAN_STATE["top_3"] or get_podium_for_strategy(all_records, regime, strategy)
             buys = _SCAN_STATE["data"] or [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
             return jsonify({
                 "status": "success",
@@ -964,7 +1000,7 @@ def get_scan_results():
     try:
         df = pd.read_csv(latest_csv).fillna('')
         all_records = sanitize_for_json(df.to_dict('records'))
-        top_3 = sanitize_for_json(calculate_podium(all_records, regime))
+        top_3 = sanitize_for_json(get_podium_for_strategy(all_records, regime, strategy))
         buys = [r for r in all_records if r.get('Strategy_Signal') == 'Buy']
         if len(buys) == 0:
             results = all_records[:10]

@@ -159,10 +159,37 @@ function initSiggMobile() {
             } else {
                 const brd = Number(regObj.breadth_above_sma20_pct || (reg === 'RED' ? 32 : 55)).toFixed(0);
                 const chg = Number(regObj.index_change_pct || 0);
-                mobileRegimeText.textContent = `Breadth: ${brd}% | Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(1)}% | Max 3 Slots`;
+                mobileRegimeText.textContent = `Breadth: ${brd}% | Δ: ${chg >= 0 ? '+' : ''}${chg.toFixed(1)}% | Max 2 Slots`;
             }
         }
     }
+
+    function updateScanningWindowsClock() {
+        const now = new Date();
+        const mins = now.getHours() * 60 + now.getMinutes();
+        const pills = document.querySelectorAll('.window-pill');
+        pills.forEach(p => p.classList.remove('active', 'next'));
+        
+        let activeKey = null;
+        let nextKey = null;
+        if (mins >= 530 && mins < 570) activeKey = '0905';
+        else if (mins >= 570 && mins < 720) activeKey = '1000';
+        else if (mins >= 920 && mins < 970) activeKey = '1535';
+        else if (mins >= 970 && mins < 1020) activeKey = '1635';
+        else if (mins < 530) nextKey = '0905';
+        else if (mins >= 720 && mins < 920) nextKey = '1535';
+        else nextKey = '0905';
+
+        if (activeKey) {
+            const el = document.querySelector(`.window-pill[data-window="${activeKey}"]`);
+            if (el) el.classList.add('active');
+        } else if (nextKey) {
+            const el = document.querySelector(`.window-pill[data-window="${nextKey}"]`);
+            if (el) el.classList.add('next');
+        }
+    }
+    updateScanningWindowsClock();
+    setInterval(updateScanningWindowsClock, 60000);
 
     const mobileStrategySelect = document.getElementById('mobileStrategySelect');
     const mobileFeedTitle = document.getElementById('mobileFeedTitle');
@@ -235,7 +262,7 @@ function initSiggMobile() {
         if (!mobilePodiumGrid) return;
         const regStr = typeof regimeData === 'string' ? regimeData : (regimeData?.regime || podiumData?.regime || '');
         const isPending = (String(regStr).toUpperCase() === 'PENDING') || (podiumData && podiumData.regime === 'PENDING');
-        const isRed = !isPending && ((podiumData && podiumData.is_locked) || (String(regStr).toUpperCase() === 'RED'));
+        const isRed = !isPending && (podiumData && typeof podiumData.is_locked === 'boolean' ? podiumData.is_locked : (String(regStr).toUpperCase() === 'RED'));
 
         if (isPending) {
             if (mobilePodiumBadge) {
@@ -1125,11 +1152,13 @@ function initSiggMobile() {
 
     const mobileDiscordWebhook = document.getElementById('mobileDiscordWebhook');
     const mobileSoundToggle = document.getElementById('mobileSoundToggle');
+    const mobileAuto1535Toggle = document.getElementById('mobileAuto1535Toggle');
     const mobileAuto1635Toggle = document.getElementById('mobileAuto1635Toggle');
     const mobileAuto1650Toggle = document.getElementById('mobileAuto1650Toggle');
     const mobileSaveWebhookBtn = document.getElementById('mobileSaveWebhookBtn');
 
     const mobileTestWebhookBtn = document.getElementById('mobileTestWebhookBtn');
+    const mobileTest1535Btn = document.getElementById('mobileTest1535Btn');
     const mobileTest1635Btn = document.getElementById('mobileTest1635Btn');
     const mobileTest1650Btn = document.getElementById('mobileTest1650Btn');
 
@@ -1141,6 +1170,7 @@ function initSiggMobile() {
                 const s = json.settings;
                 if (mobileDiscordWebhook && s.discord_webhook_url !== undefined) mobileDiscordWebhook.value = s.discord_webhook_url;
                 if (mobileSoundToggle && s.sound_alerts !== undefined) mobileSoundToggle.checked = Boolean(s.sound_alerts);
+                if (mobileAuto1535Toggle && s.auto_dispatch_1535 !== undefined) mobileAuto1535Toggle.checked = Boolean(s.auto_dispatch_1535);
                 if (mobileAuto1635Toggle && s.auto_dispatch_1635 !== undefined) mobileAuto1635Toggle.checked = Boolean(s.auto_dispatch_1635);
                 if (mobileAuto1650Toggle && s.auto_dispatch_1650 !== undefined) mobileAuto1650Toggle.checked = Boolean(s.auto_dispatch_1650);
             }
@@ -1226,6 +1256,7 @@ function initSiggMobile() {
             const payload = {
                 discord_webhook_url: mobileDiscordWebhook?.value?.trim() || '',
                 sound_alerts: mobileSoundToggle?.checked ?? true,
+                auto_dispatch_1535: mobileAuto1535Toggle?.checked ?? true,
                 auto_dispatch_1635: mobileAuto1635Toggle?.checked ?? true,
                 auto_dispatch_1650: mobileAuto1650Toggle?.checked ?? true
             };
@@ -1270,6 +1301,22 @@ function initSiggMobile() {
                 showMobileToast('Error', 'Test failed: ' + err, 'error');
             }
             mobileTestWebhookBtn.disabled = false;
+        });
+    }
+
+    if (mobileTest1535Btn) {
+        mobileTest1535Btn.addEventListener('click', async () => {
+            triggerHaptic(20);
+            mobileTest1535Btn.disabled = true;
+            try {
+                const res = await fetch('/api/cron/run?window=wallstreet');
+                const json = await res.json();
+                showMobileToast('15:35 Wall St NQ Alert Sent', json.message || 'Dispatched Wall Street check.', json.status === 'success' ? 'success' : 'warning');
+                playMobileChime();
+            } catch (err) {
+                showMobileToast('Dispatch Error', '' + err, 'error');
+            }
+            mobileTest1535Btn.disabled = false;
         });
     }
 

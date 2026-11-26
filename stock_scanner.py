@@ -329,18 +329,27 @@ def scan_market(
     breadth_sma20 = float(np.mean(above_sma20_list) * 100.0) if above_sma20_list else 50.0
     index_above_sma20 = breadth_sma20 >= 45.0
     
-    if not index_above_sma20 or avg_mkt_ret <= -1.2:
+    # Layer 1 Regime Decision Tree (incorporates Green Ignition Surge days off oversold lows)
+    if avg_mkt_ret <= -1.2:
         regime = "RED"
         status_label = "LOCKED (Kill Switch Active)"
-        action_msg = "Zero new stock purchases. Hold 100% CASH (0 fee drag, 100% capital preserved). Wait for green ignition."
-    elif -1.2 < avg_mkt_ret <= -0.5:
+        action_msg = "Adverse market drop detected (Index Δ <= -1.2%). Zero new equity purchases. Hold cash or inverse hedge."
+    elif avg_mkt_ret >= 0.5:
+        regime = "GREEN"
+        status_label = "UNLOCKED (Ignition Surge)" if not index_above_sma20 else "UNLOCKED (Risk-On)"
+        action_msg = f"Broad market ignition surge (+{avg_mkt_ret:.2f}%). Momentum runners unlocked across active slots."
+    elif not index_above_sma20 and avg_mkt_ret < 0.0:
+        regime = "RED"
+        status_label = "LOCKED (Kill Switch Active)"
+        action_msg = "Bearish regime (Breadth < 45% & negative return). Zero new stock purchases. 100% capital preserved in cash."
+    elif -1.2 < avg_mkt_ret <= -0.5 or (not index_above_sma20 and 0.0 <= avg_mkt_ret < 0.5):
         regime = "YELLOW"
         status_label = "RESTRICTED (Caution)"
-        action_msg = "Hold active winners; new entries require RelVol >= 3.0x."
+        action_msg = "Cautionary market climate. Hold active winners; new entries require RelVol >= 2.0x."
     else:
         regime = "GREEN"
         status_label = "UNLOCKED (Risk-On)"
-        action_msg = "Up to 3 concurrent equity positions (33.3% each, 3-Day Max Hold)."
+        action_msg = "Risk-on market conditions. Standard multi-slot runner allocation active."
 
     regime_data = {
         "regime": regime,
@@ -449,6 +458,7 @@ def scan_market(
                 is_breakout = (latest_close >= high_10_prev * 0.998)
                 is_momentum_ignition = (day_gain_pct >= 0.030) and (tr_ratio >= 1.25)
                 is_inverse = sigg_symbol in ('ETFBNQ2ST', 'ETFBW20ST', 'ETFBM40ST')
+                is_leveraged = sigg_symbol in ('ETFBNQ3LV', 'ETFBW20LV', 'ETFBM40LV')
                 is_cash_proxy = sigg_symbol in ('ETFBCASH', 'ETFPZUCASH', 'ETFBTBSP')
                 
                 has_liquidity = turnover_pln >= 120000.0
@@ -461,6 +471,9 @@ def scan_market(
                 if is_inverse and (day_gain_pct >= 0.02 or is_breakout) and has_vol:
                     signal = "Buy"
                     tier = "TIER 1 (INVERSE RUNNER)"
+                elif is_leveraged and day_gain_pct >= 0.030 and turnover_pln >= 250000.0:
+                    signal = "Buy"
+                    tier = "TIER 1 (LEVERAGED RUNNER)"
                 elif runner_pass:
                     if ai_score >= 1.5 and (day_gain_pct >= 0.035 or is_breakout):
                         signal = "Buy"

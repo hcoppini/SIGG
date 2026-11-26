@@ -34,8 +34,31 @@
 
     <!-- MARKET REGIME STATUS STRIP -->
     <div id="mobileRegimeStrip" class="regime-strip">
-        <span id="mobileRegimeTag" class="regime-tag">GREEN REGIME</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="status-pulse-dot"></span>
+            <span id="mobileRegimeTag" class="regime-tag">GREEN REGIME</span>
+        </div>
         <span id="mobileRegimeText" class="regime-text">WIG140 Breadth &gt; SMA20: --% | Max 2 Slots (Convexity Mode)</span>
+    </div>
+
+    <!-- 4 TACTICAL SCANNING WINDOWS CLOCK -->
+    <div class="mobile-windows-strip">
+        <div class="window-pill" data-window="0905">
+            <span class="w-time">09:05</span>
+            <span class="w-label">Open Ign</span>
+        </div>
+        <div class="window-pill" data-window="1000">
+            <span class="w-time">10:00</span>
+            <span class="w-label">ORB Pace</span>
+        </div>
+        <div class="window-pill highlight-us" data-window="1535">
+            <span class="w-time">15:35</span>
+            <span class="w-label">Wall St ⚡</span>
+        </div>
+        <div class="window-pill" data-window="1635">
+            <span class="w-time">16:35</span>
+            <span class="w-label">Fixing Sheet</span>
+        </div>
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -290,6 +313,14 @@
 
             <div class="mobile-toggle-row">
                 <div>
+                    <div class="mobile-toggle-label">15:35 CET Wall Street Open Alert</div>
+                    <div class="mobile-toggle-sub">NQ futures explosion & leveraged ETF torque check</div>
+                </div>
+                <input type="checkbox" id="mobileAuto1535Toggle" class="mobile-toggle-input" checked>
+            </div>
+
+            <div class="mobile-toggle-row">
+                <div>
                     <div class="mobile-toggle-label">16:35 CET Pre-Close Alert</div>
                     <div class="mobile-toggle-sub">Automated scan 15m before continuous trading closes</div>
                 </div>
@@ -313,6 +344,9 @@
             <div class="test-triggers-grid">
                 <button id="mobileTestWebhookBtn" class="btn-test-trigger">
                     <i data-lucide="send" style="width: 14px; height: 14px;"></i> Test Discord Webhook
+                </button>
+                <button id="mobileTest1535Btn" class="btn-test-trigger">
+                    <i data-lucide="zap" style="width: 14px; height: 14px;"></i> Test 15:35 CET Wall St
                 </button>
                 <button id="mobileTest1635Btn" class="btn-test-trigger">
                     <i data-lucide="zap" style="width: 14px; height: 14px;"></i> Test 16:35 CET Pre-Close

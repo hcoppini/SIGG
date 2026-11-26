@@ -36,5 +36,31 @@ class TestRunnerSurgeStrategy(unittest.TestCase):
         self.assertIn('all_stocks', res)
         self.assertGreater(len(res['all_stocks']), 0)
 
+    def test_get_podium_for_strategy_runner_surge(self):
+        """Verifies that get_podium_for_strategy allocates 2 slots and is unlocked for runner_surge."""
+        from app import get_podium_for_strategy
+        records = [
+            {'Ticker': 'TEXT', 'Runner_Score': 6.50, 'Strategy_Signal': 'Buy', 'Close': 42.90, 'Day_Gain_Pct': 16.51},
+            {'Ticker': 'ASSECOSEE', 'Runner_Score': 3.01, 'Strategy_Signal': 'Buy', 'Close': 71.70, 'Day_Gain_Pct': 6.07},
+            {'Ticker': 'SANOK', 'Runner_Score': 2.95, 'Strategy_Signal': 'Buy', 'Close': 19.20, 'Day_Gain_Pct': 5.49},
+        ]
+        # Even if regime is RED, runner_surge podium must be unlocked with 2 slots
+        podium = get_podium_for_strategy(records, 'RED', 'runner_surge')
+        self.assertFalse(podium['is_locked'])
+        self.assertEqual(len(podium['slots']), 2)
+        self.assertEqual(len(podium['picks']), 2)
+        self.assertEqual(podium['picks'][0]['ticker'], 'TEXT')
+        self.assertEqual(podium['picks'][1]['ticker'], 'ASSECOSEE')
+
+    def test_ignition_regime_evaluation(self):
+        """Verifies that a strong market surge (+0.5%+) triggers GREEN Ignition even if breadth is low."""
+        # Simulated scan output check: today's market return +2.14% should evaluate to GREEN
+        res = scan_market(strategy='runner_surge')
+        regime = res.get('regime', {})
+        self.assertEqual(regime.get('regime'), 'GREEN')
+        self.assertIn('Ignition', regime.get('status_label', ''))
+        self.assertFalse(res['top_3']['is_locked'])
+        self.assertGreater(len(res['top_3']['picks']), 0)
+
 if __name__ == '__main__':
     unittest.main()
